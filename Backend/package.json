@@ -1,0 +1,18 @@
+{
+  "name": "api-app",
+  "version": "1.0.0",
+  "description": "The api of the web application",
+  "main": "index.js",
+  "author": "CoachHubApp",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  }
+}
