@@ -1,5 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+const Club = require('./Club');
+const Equipo = require('./Equipo');
 
 const Usuario = sequelize.define('Usuario', {
     id: {
@@ -79,6 +81,14 @@ Usuario.hasMany(Usuario, {
 Usuario.belongsTo(Usuario, {
     foreignKey: 'acudiente_id',
     as: 'acudiente'
+});
+
+Usuario.hasMany(Club, { foreignKey: 'gerente_id' });
+
+Usuario.belongsTo(Equipo, {
+    foreignKey: 'equipo_id',
+    targetKey: 'id',
+    as: 'equipo',
 });
 
 // usuario.getAcudiente() o usuario.getDependientes()
