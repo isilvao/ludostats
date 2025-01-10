@@ -1,36 +1,44 @@
-import Image from 'next/image'
-import { Button } from './ui/button'
-
+import Image from 'next/image';
+import { Button } from './ui/button';
+import Link from 'next/link';
 
 const Hero = () => {
   return (
-    <section className="mx-auto max-w-[1440px] flex flex-col gap-20 py-10 pb-32 md:gap-28 lg:py-20 xl:flex-row">
-      <div className="hero-map" />
-
-      <div className="relative z-20 flex flex-1 flex-col xl:w-1/2">
-        <h1 className="text-hero text-[#4D4D4D]">Simplifica la gestión de tu club deportivo</h1>
-        <p className="h5 mt-6 text-[#717171] xl:max-w-[520px]">
-          LudoStats: Administra tu equipo, organiza torneos, gestiona pagos y mucho más en un solo lugar.
+    <section className="h-[85vh] mx-auto max-w-[1440px] flex flex-col-reverse lg:flex-row gap-8 lg:gap-16 py-10 px-6 md:px-12 lg:px-20">
+      {/* Lado izquierdo: Texto y CTA */}
+      <div className="flex-1 flex flex-col justify-center">
+        <h1 className="text-3xl sm:text-4xl lg:text-hero font-bold text-[#4D4D4D] leading-tight">
+          Simplifica la gestión de tu{' '}
+          <span className="text-[#4CAF4F]">club deportivo</span>
+        </h1>
+        <p className="text-sm md:text-base lg:text-lg mt-4 text-[#717171]">
+          LudoStats: Administra tu equipo, organiza torneos, gestiona pagos y
+          mucho más en un solo lugar.
         </p>
-        <div className="flex flex-col w-full gap-3 sm:flex-row">
-          <Button>
+        <div className="mt-6 flex flex-col sm:flex-row gap-4">
+          <Link
+            href="/sign-up"
+            className="bg-[#4CAF4F] text-white hover:bg-[#4CAF4F]/80 px-8 py-3 rounded-md transition"
+          >
             Empezar Ahora
-          </Button>
+          </Link>
         </div>
       </div>
 
-      <div className="relative flex flex-1 items-start">
-        <div className="relative z-20 flex w-[268px] flex-col gap-8 rounded-3xl bg-green-90 px-7 py-8">
-          <Image 
+      {/* Lado derecho: Imagen */}
+      <div className="flex-1 flex items-center justify-center">
+        <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-full">
+          <Image
             src="/assets/images/hero-Img.svg"
-            alt="phone" 
-            width={268}
-            height={500}
+            alt="phone"
+            layout="fill"
+            objectFit="contain"
+            priority
           />
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;
