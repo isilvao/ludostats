@@ -1,120 +1,97 @@
 export const NavLinks = [
-    { href: '/', key: 'Home', text: 'Home' },
-    { href: '/', key: 'Servicios', text: 'Servicios' },
-    { href: '/', key: 'Caracteristicas', text: 'Caracteristicas' },
-    { href: '/', key: 'Producto', text: 'Producto' },
-    { href: '/', key: 'Testimonios', text: 'Testimonios' },
-    { href: '/', key: 'FAQ', text: 'FAQ' }
-  ];
+  { href: '/', key: 'Inicio', text: 'Inicio' },
+  { href: '/', key: 'Funcionalidades', text: 'Caracteristicas' },
+  { href: '/', key: 'Precio', text: 'Precio' },
+  { href: '/', key: 'Testimonios', text: 'Testimonios' },
+  { href: '/', key: 'FAQ', text: 'FAQ' },
+];
 
 export const features = [
   {
-    title: "Gestión Integral",
-    description: "Administra calendarios, pagos y resultados.",
-    icon: "📆",
+    title: 'Conecta a todos',
+    description: 'Una plataforma para dueños, entrenadores y deportistas.',
+    icon: '/assets/icons/people.svg',
   },
   {
-    title: "Automatización de Procesos",
-    description: "Olvídate de los errores manuales.",
-    icon: "⚙️",
+    title: 'Gestión integral',
+    description: 'Administra calendarios, pagos y resultados.',
+    icon: '/assets/icons/building.svg',
   },
   {
-    title: "Organización de Torneos",
-    description: "Planea entrenamientos y partidos fácilmente.",
-    icon: "🏆",
+    title: 'Automatización de procesos',
+    description: 'Olvídate de los errores manuales.',
+    icon: '/assets/icons/hands.svg',
   },
 ];
 
 export const characteristics = [
   {
-    title: "Todo lo que necesitas para gestionar tu club deportivo, al alcance de tu mano",
-    description: "Olvídate de manejar pagos manualmente o perder tiempo en hojas de cálculo. Con nuestra pasarela de pagos integrada, los estudiantes, deportistas y acudientes pueden realizar sus pagos de forma segura y automática. Además, podrás consultar un historial detallado paraun control total de las finanzas.",
-    image: "/assets/images/characteristic-1.png",
+    title:
+      'Todo lo que necesitas para gestionar tu club deportivo, al alcance de tu mano',
+    description:
+      'Olvídate de manejar pagos manualmente o perder tiempo en hojas de cálculo. Con nuestra pasarela de pagos integrada, los estudiantes, deportistas y acudientes pueden realizar sus pagos de forma segura y automática. Además, podrás consultar un historial detallado para un control total de las finanzas.',
+    image: '/assets/images/creditCard.svg',
+    href: '/',
   },
   {
-    title: "Organización de Torneos y Eventos",
-    description: "Planea cada evento de tu club sin estrés. Crea calendarios de entrenamientos, partidos y reuniones con notificaciones automáticas para todos los interesados. Organiza torneos con fases de grupos, llaves de eliminación directa y tablas de posiciones que se actualizan en tiempo real.",
-    image: "/assets/images/characteristic-2.png",
+    title: 'Organización de Torneos y Eventos',
+    description:
+      'Planea cada evento de tu club sin estrés. Crea calendarios de entrenamientos, partidos y reuniones con notificaciones automáticas para todos los interesados. Organiza torneos con fases de grupos, llaves de eliminación directa y tablas de posiciones que se actualizan en tiempo real.',
+    image: '/assets/images/calendar.svg',
+    href: '/',
   },
   {
-    title: "Estadísticas de Rendimiento Deportivo",
-    description: "Lleva un control detallado del rendimiento de cada jugador y del equipo completo. Desde métricas individuales como velocidad, resistencia y altura de salto, hasta estadísticas en tiempo real por partido, como puntos, bloqueos y saques. Identifica áreas de mejora y celebra el progreso de tus deportistas.",
-    image: "/assets/images/characteristic-3.png",
+    title: 'Estadísticas de Rendimiento Deportivo',
+    description:
+      'Lleva un control detallado del rendimiento de cada jugador y del equipo completo. Desde métricas individuales como velocidad, resistencia y altura de salto, hasta estadísticas en tiempo real por partido, como puntos, bloqueos y saques. Identifica áreas de mejora y celebra el progreso de tus deportistas.',
+    image: '/assets/images/stats.svg',
+    href: '/',
   },
 ];
 
+export const testimonials = [
+  {
+    name: 'John Doe',
+    avatar: '/assets/images/prueba.jpg',
+    title: 'CEO, Example Inc.',
+    quote:
+      '“Organizar los torneos de nuestro club solía ser un caos. Ahora, todo está en un solo lugar: calendarios, tablas de posiciones y resultados. Mis jugadores y yo estamos más enfocados que nunca.”',
+  },
+  {
+    name: 'John Doe',
+    avatar: '/assets/images/prueba.jpg',
+    title: 'CEO, Example Inc.',
+    quote:
+      '“Organizar los torneos de nuestro club solía ser un caos. Ahora, todo está en un solo lugar: calendarios, tablas de posiciones y resultados. Mis jugadores y yo estamos más enfocados que nunca.”',
+  },
+  {
+    name: 'John Doe',
+    avatar: '/assets/images/prueba.jpg',
+    title: 'CEO, Example Inc.',
+    quote:
+      '“Organizar los torneos de nuestro club solía ser un caos. Ahora, todo está en un solo lugar: calendarios, tablas de posiciones y resultados. Mis jugadores y yo estamos más enfocados que nunca.”',
+  },
+];
 
-
-  export const footerLinks = [
-    {
-      title: 'For developers',
-      links: [
-        'Go Pro!',
-        'Explore development work',
-        'Development blog',
-        'Code podcast',
-        'Open-source projects',
-        'Refer a Friend',
-        'Code of conduct',
-      ],
-    },
-    {
-      title: 'Testimonios',
-      links: [
-        'Post a job opening',
-        'Post a freelance project',
-        'Search for developers',
-      ],
-    },
-    {
-      title: 'Brands',
-      links: [
-        'Advertise with us',
-      ],
-    },
-    {
-      title: 'Company',
-      links: [
-        'About',
-        'Careers',
-        'Support',
-        'Media kit',
-        'Testimonials',
-        'API',
-        'Terms of service',
-        'Privacy policy',
-        'Cookie policy',
-      ],
-    },
-    {
-      title: 'Directories',
-      links: [
-        'Development jobs',
-        'Developers for hire',
-        'Freelance developers for hire',
-        'Tags',
-        'Places',
-      ],
-    },
-    {
-      title: 'Development assets',
-      links: [
-        'Code Marketplace',
-        'GitHub Marketplace',
-        'NPM Registry',
-        'Packagephobia',
-      ],
-    },
-    {
-      title: 'Development Resources',
-      links: [
-        'Freelancing',
-        'Development Hiring',
-        'Development Portfolio',
-        'Development Education',
-        'Creative Process',
-        'Development Industry Trends',
-      ],
-    },
-  ];
-  
+export const footerLinks = [
+  {
+    title: 'Compañía',
+    links: [
+      { name: 'Nosotros', href: '/' },
+      { name: 'Blog', href: '/' },
+      { name: 'Contáctanos', href: '/' },
+      { name: 'Precio', href: '/' },
+      { name: 'Testimonios', href: '/' },
+    ],
+  },
+  {
+    title: 'Soporte',
+    links: [
+      { name: 'Centro de ayuda', href: '/' },
+      { name: 'Términos de servicio', href: '/' },
+      { name: 'Legal', href: '/' },
+      { name: 'Política de privacidad', href: '/' },
+      { name: 'Estatus', href: '/' },
+    ],
+  },
+];
