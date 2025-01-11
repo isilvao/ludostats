@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
-        <main className="bg-[#FFFBEF]/80">
+        <main className="bg-[#fffbef]">
             <Navbar />
             {children}
             <Footer />

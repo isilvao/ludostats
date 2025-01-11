@@ -1,20 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { NavLinks } from "@/constants";
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { NavLinks } from '@/constants';
 import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "./ui/sheet";
-import { Button } from "./ui/button";
+} from './ui/sheet';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -24,15 +21,16 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Verificar la posición de desplazamiento inicial
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <nav
-      className={`flex justify-between items-center py-5 px-5 md:px-20 border-b gap-4 sticky top-0 z-50 transition-colors ${
-        isScrolled ? "bg-gray-200 shadow-md" : ""
-      }`}
+      className={`navbar ${isScrolled ? 'bg-[#f4f1e6] shadow-md' : 'bg-transparent'}`}
     >
       <div className="flex items-center gap-10">
         <Link href="/">
@@ -58,15 +56,12 @@ const Navbar = () => {
       </div>
 
       <div className="hidden lg:flex items-center gap-4">
-        <Link
-          href="/join"
-          className="text-blue-600 hover:text-blue-800 hover:underline transition"
-        >
+        <Link href="/join" className="hover:text-gray-700 transition">
           Unirme
         </Link>
         <Link
           href="/sign-in"
-          className="border border-green-500 text-green-500 px-4 py-2 rounded-md hover:bg-green-500 hover:text-white transition"
+          className="border border-dark-200 px-4 py-2 rounded-md hover:bg-white transition"
         >
           Ingresar
         </Link>
@@ -81,16 +76,36 @@ const Navbar = () => {
       <div className="lg:hidden flex items-center">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline">
-              <span className="material-icons">menu</span>
-            </Button>
+            <Image
+              src="/assets/icons/menu.svg"
+              width={30}
+              height={30}
+              alt="menu"
+              className="select-item"
+            />
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent className="shad-sheet-content">
             <SheetHeader>
-              <SheetTitle>Menú</SheetTitle>
-              <SheetDescription>Explora las opciones del sitio.</SheetDescription>
+              <SheetTitle className="flex w-full items-center justify-between flex-row">
+                <Image
+                  src="/assets/images/logo.svg"
+                  width={150}
+                  height={100}
+                  alt="logo"
+                />
+                <SheetClose asChild>
+                  <Image
+                    src="/assets/icons/close-dark.svg"
+                    width={30}
+                    height={30}
+                    alt="cerrar"
+                    className="select-item"
+                  />
+                </SheetClose>
+              </SheetTitle>
             </SheetHeader>
-            <div className="grid gap-4 py-4">
+
+            <div className="grid gap-4 py-4 mt-5">
               <ul className="flex flex-col gap-4 text-black w-full">
                 {NavLinks.map((link) => (
                   <Link
@@ -102,16 +117,16 @@ const Navbar = () => {
                   </Link>
                 ))}
               </ul>
-              <div className="flex flex-col items-center gap-4 mt-4">
+              <div className="flex flex-col items-center gap-4 mt-8 text-center">
                 <Link
                   href="/join"
-                  className="text-blue-600 hover:text-blue-800 hover:underline transition"
+                  className="hover:text-gray-700 w-full transition"
                 >
                   Unirme
                 </Link>
                 <Link
                   href="/sign-in"
-                  className="border border-green-500 text-green-500 px-4 py-2 rounded-md w-full hover:bg-green-500 hover:text-white transition"
+                  className="border border-dark-200 px-4 py-2 rounded-md hover:bg-slate-50 transition w-full"
                 >
                   Ingresar
                 </Link>
@@ -123,11 +138,6 @@ const Navbar = () => {
                 </Link>
               </div>
             </div>
-            <SheetFooter>
-              <SheetClose asChild>
-                <Button variant="ghost">Cerrar</Button>
-              </SheetClose>
-            </SheetFooter>
           </SheetContent>
         </Sheet>
       </div>
