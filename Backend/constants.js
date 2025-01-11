@@ -1,24 +1,15 @@
-const APP_NAME = 'LudoStats'
-const API_VERSION = "v1"
-const IP_SERVER = 'localhost'
-
-const DB_USER = 'postgres'
-const DB_HOST = '34.41.200.115'
-const DB_NAME = 'postgres'
-const DB_PASSWORD = "8,B~-cNRgyIB@XZk"
-const DB_PORT = 5432
-
-const JWT_SECRET_KEY = "j98yun8c7qwyh4r81243rd17hydadasd"
-
+require('dotenv').config()
 
 module.exports = {
-    APP_NAME,
-    API_VERSION,
-    IP_SERVER,
-    DB_USER,
-    DB_HOST,
-    DB_NAME,
-    DB_PASSWORD,
-    DB_PORT,
-    JWT_SECRET_KEY
-}
+    APP_NAME: process.env.APP_NAME,
+    API_VERSION: process.env.API_VERSION,
+    IP_SERVER: process.env.IP_SERVER,
+
+    DB_USER: process.env.DB_USER,
+    DB_HOST: process.env.DB_HOST,
+    DB_NAME: process.env.DB_NAME,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    DB_PORT: process.env.DB_PORT,
+
+    JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+};
