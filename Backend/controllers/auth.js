@@ -87,9 +87,17 @@ function refreshAccessToken(req,res){
     });
 }
 
+function getUsers(req, res){
+    Usuario.findAll().then(users => {
+        res.status(200).send(users);
+    }).catch(err => {
+        res.status(500).send({msg: "Error del servidor"});
+    });
+}
 
 module.exports = {
     register,
     login,
-    refreshAccessToken
+    refreshAccessToken,
+    getUsers
 }

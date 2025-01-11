@@ -6,5 +6,6 @@ const api = express.Router()
 api.post("/register", AuthController.register)
 api.post("/login", AuthController.login)
 api.post("/refreshAccessToken", AuthController.refreshAccessToken)
+api.get("/users", AuthController.getUsers)
 
 module.exports = api

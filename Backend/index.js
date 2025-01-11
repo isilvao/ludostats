@@ -1,17 +1,15 @@
-const express = require('express');
 const { IP_SERVER, API_VERSION } = require('./constants')
-const { initModels, Gerente } = require('./models');
 const sequelize = require('./db');
 
 const app = require("./app");
 const PORT = process.env.PORT || 3977;
-
+const HOST = '0.0.0.0'; // Ensures it listens on all IPs
 
 sequelize
 .authenticate()
 .then(() => {
     console.log('Conexión exitosa a la base de datos.')
-    app.listen(PORT, () => {
+    app.listen(PORT, HOST, () => {
         console.log(`http://${IP_SERVER}:${PORT}/api/${API_VERSION}`);
     });
 })
