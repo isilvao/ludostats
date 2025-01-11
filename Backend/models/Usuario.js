@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 const Club = require('./Club');
 const Equipo = require('./Equipo');
+const Estadistica = require('./Estadistica');
 
 const Usuario = sequelize.define('Usuario', {
     id: {
@@ -82,6 +83,7 @@ Usuario.belongsTo(Usuario, {
     foreignKey: 'acudiente_id',
     as: 'acudiente'
 });
+// usuario.getAcudiente() o usuario.getDependientes()
 
 Usuario.hasMany(Club, { foreignKey: 'gerente_id' });
 
@@ -91,6 +93,14 @@ Usuario.belongsTo(Equipo, {
     as: 'equipo',
 });
 
-// usuario.getAcudiente() o usuario.getDependientes()
+Usuario.hasMany(Equipo, {
+    foreignKey: 'entrenador_id',
+    as: 'equiposEntrenados',
+});
+
+Usuario.hasMany(Estadistica, {
+    foreignKey: 'usuario_id',
+    as: 'estadisticas'
+})
 
 module.exports = Usuario;

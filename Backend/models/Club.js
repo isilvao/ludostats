@@ -40,4 +40,10 @@ Club.belongsTo(Usuario, {
     as: 'gerente', // alias opcional para "gerente" en el código
 });
 
+Club.hasMany(Equipo, {
+    foreignKey: 'club_id',
+    as: 'equipos'
+});
+// club.getEquipos()
+
 module.exports = Club;

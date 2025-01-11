@@ -1,6 +1,8 @@
 const Usuario = require('./Usuario');
 const Club = require('./Club');
 const Equipo = require('./Equipo');
+const Estadistica = require('./Estadistica');
+const TipoEstadistica = require('./TipoEstadistica');
 
 // Aquí puedes sincronizar las tablas automáticamente si lo deseas
 const sequelize = require('../db');
@@ -15,4 +17,4 @@ const initModels = async () => {
   }
 };
 
-module.exports = { Usuario, Club, Equipo, initModels };
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, initModels };

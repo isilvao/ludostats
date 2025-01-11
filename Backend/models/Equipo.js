@@ -36,13 +36,16 @@ Equipo.belongsTo(Usuario, {
     targetKey: 'id',
     as: 'entrenador',
 });
+Equipo.hasMany(Usuario, {
+    foreignKey: 'equipo_id',
+    as: 'integrantes',
+});
 
 Equipo.belongsTo(Club, {
     foreignKey: 'club_id',
     targetKey: 'id',
     as: 'club',
 });
-
 
 
 module.exports = Equipo;
