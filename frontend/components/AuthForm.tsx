@@ -1,5 +1,10 @@
 "use client";
 
+// Import for backend functions
+import { Auth } from "../api/auth"
+const authController = new Auth();
+//
+
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -55,16 +60,17 @@ const AuthForm = ({ type }: { type: FormType }) => {
     try {
       const user =
         type === "sign-up"
-          ? await createAccount({
-              fullName: values.fullName || "",
-              email: values.email,
-              password: values.password,
-            })
-          : await signInUser({
-              email: values.email,
-              password: values.password,
-              rememberMe: values.rememberMe,
-            });
+          ? await authController.register({
+            nombre: values.fullName || "",
+            apellido: "Silva",
+            correo: values.email,
+            contrasena: values.password,
+          })
+          : await authController.login({
+            correo: values.email,
+            contrasena: values.password,
+            rememberMe: values.rememberMe,
+          });
 
       setAccountId(user.accountId);
     } catch {
