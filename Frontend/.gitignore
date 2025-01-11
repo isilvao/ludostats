@@ -9,3 +9,4 @@ pids/
 *.seed
 *.pid.lock
 .vscode/
+.next

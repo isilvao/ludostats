@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const { initModels } = require('./models/index')
 
 const app = express()
 
@@ -27,7 +28,8 @@ app.use(cors())
 app.use(`/api/${API_VERSION}`, authRoutes)
 
 
-
+// Initialize models and sync with db
+initModels()
 
 
 module.exports = app
