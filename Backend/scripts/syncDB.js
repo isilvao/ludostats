@@ -2,5 +2,6 @@
 const { Club, Equipo, Estadistica, TipoEstadistica, Torneo, Usuario, initModels} = require('../models/index'); // O tu initModels
 
 (async () => {
-  initModels()
+    // Cargar los modelos en la base de datos
+    initModels()
 })();
