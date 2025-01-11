@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const Club = require('./Club');
 
 const Torneo = sequelize.define('Torneo', {
     id: {
@@ -41,3 +40,6 @@ const Torneo = sequelize.define('Torneo', {
         allowNull: false,
     },
 });
+
+
+module.exports = Torneo

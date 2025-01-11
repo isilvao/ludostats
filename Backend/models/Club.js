@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const Usuario = require('./Usuario');
-const Equipo = require('./Equipo');
 
 const Club = sequelize.define('Club', {
     id: {
@@ -31,19 +29,6 @@ const Club = sequelize.define('Club', {
     },
 });
 
-// Relación: un Club pertenece a un Usuario (gerente)
-// foreignKey = la columna de Club que contiene la FK
-// targetKey  = la columna de Usuario a la que apunta (por defecto "id")
-Club.belongsTo(Usuario, {
-    foreignKey: 'gerente_id',
-    targetKey: 'id',
-    as: 'gerente', // alias opcional para "gerente" en el código
-});
 
-Club.hasMany(Equipo, {
-    foreignKey: 'club_id',
-    as: 'equipos'
-});
-// club.getEquipos()
 
 module.exports = Club;

@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const Club = require('./Club');
-const Usuario = require('./Usuario');
 
 const Equipo = sequelize.define('Equipo', {
     id: {
@@ -29,22 +27,6 @@ const Equipo = sequelize.define('Equipo', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-});
-
-Equipo.belongsTo(Usuario, {
-    foreignKey: 'entrenador_id',
-    targetKey: 'id',
-    as: 'entrenador',
-});
-Equipo.hasMany(Usuario, {
-    foreignKey: 'equipo_id',
-    as: 'integrantes',
-});
-
-Equipo.belongsTo(Club, {
-    foreignKey: 'club_id',
-    targetKey: 'id',
-    as: 'club',
 });
 
 

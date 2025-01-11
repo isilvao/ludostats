@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const Estadistica = require('./Estadistica')
 
 const TipoEstadistica = sequelize.define('TipoEstadistica', {
     id: {
@@ -16,11 +15,6 @@ const TipoEstadistica = sequelize.define('TipoEstadistica', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-})
-
-TipoEstadistica.hasMany(Estadistica, {
-    foreignKey: 'tipoEstadistica_id',
-    as: 'estadisticas'
 })
 
 module.exports = TipoEstadistica;

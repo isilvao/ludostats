@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const Usuario = require('./Usuario');
-const TipoEstadistica = require('./TipoEstadistica');
 
 const Estadistica = sequelize.define('Estadistica', {
     id: {
@@ -26,17 +24,5 @@ const Estadistica = sequelize.define('Estadistica', {
         allowNull: false,
     },
 });
-
-Estadistica.belongsTo(TipoEstadistica, {
-    foreignKey: 'tipoEstadistica_id',
-    targetKey: 'id',
-    as: 'tipoEstadistica',
-})
-
-Estadistica.belongsTo(Usuario, {
-    foreignKey: 'usuario_id',
-    targetKey: 'id',
-    as: 'usuario',
-})
 
 module.exports = Estadistica;

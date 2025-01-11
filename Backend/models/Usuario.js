@@ -1,8 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const Club = require('./Club');
-const Equipo = require('./Equipo');
-const Estadistica = require('./Estadistica');
 
 const Usuario = sequelize.define('Usuario', {
     id: {
@@ -71,36 +68,5 @@ const Usuario = sequelize.define('Usuario', {
     }
 
 });
-
-// Relación: un Usuario (acudiente) puede tener varios usuarios dependientes
-Usuario.hasMany(Usuario, {
-    foreignKey: 'acudiente_id',
-    as: 'dependientes'
-});
-
-  // Relación: un Usuario depende de un acudiente (que también es Usuario)
-Usuario.belongsTo(Usuario, {
-    foreignKey: 'acudiente_id',
-    as: 'acudiente'
-});
-// usuario.getAcudiente() o usuario.getDependientes()
-
-Usuario.hasMany(Club, { foreignKey: 'gerente_id' });
-
-Usuario.belongsTo(Equipo, {
-    foreignKey: 'equipo_id',
-    targetKey: 'id',
-    as: 'equipo',
-});
-
-Usuario.hasMany(Equipo, {
-    foreignKey: 'entrenador_id',
-    as: 'equiposEntrenados',
-});
-
-Usuario.hasMany(Estadistica, {
-    foreignKey: 'usuario_id',
-    as: 'estadisticas'
-})
 
 module.exports = Usuario;
