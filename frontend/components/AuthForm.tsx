@@ -45,7 +45,8 @@ const authFormSchema = (formType: FormType) => {
             .min(2, 'El apellido debe tener al menos 2 caracteres')
             .max(50, 'El apellido debe tener menos de 50 caracteres')
         : z.string().optional(),
-    rememberMe: formType === 'sign-in' ? z.boolean().optional() : z.undefined(),
+    rememberMe:
+      formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
   });
 };
 
