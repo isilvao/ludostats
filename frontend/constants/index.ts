@@ -51,25 +51,25 @@ export const characteristics = [
 
 export const testimonials = [
   {
-    name: 'John Doe',
-    avatar: '/assets/images/prueba.jpg',
+    name: 'person-1',
+    avatar: '/assets/images/person-1.png',
     title: 'CEO, Example Inc.',
     quote:
       '“Organizar los torneos de nuestro club solía ser un caos. Ahora, todo está en un solo lugar: calendarios, tablas de posiciones y resultados. Mis jugadores y yo estamos más enfocados que nunca.”',
   },
   {
-    name: 'John Doe',
-    avatar: '/assets/images/prueba.jpg',
+    name: 'person-2',
+    avatar: '/assets/images/person-2.png',
     title: 'CEO, Example Inc.',
     quote:
-      '“Organizar los torneos de nuestro club solía ser un caos. Ahora, todo está en un solo lugar: calendarios, tablas de posiciones y resultados. Mis jugadores y yo estamos más enfocados que nunca.”',
+      '“Antes de LudoStats, siempre olvidaba las fechas de pago o los pedidos de uniformes. Ahora todo es mucho más fácil, y puedo concentrarme en apoyar a mi hijo en sus juegos.”',
   },
   {
-    name: 'John Doe',
-    avatar: '/assets/images/prueba.jpg',
+    name: 'person-3',
+    avatar: '/assets/images/person-3.png',
     title: 'CEO, Example Inc.',
     quote:
-      '“Organizar los torneos de nuestro club solía ser un caos. Ahora, todo está en un solo lugar: calendarios, tablas de posiciones y resultados. Mis jugadores y yo estamos más enfocados que nunca.”',
+      '“El control financiero y las estadísticas de rendimiento han revolucionado nuestra gestión. Hemos reducido errores y mejorado nuestra planificación. LudoStats ha sido una inversión invaluable.”',
   },
 ];
 
