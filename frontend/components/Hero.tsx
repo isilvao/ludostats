@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { Button } from './ui/button';
 import Link from 'next/link';
 
 const Hero = () => {
@@ -31,8 +30,8 @@ const Hero = () => {
           <Image
             src="/assets/images/hero-Img.svg"
             alt="phone"
-            layout="fill"
-            objectFit="contain"
+            fill
+            style={{ objectFit: 'contain' }}
             priority
           />
         </div>

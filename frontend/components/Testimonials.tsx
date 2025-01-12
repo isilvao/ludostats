@@ -35,7 +35,10 @@ const Testimonials = () => {
                 <p className="text-[#717171] h3 text-center mb-2">
                   {testimonial.quote}
                 </p>
-                <Link href="#" className="h3 text-center block hover:underline">
+                <Link
+                  href="#"
+                  className="mt-8 mb-2 h3 text-center text-[#4CAF4F] block hover:underline"
+                >
                   Leer Más →
                 </Link>
               </div>
