@@ -2,14 +2,13 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const { initModels } = require('./models/index')
+const { API_VERSION } = require('./constants');
 
 const app = express()
 
 //Import routings
 const authRoutes = require('./router/auth');
-const { API_VERSION } = require('./constants');
-
-
+const userRoutes = require('./router/user');
 
 
 
@@ -26,6 +25,7 @@ app.use(cors())
 
 // Configure routes
 app.use(`/api/${API_VERSION}`, authRoutes)
+app.use(`/api/${API_VERSION}`, userRoutes)
 
 
 // Initialize models and sync with db

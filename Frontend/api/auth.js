@@ -5,8 +5,6 @@ export class Auth {
 
     async register(data){
         try {
-            console.log("Si llega al register")
-
             const url = `${this.baseApiUrl}/register`;
 
             const params = {
@@ -37,8 +35,6 @@ export class Auth {
 
     async login(data){
         try {
-
-            console.log("Si llega al login")
             const url = `${this.baseApiUrl}/login`;
 
             const params = {
