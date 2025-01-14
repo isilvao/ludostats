@@ -44,7 +44,7 @@ const Footer = () => (
           <div className="flex space-x-4">
             <Link href="/">
               <Image
-                src="/assets/icons/social.svg"
+                src="/assets/icons/instagram-white.svg"
                 width={40}
                 height={40}
                 alt="Facebook"
@@ -53,7 +53,7 @@ const Footer = () => (
             </Link>
             <Link href="/">
               <Image
-                src="/assets/icons/social.svg"
+                src="/assets/icons/x-white.svg"
                 width={40}
                 height={40}
                 alt="Facebook"
@@ -62,7 +62,7 @@ const Footer = () => (
             </Link>
             <Link href="/">
               <Image
-                src="/assets/icons/social.svg"
+                src="/assets/icons/facebook-white.svg"
                 width={40}
                 height={40}
                 alt="Facebook"
@@ -71,7 +71,7 @@ const Footer = () => (
             </Link>
             <Link href="/">
               <Image
-                src="/assets/icons/social.svg"
+                src="/assets/icons/youtube-white.svg"
                 width={40}
                 height={40}
                 alt="Facebook"
