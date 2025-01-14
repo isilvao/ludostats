@@ -54,10 +54,6 @@ const Statistics: React.FC = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-<<<<<<<< HEAD:frontend/pages/Statistics.tsx
-      <Header />
-========
->>>>>>>> Diego:frontend/app/(application)/(dashboard)/statistics/page.tsx
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">
           Estadísticas Personales
@@ -96,10 +92,6 @@ const Statistics: React.FC = () => {
           Sumar Gol
         </button>
       </section>
-<<<<<<<< HEAD:frontend/pages/Statistics.tsx
-      <Footer />
-========
->>>>>>>> Diego:frontend/app/(application)/(dashboard)/statistics/page.tsx
     </div>
   );
 };
