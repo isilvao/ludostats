@@ -26,7 +26,7 @@ function register(req, res){
         if (!userStored) {
             return res.status(400).send({ msg: "Error al crear el usuario" });
         }
-        return res.status(200).send({ msg: "Usuario creado correctamente", user: userStored });
+        return res.status(200).send({ msg: "Usuario creado correctamente", user: userStored, success: true });
     }).catch((err) => {
         console.error(err);
         return res.status(500).send({ msg: "Error al crear el usuario" });
@@ -87,17 +87,8 @@ function refreshAccessToken(req,res){
     });
 }
 
-function getUsers(req, res){
-    Usuario.findAll().then(users => {
-        res.status(200).send(users);
-    }).catch(err => {
-        res.status(500).send({msg: "Error del servidor"});
-    });
-}
-
 module.exports = {
     register,
     login,
     refreshAccessToken,
-    getUsers
 }

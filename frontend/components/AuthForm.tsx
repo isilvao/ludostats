@@ -3,6 +3,7 @@
 // Import for backend functions
 import { Auth } from '../api/auth';
 const authController = new Auth();
+import { useAuth } from "../hooks"
 //
 
 import { z } from 'zod';
@@ -34,16 +35,16 @@ const authFormSchema = (formType: FormType) => {
     firstName:
       formType === 'sign-up'
         ? z
-            .string()
-            .min(2, 'El nombre debe tener al menos 2 caracteres')
-            .max(50, 'El nombre debe tener menos de 50 caracteres')
+          .string()
+          .min(2, 'El nombre debe tener al menos 2 caracteres')
+          .max(50, 'El nombre debe tener menos de 50 caracteres')
         : z.string().optional(),
     lastName:
       formType === 'sign-up'
         ? z
-            .string()
-            .min(2, 'El apellido debe tener al menos 2 caracteres')
-            .max(50, 'El apellido debe tener menos de 50 caracteres')
+          .string()
+          .min(2, 'El apellido debe tener al menos 2 caracteres')
+          .max(50, 'El apellido debe tener menos de 50 caracteres')
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
@@ -51,9 +52,13 @@ const authFormSchema = (formType: FormType) => {
 };
 
 const AuthForm = ({ type }: { type: FormType }) => {
+  // Hook para traer la informacion del usuario (Ivan)
+  const { login } = useAuth();
+  // Fin del hook
+
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [accountId, setAccountId] = useState(null);
 
   const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -72,21 +77,25 @@ const AuthForm = ({ type }: { type: FormType }) => {
     setErrorMessage('');
 
     try {
-      const user =
+      const result =
         type === 'sign-up'
           ? await authController.register({
-              nombre: values.firstName || '',
-              apellido: values.lastName || '',
-              correo: values.email,
-              contrasena: values.password,
-            })
+            nombre: values.firstName || '',
+            apellido: values.lastName || '',
+            correo: values.email,
+            contrasena: values.password,
+          })
           : await authController.login({
-              correo: values.email,
-              contrasena: values.password,
-              rememberMe: values.rememberMe,
-            });
+            correo: values.email,
+            contrasena: values.password,
+            rememberMe: values.rememberMe,
+          });
 
-      setAccountId(user.accountId);
+      const { accessToken, refreshToken } = result;
+      if (accessToken && refreshToken) {
+        login(accessToken);
+      }
+
     } catch {
       setErrorMessage('Failed to create account. Please try again.');
     } finally {
