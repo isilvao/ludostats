@@ -9,7 +9,7 @@ const Header = () => {
     <nav className="grid grid-cols-3 items-center bg-[#f4f1e6] px-6 py-4 shadow-md h-[100px]">
       <Link href="/">
         <Image
-          src="/assets/images/Logo.svg"
+          src="/assets/images/logo.svg"
           width={150}
           height={100}
           alt="Logo"
