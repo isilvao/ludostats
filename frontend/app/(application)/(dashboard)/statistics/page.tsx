@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,19 +9,16 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-
 
 ChartJS.register(
-  CategoryScale, 
-  LinearScale,   
-  BarElement,    
-  Title,         
-  Tooltip,       
-  Legend         
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
 );
 
 const Statistics: React.FC = () => {
@@ -35,8 +32,8 @@ const Statistics: React.FC = () => {
       {
         label: 'Goles',
         data: [2, 1, 3, 0, 4],
-        backgroundColor: 'rgba(76, 175, 79, 0.6)', 
-        borderColor: 'rgba(76, 175, 79, 1)',       
+        backgroundColor: 'rgba(76, 175, 79, 0.6)',
+        borderColor: 'rgba(76, 175, 79, 1)',
         borderWidth: 1,
       },
     ],
@@ -57,24 +54,37 @@ const Statistics: React.FC = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <Header/>
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Estadísticas Personales</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          Estadísticas Personales
+        </h1>
         <div className="flex justify-between">
-          <div>Partidos jugados: <strong>15</strong></div>
-          <div>Tiempo jugado: <strong>12 horas</strong></div>
-          <div>Victorias: <strong>8</strong></div>
+          <div>
+            Partidos jugados: <strong>15</strong>
+          </div>
+          <div>
+            Tiempo jugado: <strong>12 horas</strong>
+          </div>
+          <div>
+            Victorias: <strong>8</strong>
+          </div>
         </div>
       </section>
 
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Rendimiento Individual</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          Rendimiento Individual
+        </h2>
         <Bar data={performanceData} options={performanceOptions} />
       </section>
 
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Metas Personales</h2>
-        <p>Meta de goles: {goalsAchieved}/{goalsTarget}</p>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          Metas Personales
+        </h2>
+        <p>
+          Meta de goles: {goalsAchieved}/{goalsTarget}
+        </p>
         <button
           onClick={() => setGoalsAchieved(goalsAchieved + 1)}
           className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
@@ -82,7 +92,6 @@ const Statistics: React.FC = () => {
           Sumar Gol
         </button>
       </section>
-      <Footer/>
     </div>
   );
 };

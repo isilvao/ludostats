@@ -56,7 +56,7 @@ const Navbar = () => {
       </div>
 
       <div className="hidden lg:flex items-center gap-4">
-        <Link href="/join" className="hover:text-gray-700 transition">
+        <Link href="/home" className="hover:text-gray-700 transition">
           Unirme
         </Link>
         <Link
