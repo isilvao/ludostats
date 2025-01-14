@@ -95,3 +95,31 @@ export const footerLinks = [
     ],
   },
 ];
+
+export const navItems = [
+  {
+    name: 'Home',
+    icon: '/assets/icons/dashboard.svg',
+    url: '/home',
+  },
+  {
+    name: 'Calendario',
+    icon: '/assets/icons/documents.svg',
+    url: '/calendar',
+  },
+  {
+    name: 'Estadísticas',
+    icon: '/assets/icons/images.svg',
+    url: '/statistics',
+  },
+  {
+    name: 'Suscripción',
+    icon: '/assets/icons/video.svg',
+    url: '/subscription',
+  },
+  {
+    name: 'Others',
+    icon: '/assets/icons/others.svg',
+    url: '/',
+  },
+];
