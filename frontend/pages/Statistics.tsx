@@ -16,12 +16,12 @@ import Footer from "@/components/Footer";
 
 
 ChartJS.register(
-  CategoryScale, 
-  LinearScale,   
-  BarElement,    
-  Title,         
-  Tooltip,       
-  Legend         
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
 );
 
 const Statistics: React.FC = () => {
@@ -35,8 +35,8 @@ const Statistics: React.FC = () => {
       {
         label: 'Goles',
         data: [2, 1, 3, 0, 4],
-        backgroundColor: 'rgba(76, 175, 79, 0.6)', 
-        borderColor: 'rgba(76, 175, 79, 1)',       
+        backgroundColor: 'rgba(76, 175, 79, 0.6)',
+        borderColor: 'rgba(76, 175, 79, 1)',
         borderWidth: 1,
       },
     ],
@@ -57,7 +57,7 @@ const Statistics: React.FC = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <Header/>
+      <Header />
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Estadísticas Personales</h1>
         <div className="flex justify-between">
@@ -82,7 +82,7 @@ const Statistics: React.FC = () => {
           Sumar Gol
         </button>
       </section>
-      <Footer/>
+      <Footer />
     </div>
   );
 };
