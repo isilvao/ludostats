@@ -1,10 +1,8 @@
 'use client';
 
 // Import for backend functions
-import { Auth } from '../api/auth';
-const authController = new Auth();
-import { useAuth } from "../hooks"
 //
+
 
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,6 +21,10 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Auth } from '../api/auth';
+import { useAuth } from "../hooks"
+
+const authController = new Auth();
 
 type FormType = 'sign-in' | 'sign-up';
 
