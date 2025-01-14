@@ -31,11 +31,10 @@ const SubscriptionPage: React.FC = () => {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`p-6 rounded-md shadow-lg ${
-              currentPlan === plan.name
+            className={`p-6 rounded-md shadow-lg ${currentPlan === plan.name
                 ? 'border-2 border-green-500 bg-green-50'
                 : 'bg-white'
-            }`}
+              }`}
           >
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">
               {plan.name}
