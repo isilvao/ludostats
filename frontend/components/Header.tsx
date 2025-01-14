@@ -1,5 +1,7 @@
 'use client';
 
+//Cambio de los nombres de los assets
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
