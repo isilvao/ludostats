@@ -1,5 +1,3 @@
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
 import React from 'react';
 import 'react-calendar/dist/Calendar.css';
 import { Calendar as ReactCalendar } from 'react-calendar';
