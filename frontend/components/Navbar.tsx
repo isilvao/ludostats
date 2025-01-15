@@ -35,7 +35,7 @@ const Navbar = () => {
       <div className="flex items-center gap-10">
         <Link href="/">
           <Image
-            src="/assets/images/logo.svg"
+            src="/assets/images/logo-ludostats.svg"
             width={150}
             height={100}
             alt="logo"
@@ -56,8 +56,8 @@ const Navbar = () => {
       </div>
 
       <div className="hidden lg:flex items-center gap-4">
-        <Link href="/home" className="hover:text-gray-700 transition">
-          Unirme
+        <Link href="/join" className="hover:text-gray-700 transition">
+          Unirme a un club
         </Link>
         <Link
           href="/sign-in"
@@ -88,7 +88,7 @@ const Navbar = () => {
             <SheetHeader>
               <SheetTitle className="flex w-full items-center justify-between flex-row">
                 <Image
-                  src="/assets/images/logo.svg"
+                  src="/assets/images/logo-ludostats.svg"
                   width={150}
                   height={100}
                   alt="logo"
@@ -122,7 +122,7 @@ const Navbar = () => {
                   href="/home"
                   className="hover:text-gray-700 w-full transition"
                 >
-                  Unirme
+                  Unirme a un club
                 </Link>
                 <Link
                   href="/sign-in"

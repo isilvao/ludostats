@@ -1,6 +1,6 @@
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -11,13 +11,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="flex-shrink-0">
             <Link href="/">
               <Image
-                src="/assets/images/logo-white.svg"
+                src="/assets/images/logo-ludostats-white.svg"
                 alt="logo"
                 width={280}
                 height={100}
                 className="h-auto"
               />
-            </Link>   
+            </Link>
           </div>
           <div className="flex-grow mt-14 space-y-12 items-center justify-center flex flex-col">
             <div className="space-y-5 text-white">
@@ -35,18 +35,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             />
           </div>
         </div>
-        
       </section>
 
       {/* Sección derecha */}
       <section className="flex flex-1 flex-col items-center bg-white p-4 py-10 lg:justify-center lg:p-10 lg:py-0 lg:ml-[50%] xl:ml-[40%] my-10">
         <div className="mb-16 lg:hidden">
           <Image
-            src="/assets/images/logo.svg"
+            src="/assets/images/logo-ludostats.svg"
             alt="logo"
-            width={224}
-            height={82}
-            className="h-auto w-[200px] lg:w-[250px]"
+            width={250}
+            height={200}
+            className="h-auto w-[250px] lg:w-[300px]"
           />
         </div>
 

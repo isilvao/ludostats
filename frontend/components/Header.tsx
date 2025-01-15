@@ -9,7 +9,7 @@ const Header = () => {
     <nav className="header">
       <Link href="/home">
         <Image
-          src="/assets/images/logo.svg"
+          src="/assets/images/logo-ludostats.svg"
           width={150}
           height={100}
           alt="Logo"
