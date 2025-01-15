@@ -72,6 +72,9 @@ function login(req, res){
 function refreshAccessToken(req,res){
     const { token } = req.body;
 
+    if (!token) {
+        res.status(500).send({msg: "No se ha encontrado el token"});
+    }
     const { user_id } = jwt.decodeToken(token);
 
     Usuario.findOne({where: {id: user_id}}).then(user => {
