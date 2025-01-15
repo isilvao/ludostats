@@ -119,7 +119,7 @@ const Navbar = () => {
               </ul>
               <div className="flex flex-col items-center gap-4 mt-8 text-center">
                 <Link
-                  href="/join"
+                  href="/home"
                   className="hover:text-gray-700 w-full transition"
                 >
                   Unirme
