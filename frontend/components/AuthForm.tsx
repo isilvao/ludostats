@@ -106,6 +106,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
         window.location.href = '/home';
       }
 
+      if (result.success) {
+        window.location.href = '/sign-in';
+      }
+
     } catch {
       setErrorMessage('Failed to create account. Please try again.');
     } finally {

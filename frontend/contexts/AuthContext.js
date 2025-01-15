@@ -17,7 +17,6 @@ export function AuthProvider(props) {
 
     useEffect(() => {
         (async () => {
-            console.log("El useEffect para revisar el token se ejecutó")
             const accessToken = authController.getAccessToken();
             const refreshToken = authController.getRefreshToken();
 
