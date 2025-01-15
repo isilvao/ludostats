@@ -26,7 +26,7 @@ function register(req, res){
         if (!userStored) {
             return res.status(400).send({ msg: "Error al crear el usuario" });
         }
-        return res.status(200).send({ msg: "Usuario creado correctamente", user: userStored, success: true });
+        return res.status(200).send({ msg: "Usuario creado correctamente", success: true });
     }).catch((err) => {
         console.error(err);
         return res.status(500).send({ msg: "Error al crear el usuario" });
@@ -35,7 +35,7 @@ function register(req, res){
 }
 
 function login(req, res){
-    const {correo, contrasena} = req.body;
+    const {correo, contrasena, rememberMe } = req.body;
 
     if (!correo) res.status(400).send({msg: "El correo es obligatorio"})
     if (!contrasena) res.status(400).send({msg: "La contraseña es obligatoria"})
@@ -46,20 +46,20 @@ function login(req, res){
         correo: emailLowerCase
     }}).then(user => {
         if (!user) {
-            res.status(404).send({msg: "No se ha podido ingresar"});
+            res.status(400).send({msg: "No se ha podido ingresar"});
         } else {
             bcrypt.compare(contrasena, user.contrasena, (err, check) => {
                 if (err) {
                     res.status(500).send({msg: "Error del servidor"});
                 } else if (!check) {
-                    res.status(404).send({msg: "No se pudo ingresar al usuario"});
+                    res.status(400).send({msg: "No se pudo ingresar al usuario"});
                 } else if (!user.activo) {
                     res.status(401).send({msg: "El usuario no está activo"});
                 } else {
                     res.status(200).send({
                         accessToken: jwt.createAccessToken(user),
                         refreshToken: jwt.createRefreshToken(user),
-                        user: user
+                        rememberMe: rememberMe,
                     });
                 }
             });
