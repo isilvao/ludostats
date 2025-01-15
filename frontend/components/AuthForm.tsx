@@ -3,7 +3,8 @@
 // Import for backend functions
 import { Auth } from '../api/auth';
 const authController = new Auth();
-import { useAuth } from "../hooks"
+import { useAuth } from '../hooks';
+import { useRouter } from 'next/navigation';
 //
 
 import { z } from 'zod';
@@ -35,16 +36,16 @@ const authFormSchema = (formType: FormType) => {
     firstName:
       formType === 'sign-up'
         ? z
-          .string()
-          .min(2, 'El nombre debe tener al menos 2 caracteres')
-          .max(50, 'El nombre debe tener menos de 50 caracteres')
+            .string()
+            .min(2, 'El nombre debe tener al menos 2 caracteres')
+            .max(50, 'El nombre debe tener menos de 50 caracteres')
         : z.string().optional(),
     lastName:
       formType === 'sign-up'
         ? z
-          .string()
-          .min(2, 'El apellido debe tener al menos 2 caracteres')
-          .max(50, 'El apellido debe tener menos de 50 caracteres')
+            .string()
+            .min(2, 'El apellido debe tener al menos 2 caracteres')
+            .max(50, 'El apellido debe tener menos de 50 caracteres')
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
@@ -53,9 +54,9 @@ const authFormSchema = (formType: FormType) => {
 
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
+  const router = useRouter(); // Hook para redireccionar a otra pagina
   const { login } = useAuth();
   // Fin del hook
-
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -80,23 +81,23 @@ const AuthForm = ({ type }: { type: FormType }) => {
       const result =
         type === 'sign-up'
           ? await authController.register({
-            nombre: values.firstName || '',
-            apellido: values.lastName || '',
-            correo: values.email,
-            contrasena: values.password,
-          })
+              nombre: values.firstName || '',
+              apellido: values.lastName || '',
+              correo: values.email,
+              contrasena: values.password,
+            })
           : await authController.login({
-            correo: values.email,
-            contrasena: values.password,
-            rememberMe: values.rememberMe,
-          });
+              correo: values.email,
+              contrasena: values.password,
+              rememberMe: values.rememberMe,
+            });
 
       const { accessToken, refreshToken } = result;
       if (accessToken && refreshToken) {
         login(accessToken);
+        router.push('/home');
       }
-
-    } catch {
+    } catch (error) {
       setErrorMessage('Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
