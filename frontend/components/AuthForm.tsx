@@ -2,7 +2,6 @@
 
 // Import for backend functions
 import { Auth } from '../api/auth';
-const authController = new Auth();
 import { useAuth } from "../hooks"
 //
 
@@ -53,9 +52,13 @@ const authFormSchema = (formType: FormType) => {
 
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const authController = new Auth();
   // Fin del hook
 
+  if (user) {
+    window.location.href = '/home';
+  }
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -91,9 +94,16 @@ const AuthForm = ({ type }: { type: FormType }) => {
             rememberMe: values.rememberMe,
           });
 
+      if (result.rememberMe) {
+        authController.setAccessToken(result.accessToken);
+        authController.setRefreshToken(result.refreshToken);
+      }
+
+
       const { accessToken, refreshToken } = result;
       if (accessToken && refreshToken) {
         login(accessToken);
+        window.location.href = '/home';
       }
 
     } catch {
