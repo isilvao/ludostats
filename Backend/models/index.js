@@ -72,6 +72,11 @@ Club.hasMany(Torneo, {
   as: 'torneos'
 });
 
+Club.hasMany(TipoEstadistica, {
+  foreignKey: 'club_id',
+  as: 'tiposEstadistica'
+});
+
 /**               EQUIPO                 */
 Equipo.belongsTo(Usuario, {
   foreignKey: 'entrenador_id',
@@ -107,6 +112,12 @@ TipoEstadistica.hasMany(Estadistica, {
   foreignKey: 'tipoEstadistica_id',
   as: 'estadisticas'
 })
+TipoEstadistica.belongsTo(Club, {
+  foreignKey: 'club_id',
+  targetKey: 'id',
+  as: 'club',
+})
+
 
 /**               TORNEO                 */
 Torneo.belongsTo(Club, {

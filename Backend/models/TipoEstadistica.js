@@ -7,6 +7,10 @@ const TipoEstadistica = sequelize.define('TipoEstadistica', {
         primaryKey: true,
         autoIncrement: true,
     },
+    club_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     nombre: {
         type: DataTypes.STRING,
         allowNull: false,
