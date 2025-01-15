@@ -53,12 +53,9 @@ const authFormSchema = (formType: FormType) => {
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
   const { login, user } = useAuth();
+  console.log("User de auth", user)
   const authController = new Auth();
   // Fin del hook
-
-  if (user) {
-    window.location.href = '/home';
-  }
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -94,11 +91,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
             rememberMe: values.rememberMe,
           });
 
-      if (result.rememberMe) {
-        authController.setAccessToken(result.accessToken);
-        authController.setRefreshToken(result.refreshToken);
-      }
-
+      authController.setAccessToken(result.accessToken, result.rememberMe);
+      authController.setRefreshToken(result.refreshToken, result.rememberMe);
 
       const { accessToken, refreshToken } = result;
       if (accessToken && refreshToken) {

@@ -1,8 +1,21 @@
 'use client';
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useAuth } from "../../../../hooks"
+import { Loader2 } from 'lucide-react'
+
+
 const Home: React.FC = () => {
-  const router = useRouter();
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        <h2 className="text-2xl font-semibold mt-4 text-foreground">Loading...</h2>
+        <p className="text-muted-foreground mt-2">Please wait while we fetch your data.</p>
+      </div>
+    )
+  }
 
   return (
     <>

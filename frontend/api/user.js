@@ -1,5 +1,6 @@
 
 import {apiVersion, basePath} from './config'
+import jwtDecode from 'jwt-decode'
 
 export class User {
     baseApi = `${basePath}/${apiVersion}`
@@ -9,6 +10,55 @@ export class User {
             const url = `${this.baseApi}/user/me`
 
             const params = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+
+            const response = await fetch(url, params)
+            const result = await response.json()
+
+            if (response.status !== 200) throw result
+
+            return result
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async updateMe(accessToken, data){
+
+        const { id } = data
+
+        try {
+            const url = `${this.baseApi}/user/${id}`
+
+            const params = {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(data)
+            }
+
+            const response = await fetch(url, params)
+            const result = await response.json()
+
+            if (response.status !== 200) throw result
+
+            return result
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async deteleMe(accessToken, id){
+        try {
+            const url = `${this.baseApi}/user/${id}`
+
+            const params = {
+                method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                 }

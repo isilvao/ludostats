@@ -3,28 +3,54 @@ import { CiCamera } from 'react-icons/ci';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
+import { useAuth } from "../../../hooks"
+import { Loader2 } from 'lucide-react'
+import { User, Auth } from '../../../api'
+
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState({
-    firstName: 'Diego Leandro',
-    lastName: 'Rodríguez',
-    email: 'diego_p5h2g5@outlook.com',
-    phone: '+57 312 321 3212',
-    birthDate: '',
-    documento: '123456789',
-    acudiente: 'Juan Pérez',
-    genero: 'Masculino',
-    rol: 'Miembro',
-    equipo: 'Equipo 1',
-  });
-
+  const userController = new User();
+  const authController = new Auth();
+  const { user, accessToken } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
 
-  const handleSave = () => {
-    alert('Función de guardar en desarrollo');
-  };
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        <h2 className="text-2xl font-semibold mt-4 text-foreground">Loading...</h2>
+        <p className="text-muted-foreground mt-2">Please wait while we fetch your data.</p>
+      </div>
+    )
+  }
 
+  //Modificar esta funcion por un async y poner await antes del userController.updateMe
+  const handleSave = () => {
+    const data = {
+      id: user.id,
+      nombre: '',
+      apellido: '',
+      documento: '',
+      correo: '',
+      telefono: '',
+      fecha_nacimiento: '',
+      genero: '',
+    }
+
+    console.log(data)
+    //const result = userController.updateMe(accessToken, data)
+
+    alert('Función para guardar cambios en desarrollo');
+  }
+
+  // Cambiar esta funcion por un async y poner await antes del userController.deleteMe
   const handleDeleteAccount = () => {
+    //const result = userController.deteleMe(accessToken, user.id)
+
+    // if (result.success) {
+    //   authController.logout()
+    //   alert('Cuenta eliminada con éxito')
+    // }
     alert('Función para eliminar cuenta en desarrollo');
   };
 
@@ -35,26 +61,26 @@ const Profile = () => {
           <form className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-gray-600">
+                <label htmlFor="nombre" className="block text-gray-600">
                   Nombres *
                 </label>
                 <Input
                   type="text"
-                  id="firstName"
-                  name="firstName"
-                  defaultValue={userInfo.firstName}
+                  id="nombre"
+                  name="nombre"
+                  defaultValue={user.nombre}
                   placeholder="Nombres"
                 />
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-gray-600">
+                <label htmlFor="apellido" className="block text-gray-600">
                   Apellidos *
                 </label>
                 <Input
                   type="text"
-                  id="lastName"
-                  name="lastName"
-                  defaultValue={userInfo.lastName}
+                  id="apellido"
+                  name="apellido"
+                  defaultValue={user.apellido}
                   placeholder="Apellido"
                 />
               </div>
@@ -66,43 +92,43 @@ const Profile = () => {
                   type="number"
                   id="documento"
                   name="documento"
-                  defaultValue={userInfo.documento}
+                  defaultValue={user.documento}
                   className="w-full p-2 border border-gray-300 rounded-md"
                   placeholder="Documento"
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-gray-600">
+                <label htmlFor="correo" className="block text-gray-600">
                   Correo Electrónico *
                 </label>
                 <Input
-                  type="email"
-                  name="email"
-                  defaultValue={userInfo.email}
+                  type="correo"
+                  name="correo"
+                  defaultValue={user.correo}
                   placeholder="Correo Electrónico"
                 />
               </div>
               <div>
-                <label htmlFor="phone" className="block text-gray-600">
+                <label htmlFor="telefono" className="block text-gray-600">
                   Teléfono
                 </label>
                 <Input
                   type="tel"
-                  id="phone"
-                  name="phone"
-                  defaultValue={userInfo.phone}
+                  id="telefono"
+                  name="telefono"
+                  defaultValue={user.telefono}
                   placeholder="Teléfono"
                 />
               </div>
               <div>
-                <label htmlFor="birthDate" className="block text-gray-600">
+                <label htmlFor="fecha_nacimiento" className="block text-gray-600">
                   Fecha de Nacimiento
                 </label>
                 <Input
                   type="date"
-                  id="birthDate"
-                  name="birthDate"
-                  defaultValue={userInfo.birthDate}
+                  id="fecha_nacimiento"
+                  name="fecha_nacimiento"
+                  defaultValue={user.fecha_nacimiento}
                   placeholder="Fecha de Nacimiento"
                 />
               </div>
@@ -113,7 +139,7 @@ const Profile = () => {
                 <select
                   id="genero"
                   name="genero"
-                  defaultValue={userInfo.genero}
+                  defaultValue={user.genero}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
                   <option value="Masculino">Masculino</option>
@@ -129,7 +155,7 @@ const Profile = () => {
                   type="text"
                   id="rol"
                   name="rol"
-                  defaultValue={userInfo.rol}
+                  defaultValue={user.rol}
                   placeholder="Rol"
                   readOnly
                   className="bg-gray-100 cursor-not-allowed"
@@ -143,7 +169,7 @@ const Profile = () => {
                   type="text"
                   id="acudiente"
                   name="acudiente"
-                  defaultValue={userInfo.acudiente}
+                  defaultValue={user.acudiente}
                   placeholder="Acudiente"
                   readOnly
                   className="bg-gray-100 cursor-not-allowed"
@@ -157,7 +183,7 @@ const Profile = () => {
                   type="text"
                   id="equipo"
                   name="equipo"
-                  defaultValue={userInfo.equipo}
+                  defaultValue={user.equipo}
                   placeholder="Equipo"
                   readOnly
                   className="bg-gray-100 cursor-not-allowed"
@@ -250,10 +276,10 @@ const Profile = () => {
               </button>
             </div>
             <h2 className="mt-4 text-xl font-semibold text-gray-800">
-              {userInfo.firstName} {userInfo.lastName}
+              {user.nombre} {user.apellido}
             </h2>
-            <p className="text-gray-600">{userInfo.phone}</p>
-            <p className="text-gray-600">{userInfo.email}</p>
+            <p className="text-gray-600">{user.telefono}</p>
+            <p className="text-gray-600">{user.correo}</p>
           </div>
           <ul className="mt-6">
             <li

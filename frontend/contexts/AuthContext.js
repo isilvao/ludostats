@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext } from "react";
 import { User, Auth } from '../api'
 import { hasExpiredToken } from '../utils'
+import { Loader2 } from 'lucide-react'
 
 const userController = new User()
 const authController = new Auth()
@@ -14,6 +15,7 @@ export function AuthProvider(props) {
     const { children } = props;
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -22,6 +24,7 @@ export function AuthProvider(props) {
 
             if (!accessToken || !refreshToken) {
                 logout()
+                setLoading(false)
                 return
             }
 
@@ -34,6 +37,7 @@ export function AuthProvider(props) {
             } else {
                 await login(accessToken)
             }
+            setLoading(false)
         })()
     }, [])
 
@@ -69,6 +73,7 @@ export function AuthProvider(props) {
         login,
         logout
     }
+
 
     return (
         <AuthContext.Provider value={data}>

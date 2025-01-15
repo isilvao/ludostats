@@ -90,7 +90,7 @@ async function deleteUser(req,res){
         if (!response) {
             res.status(404).send({msg: "No se ha encontrado el usuario"})
         } else {
-            res.status(200).send({msg: "Usuario eliminado correctamente"})
+            res.status(200).send({msg: "Usuario eliminado correctamente", success: true})
         }
     }).catch((err) => {
         res.status(500).send({msg: "Error al eliminar el usuario"})

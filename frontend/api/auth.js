@@ -85,24 +85,43 @@ export class Auth {
         }
     }
 
-    setAccessToken(token){
-        localStorage.setItem(JWT.ACCESS, token)
+    setAccessToken(token, rememberMe){
+        if (rememberMe){
+            localStorage.setItem(JWT.ACCESS, token)
+        }else {
+            sessionStorage.setItem(JWT.ACCESS, token)
+            console.log("QUE PUTAS")
+        }
     }
 
     getAccessToken(){
-        return localStorage.getItem(JWT.ACCESS)
+        return localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
     }
 
-    setRefreshToken(token){
-        localStorage.setItem(JWT.REFRESH, token)
+    removeAccessToken() {
+        localStorage.removeItem("accessToken");
+        sessionStorage.removeItem("accessToken");
+    }
+
+    setRefreshToken(token, rememberMe){
+        if (rememberMe){
+            localStorage.setItem(JWT.REFRESH, token)
+        }else {
+            sessionStorage.setItem(JWT.REFRESH, token)
+        }
     }
 
     getRefreshToken(){
-        return localStorage.getItem(JWT.REFRESH)
+        return localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
+    }
+
+    removeRefreshToken() {
+        localStorage.removeItem("refreshToken");
+        sessionStorage.removeItem("refreshToken");
     }
 
     removeTokens(){
-        localStorage.removeItem(JWT.ACCESS)
-        localStorage.removeItem(JWT.REFRESH)
+        this.removeAccessToken();
+        this.removeRefreshToken()
     }
 }
