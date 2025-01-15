@@ -134,14 +134,12 @@ const Statistics: React.FC = () => {
     setFecha(estadistica.fecha);
   };
 
-  if (usuario?.rol !== 'admin') {
-    return <div>No tienes permiso para acceder a esta página</div>;
-  }
+  // if (usuario?.rol !== 'admin') {
+  //   return <div>No tienes permiso para acceder a esta página</div>;
+  // }
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <Header />
-
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">
           Gestión de Estadísticas
@@ -184,7 +182,7 @@ const Statistics: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded"
+            className="bg-green text-white px-4 py-2 rounded"
           >
             {editingEstadistica ? 'Actualizar' : 'Agregar'}
           </button>
@@ -224,7 +222,7 @@ const Statistics: React.FC = () => {
                     onClick={() =>
                       handleDeleteEstadistica(estadistica.estadistica_id)
                     }
-                    className="bg-red-500 text-white px-2 py-1 rounded"
+                    className="bg-red text-white px-2 py-1 rounded"
                   >
                     Eliminar
                   </button>
@@ -234,8 +232,6 @@ const Statistics: React.FC = () => {
           </tbody>
         </table>
       </section>
-
-      <Footer />
     </div>
   );
 };

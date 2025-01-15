@@ -44,7 +44,7 @@ const Footer = () => (
           <div className="flex space-x-4">
             <Link href="/">
               <Image
-                src="/assets/icons/instagram-white.svg"
+                src="/assets/icons/ig-white.svg"
                 width={40}
                 height={40}
                 alt="Facebook"
