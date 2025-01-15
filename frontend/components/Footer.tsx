@@ -28,7 +28,7 @@ const Footer = () => (
       <div className="flex flex-col md:flex-row justify-between gap-10">
         <div className="flex flex-col md:w-1/2 lg:w-1/3 items-center md:items-start gap-5 lg:justify-between">
           <Image
-            src="/assets/images/logo-white.svg"
+            src="/assets/images/logo-ludostats-white.svg"
             width={200}
             height={200}
             alt="LudoStats Logo"
