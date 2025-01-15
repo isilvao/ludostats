@@ -3,7 +3,6 @@
 import { useState, useEffect, createContext } from "react";
 import { User, Auth } from '../api'
 import { hasExpiredToken } from '../utils'
-import { Loader2 } from 'lucide-react'
 
 const userController = new User()
 const authController = new Auth()
