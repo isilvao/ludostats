@@ -11,25 +11,8 @@ import { User, Auth } from '../../../api'
 const Profile = () => {
   const userController = new User();
   const authController = new Auth();
-  const { user, accessToken, logout } = useAuth();
+  const { user, accessToken } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
-  const [formData, setFormData] = useState({
-    nombre: user.nombre || "",
-    apellido: user.apellido || "",
-    documento: user.documento || "",
-    correo: user.correo || "",
-    telefono: user.telefono || "",
-    fecha_nacimiento: user.fecha_nacimiento || "",
-    genero: user.genero || "",
-  });
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
 
   if (!user) {
     return (
@@ -42,41 +25,33 @@ const Profile = () => {
   }
 
   //Modificar esta funcion por un async y poner await antes del userController.updateMe
-  const handleSave = async () => {
-    try {
-      const result = await userController.updateMe(accessToken, formData, user.id);
-
-      if (result.success) {
-        alert("¡Cambios guardados con éxito!");
-      } else {
-        alert("Error al guardar los cambios: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error al guardar los cambios:", error);
-      alert("Ocurrió un error al intentar guardar los cambios. Intenta nuevamente.");
+  const handleSave = () => {
+    const data = {
+      id: user.id,
+      nombre: '',
+      apellido: '',
+      documento: '',
+      correo: '',
+      telefono: '',
+      fecha_nacimiento: '',
+      genero: '',
     }
-  };
 
+    console.log(data)
+    //const result = userController.updateMe(accessToken, data)
 
-  // Función para eliminar la cuenta
-  const handleDeleteAccount = async () => {
-    try {
-      const confirmDelete = confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.");
+    alert('Función para guardar cambios en desarrollo');
+  }
 
-      if (!confirmDelete) return;
+  // Cambiar esta funcion por un async y poner await antes del userController.deleteMe
+  const handleDeleteAccount = () => {
+    //const result = userController.deteleMe(accessToken, user.id)
 
-      const result = await userController.deteleMe(accessToken, user.id);
-
-      if (result.success) {
-        alert("Cuenta eliminada con éxito. Serás redirigido al inicio.");
-        logout(); // Cierra la sesión del usuario
-      } else {
-        alert("Error al eliminar la cuenta: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error al eliminar la cuenta:", error);
-      alert("Ocurrió un error al intentar eliminar la cuenta. Intenta nuevamente.");
-    }
+    // if (result.success) {
+    //   authController.logout()
+    //   alert('Cuenta eliminada con éxito')
+    // }
+    alert('Función para eliminar cuenta en desarrollo');
   };
 
   const renderContent = () => {
@@ -93,55 +68,78 @@ const Profile = () => {
                   type="text"
                   id="nombre"
                   name="nombre"
-                  value={formData.nombre}
-                  onChange={handleInputChange}
+                  defaultValue={user.nombre}
                   placeholder="Nombres"
                 />
+              </div>
+              <div>
+                <label htmlFor="apellido" className="block text-gray-600">
+                  Apellidos *
+                </label>
                 <Input
                   type="text"
                   id="apellido"
                   name="apellido"
-                  value={formData.apellido}
-                  onChange={handleInputChange}
-                  placeholder="Apellidos"
+                  defaultValue={user.apellido}
+                  placeholder="Apellido"
                 />
+              </div>
+              <div>
+                <label htmlFor="documento" className="block text-gray-600">
+                  Documento
+                </label>
                 <Input
                   type="number"
                   id="documento"
                   name="documento"
-                  value={formData.documento}
-                  onChange={handleInputChange}
+                  defaultValue={user.documento}
+                  className="w-full p-2 border border-gray-300 rounded-md"
                   placeholder="Documento"
                 />
+              </div>
+              <div>
+                <label htmlFor="correo" className="block text-gray-600">
+                  Correo Electrónico *
+                </label>
                 <Input
-                  type="email"
-                  id="correo"
+                  type="correo"
                   name="correo"
-                  value={formData.correo}
-                  onChange={handleInputChange}
+                  defaultValue={user.correo}
                   placeholder="Correo Electrónico"
                 />
+              </div>
+              <div>
+                <label htmlFor="telefono" className="block text-gray-600">
+                  Teléfono
+                </label>
                 <Input
                   type="tel"
                   id="telefono"
                   name="telefono"
-                  value={formData.telefono}
-                  onChange={handleInputChange}
+                  defaultValue={user.telefono}
                   placeholder="Teléfono"
                 />
+              </div>
+              <div>
+                <label htmlFor="fecha_nacimiento" className="block text-gray-600">
+                  Fecha de Nacimiento
+                </label>
                 <Input
                   type="date"
                   id="fecha_nacimiento"
                   name="fecha_nacimiento"
-                  value={formData.fecha_nacimiento}
-                  onChange={handleInputChange}
+                  defaultValue={user.fecha_nacimiento}
                   placeholder="Fecha de Nacimiento"
                 />
+              </div>
+              <div>
+                <label htmlFor="genero" className="block text-gray-600">
+                  Género
+                </label>
                 <select
                   id="genero"
                   name="genero"
-                  value={formData.genero}
-                  onChange={handleInputChange}
+                  defaultValue={user.genero}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
                   <option value="Masculino">Masculino</option>

@@ -61,34 +61,22 @@ async function updateUser(req,res){
     const { id } = req.params
     const userData = req.body;
 
-
-    // if (userData.contrasena){
-    //     const salt = bcrypt.genSaltSync(10)
-    //     userData.contrasena = bcrypt.hashSync(userData.contrasena, salt)
-    // } else {
-    //     delete userData.contrasena
-    // }
-
-    // if (req.files.foto){
-    //     userData.foto = image.getFilePath(req.files.foto)
-    // }
-
-    if (userData.fecha_nacimiento == ''){
-        delete userData.fecha_nacimiento
+    if (userData.contrasena){
+        const salt = bcrypt.genSaltSync(10)
+        userData.contrasena = bcrypt.hashSync(userData.contrasena, salt)
+    } else {
+        delete userData.contrasena
     }
 
-    newData = {
-        ...userData,
-        genero: userData.genero.toLowerCase()
+    if (req.files.foto){
+        userData.foto = image.getFilePath(req.files.foto)
     }
 
-    console.log("New data",newData)
-
-    User.update(newData, {where: {id}}).then((response) => {
+    User.update(userData, {where: {id}}).then((response) => {
         if (!response[0]) {
             res.status(404).send({msg: "No se ha encontrado el usuario"})
         } else {
-            res.status(200).send({msg: "Usuario actualizado correctamente", success: true})
+            res.status(200).send({msg: "Usuario actualizado correctamente"})
         }
     }).catch((err) => {
         res.status(500).send({msg: "Error al actualizar el usuario"})

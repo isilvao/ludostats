@@ -53,6 +53,7 @@ const authFormSchema = (formType: FormType) => {
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
   const { login, user } = useAuth();
+  console.log("User de auth", user)
   const authController = new Auth();
   // Fin del hook
 

@@ -26,7 +26,9 @@ export class User {
         }
     }
 
-    async updateMe(accessToken, data, id){
+    async updateMe(accessToken, data){
+
+        const { id } = data
 
         try {
             const url = `${this.baseApi}/user/${id}`
