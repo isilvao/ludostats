@@ -47,7 +47,7 @@ const ContactUs = () => {
                   type="email"
                   id="email"
                   name="email"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
                   placeholder="correo@ejemplo.com"
                 />
               </div>
@@ -62,7 +62,7 @@ const ContactUs = () => {
                   type="text"
                   id="subject"
                   name="subject"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
                   placeholder="¿En qué podemos ayudarte?"
                 />
               </div>
@@ -77,7 +77,7 @@ const ContactUs = () => {
                   id="message"
                   name="message"
                   rows="4"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
                   placeholder="Escribe tu mensaje aquí..."
                 ></textarea>
               </div>
