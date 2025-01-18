@@ -217,7 +217,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 Recordarme
               </label>
               <Link
-                href="/forgot-password"
+                href="/reset-password"
                 className="text-sm text-[#141e3a] hover:underline"
               >
                 Olvidaste la contraseña?

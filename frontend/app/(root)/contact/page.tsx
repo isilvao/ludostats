@@ -76,7 +76,7 @@ const ContactUs = () => {
                 <textarea
                   id="message"
                   name="message"
-                  rows="4"
+                  rows={4}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
                   placeholder="Escribe tu mensaje aquí..."
                 ></textarea>
