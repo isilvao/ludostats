@@ -1,9 +1,9 @@
 export const NavLinks = [
-  { href: '/', key: 'Inicio', text: 'Inicio' },
-  { href: '/', key: 'Funcionalidades', text: 'Caracteristicas' },
-  { href: '/', key: 'Precio', text: 'Precio' },
+  { href: '/about-us', key: 'Nosotros', text: 'Nosotros' },
+  { href: '/', key: 'Funcionalidades', text: 'Funcionalidades' },
+  { href: '/plans', key: 'Planes', text: 'Planes' },
   { href: '/', key: 'Testimonios', text: 'Testimonios' },
-  { href: '/', key: 'FAQ', text: 'FAQ' },
+  { href: '/faq', key: 'FAQ', text: 'FAQ' },
 ];
 
 export const features = [
@@ -77,10 +77,10 @@ export const footerLinks = [
   {
     title: 'Compañía',
     links: [
-      { name: 'Nosotros', href: '/' },
-      { name: 'Blog', href: '/' },
+      { name: 'Nosotros', href: '/about-us' },
+      { name: 'Funcionalidades', href: '/' },
       { name: 'Contáctanos', href: '/' },
-      { name: 'Precio', href: '/' },
+      { name: 'Planes', href: '/plans' },
       { name: 'Testimonios', href: '/' },
     ],
   },
@@ -88,10 +88,10 @@ export const footerLinks = [
     title: 'Soporte',
     links: [
       { name: 'Centro de ayuda', href: '/' },
-      { name: 'Términos de servicio', href: '/' },
+      { name: 'Términos de servicio', href: '/terms-of-service' },
+      { name: 'Política de privacidad', href: '/privacy-policy' },
+      { name: 'Preguntas frecuentes', href: '/faq' },
       { name: 'Legal', href: '/' },
-      { name: 'Política de privacidad', href: '/' },
-      { name: 'Estatus', href: '/' },
     ],
   },
 ];

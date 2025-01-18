@@ -2,7 +2,7 @@
 
 // Import for backend functions
 import { Auth } from '../api/auth';
-import { useAuth } from "../hooks"
+import { useAuth } from '../hooks';
 //
 
 import { z } from 'zod';
@@ -34,16 +34,16 @@ const authFormSchema = (formType: FormType) => {
     firstName:
       formType === 'sign-up'
         ? z
-          .string()
-          .min(2, 'El nombre debe tener al menos 2 caracteres')
-          .max(50, 'El nombre debe tener menos de 50 caracteres')
+            .string()
+            .min(2, 'El nombre debe tener al menos 2 caracteres')
+            .max(50, 'El nombre debe tener menos de 50 caracteres')
         : z.string().optional(),
     lastName:
       formType === 'sign-up'
         ? z
-          .string()
-          .min(2, 'El apellido debe tener al menos 2 caracteres')
-          .max(50, 'El apellido debe tener menos de 50 caracteres')
+            .string()
+            .min(2, 'El apellido debe tener al menos 2 caracteres')
+            .max(50, 'El apellido debe tener menos de 50 caracteres')
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
@@ -53,7 +53,7 @@ const authFormSchema = (formType: FormType) => {
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
   const { login, user } = useAuth();
-  console.log("User de auth", user)
+  console.log('User de auth', user);
   const authController = new Auth();
   // Fin del hook
 
@@ -80,16 +80,16 @@ const AuthForm = ({ type }: { type: FormType }) => {
       const result =
         type === 'sign-up'
           ? await authController.register({
-            nombre: values.firstName || '',
-            apellido: values.lastName || '',
-            correo: values.email,
-            contrasena: values.password,
-          })
+              nombre: values.firstName || '',
+              apellido: values.lastName || '',
+              correo: values.email,
+              contrasena: values.password,
+            })
           : await authController.login({
-            correo: values.email,
-            contrasena: values.password,
-            rememberMe: values.rememberMe,
-          });
+              correo: values.email,
+              contrasena: values.password,
+              rememberMe: values.rememberMe,
+            });
 
       authController.setAccessToken(result.accessToken, result.rememberMe);
       authController.setRefreshToken(result.refreshToken, result.rememberMe);
@@ -103,7 +103,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
       if (result.success) {
         window.location.href = '/sign-in';
       }
-
     } catch {
       setErrorMessage('Failed to create account. Please try again.');
     } finally {
@@ -228,7 +227,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
           {type === 'sign-up' && (
             <p className="text-sm text-center mt-4 text-neutral-500">
               Al registrarte, aceptas nuestras{' '}
-              <Link href="/terms" className="text-[#141e3a] hover:underline">
+              <Link
+                href="/terms-of-service"
+                className="text-[#141e3a] hover:underline"
+              >
                 Condiciones
               </Link>{' '}
               y nuestra{' '}
