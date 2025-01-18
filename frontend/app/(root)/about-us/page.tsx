@@ -80,7 +80,7 @@ const AboutUs: React.FC = () => {
           {teamMembers.map((member, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center"
+              className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center transition-transform transform hover:scale-105"
             >
               <Image
                 src={member.image}

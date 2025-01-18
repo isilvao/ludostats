@@ -1,6 +1,6 @@
 export const NavLinks = [
   { href: '/about-us', key: 'Nosotros', text: 'Nosotros' },
-  { href: '/', key: 'Funcionalidades', text: 'Funcionalidades' },
+  { href: '/features', key: 'Funcionalidades', text: 'Funcionalidades' },
   { href: '/plans', key: 'Planes', text: 'Planes' },
   { href: '/', key: 'Testimonios', text: 'Testimonios' },
   { href: '/faq', key: 'FAQ', text: 'FAQ' },
@@ -78,8 +78,8 @@ export const footerLinks = [
     title: 'Compañía',
     links: [
       { name: 'Nosotros', href: '/about-us' },
-      { name: 'Funcionalidades', href: '/' },
-      { name: 'Contáctanos', href: '/' },
+      { name: 'Funcionalidades', href: '/features' },
+      { name: 'Contáctanos', href: '/contact' },
       { name: 'Planes', href: '/plans' },
       { name: 'Testimonios', href: '/' },
     ],
@@ -87,7 +87,6 @@ export const footerLinks = [
   {
     title: 'Soporte',
     links: [
-      { name: 'Centro de ayuda', href: '/' },
       { name: 'Términos de servicio', href: '/terms-of-service' },
       { name: 'Política de privacidad', href: '/privacy-policy' },
       { name: 'Preguntas frecuentes', href: '/faq' },
