@@ -22,6 +22,15 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { GoogleLogin } from '@react-oauth/google';
+import {jwtDecode , JwtPayload } from "jwt-decode"
+
+interface GoogleJwtPayload extends JwtPayload {
+  given_name?: string;
+  family_name?: string;
+  email: string;
+}
+
 
 type FormType = 'sign-in' | 'sign-up';
 
@@ -52,7 +61,7 @@ const authFormSchema = (formType: FormType) => {
 
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
-  const { login, user } = useAuth();
+  const { login, user, logout } = useAuth();
   console.log("User de auth", user)
   const authController = new Auth();
   // Fin del hook
@@ -72,11 +81,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
     },
   });
 
+  
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage('');
 
     try {
+      console.log(1, values)
       const result =
         type === 'sign-up'
           ? await authController.register({
@@ -85,11 +97,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
             correo: values.email,
             contrasena: values.password,
           })
+
           : await authController.login({
             correo: values.email,
             contrasena: values.password,
             rememberMe: values.rememberMe,
           });
+          console.log(2)
 
       authController.setAccessToken(result.accessToken, result.rememberMe);
       authController.setRefreshToken(result.refreshToken, result.rememberMe);
@@ -111,6 +125,60 @@ const AuthForm = ({ type }: { type: FormType }) => {
     }
   };
 
+
+  const onSubmitGoogle = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      console.log(1, values)
+      const result =
+          await authController.register({
+            nombre: values.firstName || '',
+            apellido: values.lastName || '',
+            correo: values.email,
+            contrasena: values.password,
+          })
+
+      
+
+    } catch {
+  
+    } 
+
+    try {
+      console.log(1, values)
+      const result =
+          await authController.login({
+            correo: values.email,
+            contrasena: values.password,
+            rememberMe: values.rememberMe,
+          });
+          console.log(2)
+
+      authController.setAccessToken(result.accessToken, result.rememberMe);
+      authController.setRefreshToken(result.refreshToken, result.rememberMe);
+
+      const { accessToken, refreshToken } = result;
+      if (accessToken && refreshToken) {
+        login(accessToken);
+        window.location.href = '/home';
+      }
+
+      if (result.success) {
+        window.location.href = '/sign-in';
+      }
+
+    } catch {
+      setErrorMessage('Failed to create account. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+
+    
+  };
+  
+  
   return (
     <>
       <Form {...form}>
@@ -278,6 +346,31 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 height={32}
               />
             </Button>
+            <>
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+              console.log(credentialResponse);
+              console.log(jwtDecode(credentialResponse.credential!));
+
+              const decoded = (jwtDecode(credentialResponse.credential!)) as GoogleJwtPayload;
+
+              console.log(decoded.email)
+              
+              // Adaptar los valores de Google al formato esperado por `onSubmit`
+              const googleValues = {
+                email: decoded.email, // Correo electrónico desde Google
+                password: 'googleauth1', // Contraseña no necesaria, 
+                firstName: decoded.given_name || '', // Nombre desde Google
+                lastName: decoded.family_name || '', // Apellido desde Google
+                rememberMe: true, // O lo que sea necesario para tu lógica
+              };
+
+              // Llamar a `onSubmit` con los valores adaptados
+              onSubmitGoogle(googleValues);
+              
+            }}
+            onError={() => console.log("Login failed")}/>
+            </>
             <Button
               className="bg-white hover:bg-neutral-100 text-neutral-900 p-2 rounded-full w-12 h-12"
               onClick={() => alert('Login with Google')}
