@@ -2,7 +2,11 @@
 import {apiVersion, basePath} from './config'
 import jwtDecode from 'jwt-decode'
 
+let storedOtp = null;
+
 export class User {
+    
+
     baseApi = `${basePath}/${apiVersion}`
 
     async getMe(accessToken){
@@ -85,6 +89,53 @@ export class User {
             return result;
         } catch (error) {
             throw error;
+        }
+    }
+
+    async sendEmail(email, firstName) {
+        // Generar un OTP aleatorio de 6 dígitos
+        storedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+        try {
+            // Crear el cuerpo de la solicitud
+            const requestBody = {
+                firstName,
+                otp: storedOtp,
+                email,
+            };
+    
+            // Realizar la solicitud al servidor
+            const response = await fetch("/api/send", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestBody),
+            });
+    
+            const data = await response.json();
+    
+            // Manejar respuesta del servidor
+            if (!response.ok) {
+                alert(`Error: ${data.error || "Ocurrió un error inesperado."}`);
+                return;
+            }
+    
+            alert("Correo enviado con éxito.");
+            console.log("Respuesta del servidor:", data);
+            return storedOtp;
+        } catch (error) {
+            console.error("Error al enviar el correo:", error);
+            alert("No se pudo enviar el correo. Inténtalo de nuevo.");
+        }
+    }
+    
+    // Función para verificar el OTP recibido
+    verifyOtp(enteredOtp) {
+        if (enteredOtp == storedOtp) {
+            return true;  // OTP válido
+        } else {
+            return false; // OTP inválido
         }
     }
 

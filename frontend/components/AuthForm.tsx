@@ -178,24 +178,24 @@ const AuthForm = ({ type }: { type: FormType }) => {
     
   };
 
-  const HandleLookUserByEmail = async (email : string) => {
-    try {
-      const user = await userController.getUserByEmail(email);
-      if (user) {
-          console.log("El correo ya está registrado:", user);
-      } else {
-          console.log("Correo no se Encuentra en la base de datos.");
-      }
-  } catch (error) {
-      const err = error as { msg?: string; message?: string };
-      console.error("Error al verificar el correo:", err.msg || err.message);
-  }
+  // const HandleLookUserByEmail = async (email : string) => {
+  //   try {
+  //     const user = await userController.getUserByEmail(email);
+  //     if (user) {
+  //         console.log("El correo ya está registrado:", user);
+  //     } else {
+  //         console.log("Correo no se Encuentra en la base de datos.");
+  //     }
+  // } catch (error) {
+  //     const err = error as { msg?: string; message?: string };
+  //     console.error("Error al verificar el correo:", err.msg || err.message);
+  // }
 
 
-  };
+  // };
 
   const HandleResetPasswordOTP = async () => {
-    
+    //ESTA FUNCION GENRA UN OTP SE LO PASA A DIEGO Y SE LO PASA A MI FUNCION
 
 
   };
@@ -351,15 +351,20 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 />
                 Recordarme
               </label>
-              <Link
+              {/* <Link
                 href="/reset-password"
                 className="text-sm text-[#141e3a] hover:underline"
                 onClick={(event) => {
                   event.preventDefault(); // Previene la acción predeterminada del enlace
                   HandleLookUserByEmail("luisgmmh18v1@gmail.com");
                   HandleResetPasswordsendEmail("lmarinmu@unal.edu.co");
-                }}
-                
+                }} 
+              >
+                Olvidaste la contraseña?
+              </Link> */}
+              <Link
+                href="/reset-password"
+                className="text-sm text-[#141e3a] hover:underline"
               >
                 Olvidaste la contraseña?
               </Link>

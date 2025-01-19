@@ -1,5 +1,5 @@
 'use client';
-
+import { User } from '../api/user';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 // import { verifySecret, sendEmailOTP } from '@/lib/actions/user.actions';
 import { useRouter } from 'next/navigation';
 
+
 const OtpModal = ({
   accountId,
   email,
@@ -40,9 +41,14 @@ const OtpModal = ({
     setErrorMessage('');
 
     try {
-      const authController = new Auth();
-      await authController.verifyOtp(accountId, otp);
-      router.push(`/reset-password/${accountId}`);
+      const userController = new User();
+      const verification = await userController.verifyOtp(otp);
+    
+      if(verification){
+        router.push(`/reset-password/${accountId}`);
+      }else{
+        console.log("OTP no es correcto")
+      }
     } catch (error) {
       setErrorMessage('Failed to verify OTP. Please try again.');
     } finally {
@@ -51,8 +57,9 @@ const OtpModal = ({
   };
 
   const handleResendOtp = async () => {
-    const authController = new Auth();
-    await authController.sendOtp(email);
+    const userController = new User();
+    const user = await userController.getUserByEmail(email);
+    await userController.sendEmail(email, user.nombre);
   };
 
   return (

@@ -1,5 +1,5 @@
 'use client';
-
+import { User } from '../api/user';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -43,13 +43,20 @@ const ResetPasswordForm = () => {
     setErrorMessage('');
 
     try {
-      const authController = new Auth();
-      const response = await authController.sendOtp(values.email);
+      const userController = new User();
+      const user = await userController.getUserByEmail(values.email);
+      await userController.sendEmail(values.email, user.nombre);
+      // const response = await authController.sendOtp(values.email);
+
+      
+
+
       setOtpSent(true);
-      setAccountId(response.accountId);
+      setAccountId(user.id);
       setOtpSent(true);
-    } catch {
-      setErrorMessage('Failed to send OTP. Please try again.');
+    } catch(error) {
+      const err = error as { msg?: string; message?: string };
+      console.error("Error", err.msg || err.message);
     } finally {
       setIsLoading(false);
     }
