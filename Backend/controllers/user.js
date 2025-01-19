@@ -48,12 +48,12 @@ async function createUser(req, res){
         foto: imagePath,
     }).then((userStored) => {
         if (!userStored) {
-            return res.status(400).send({ msg: "Error al crear el usuario" });
+            res.status(400).send({ msg: "Error al crear el usuario" });
         }
-        return res.status(200).send({ msg: "Usuario creado correctamente", user: userStored, success: true });
+            res.status(200).send({ msg: "Usuario creado correctamente", user: userStored, success: true });
     }).catch((err) => {
         console.error(err);
-        return res.status(500).send({ msg: "Error al crear el usuario" });
+            res.status(500).send({ msg: "Error al crear el usuario" });
     });
 }
 

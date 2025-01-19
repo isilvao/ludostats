@@ -3,9 +3,9 @@ const sequelize = require('../db');
 
 const Usuario = sequelize.define('Usuario', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
     },
     nombre: {
         type: DataTypes.STRING,
@@ -59,11 +59,11 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: true
     },
     acudiente_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true
     },
     equipo_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true
     }
 

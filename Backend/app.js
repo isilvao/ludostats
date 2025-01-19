@@ -9,7 +9,9 @@ const app = express()
 //Import routings
 const authRoutes = require('./router/auth');
 const userRoutes = require('./router/user');
-
+const clubRoutes = require('./router/club');
+const tipoEstadisticaRoutes = require('./router/tipoEstadistica');
+const estadisticaRoutes = require('./router/estadistica');
 
 
 //Configure body parser
@@ -26,6 +28,9 @@ app.use(cors())
 // Configure routes
 app.use(`/api/${API_VERSION}`, authRoutes)
 app.use(`/api/${API_VERSION}`, userRoutes)
+app.use(`/api/${API_VERSION}`, clubRoutes)
+app.use(`/api/${API_VERSION}`, tipoEstadisticaRoutes)
+app.use(`/api/${API_VERSION}`, estadisticaRoutes)
 
 
 // Initialize models and sync with db

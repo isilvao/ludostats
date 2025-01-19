@@ -3,12 +3,12 @@ const sequelize = require('../db');
 
 const TipoEstadistica = sequelize.define('TipoEstadistica', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
     },
     club_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
     },
     nombre: {

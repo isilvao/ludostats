@@ -3,9 +3,9 @@ const sequelize = require('../db');
 
 const Torneo = sequelize.define('Torneo', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
     },
     nombre: {
         type: DataTypes.STRING,
@@ -20,7 +20,7 @@ const Torneo = sequelize.define('Torneo', {
         allowNull: true,
     },
     club_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
     },
     categoria: {
