@@ -16,8 +16,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import Image from 'next/image';
-// import { resetPassword } from '@/lib/actions/user.actions';
-// import { Auth } from '../api/auth';
 import OtpModal from '@/components/OTPModal';
 import Link from 'next/link';
 
@@ -45,18 +43,21 @@ const ResetPasswordForm = () => {
     try {
       const userController = new User();
       const user = await userController.getUserByEmail(values.email);
-      await userController.sendEmail(values.email, user.nombre);
-      // const response = await authController.sendOtp(values.email);
-
-      
-
-
-      setOtpSent(true);
+      if (!user) {
+        setErrorMessage('El correo no existe en la plataforma.');
+        return;
+      }
       setAccountId(user.id);
+      await userController.sendEmail(values.email, user.nombre);
       setOtpSent(true);
-    } catch(error) {
-      const err = error as { msg?: string; message?: string };
-      console.error("Error", err.msg || err.message);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(
+          error.message || 'No se pudo enviar el OTP. Inténtalo de nuevo.'
+        );
+      } else {
+        setErrorMessage('No se pudo enviar el OTP. Inténtalo de nuevo.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +68,6 @@ const ResetPasswordForm = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="auth-form">
           <h1 className="form-title">Restablecer Contraseña</h1>
-
           <FormField
             control={form.control}
             name="email"
@@ -86,12 +86,10 @@ const ResetPasswordForm = () => {
                     />
                   </FormControl>
                 </div>
-
                 <FormMessage className="shad-form-message" />
               </FormItem>
             )}
           />
-
           <Button
             type="submit"
             className="form-submit-button"

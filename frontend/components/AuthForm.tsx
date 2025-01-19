@@ -3,13 +3,11 @@
 // Import for backend functions
 import { Auth } from '../api/auth';
 import { User } from '../api/user';
-import { useAuth } from "../hooks"
-//
+import { useAuth } from '../hooks';
 
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -24,14 +22,13 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GoogleLogin } from '@react-oauth/google';
-import {jwtDecode , JwtPayload } from "jwt-decode"
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 
 interface GoogleJwtPayload extends JwtPayload {
   given_name?: string;
   family_name?: string;
   email: string;
 }
-
 
 type FormType = 'sign-in' | 'sign-up';
 
@@ -63,7 +60,7 @@ const authFormSchema = (formType: FormType) => {
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
   const { login, user, logout } = useAuth();
-  console.log("User de auth", user)
+  console.log('User de auth', user);
   const authController = new Auth();
   const userController = new User();
 
@@ -84,14 +81,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
     },
   });
 
-  
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage('');
 
     try {
-      console.log(1, values)
+      console.log(1, values);
       const result =
         type === 'sign-up'
           ? await authController.register({
@@ -125,36 +120,28 @@ const AuthForm = ({ type }: { type: FormType }) => {
     }
   };
 
-
   const onSubmitGoogle = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage('');
 
     try {
-      console.log(1, values)
-      const result =
-          await authController.register({
-            nombre: values.firstName || '',
-            apellido: values.lastName || '',
-            correo: values.email,
-            contrasena: values.password,
-          })
-
-      
-
-    } catch {
-  
-    } 
+      console.log(1, values);
+      const result = await authController.register({
+        nombre: values.firstName || '',
+        apellido: values.lastName || '',
+        correo: values.email,
+        contrasena: values.password,
+      });
+    } catch {}
 
     try {
-      console.log(1, values)
-      const result =
-          await authController.login({
-            correo: values.email,
-            contrasena: values.password,
-            rememberMe: values.rememberMe,
-          });
-          console.log(2)
+      console.log(1, values);
+      const result = await authController.login({
+        correo: values.email,
+        contrasena: values.password,
+        rememberMe: values.rememberMe,
+      });
+      console.log(2);
 
       authController.setAccessToken(result.accessToken, result.rememberMe);
       authController.setRefreshToken(result.refreshToken, result.rememberMe);
@@ -168,83 +155,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
       if (result.success) {
         window.location.href = '/sign-in';
       }
-
     } catch {
       setErrorMessage('Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
     }
-
-    
   };
 
-  // const HandleLookUserByEmail = async (email : string) => {
-  //   try {
-  //     const user = await userController.getUserByEmail(email);
-  //     if (user) {
-  //         console.log("El correo ya está registrado:", user);
-  //     } else {
-  //         console.log("Correo no se Encuentra en la base de datos.");
-  //     }
-  // } catch (error) {
-  //     const err = error as { msg?: string; message?: string };
-  //     console.error("Error al verificar el correo:", err.msg || err.message);
-  // }
-
-
-  // };
-
-  const HandleResetPasswordOTP = async () => {
-    //ESTA FUNCION GENRA UN OTP SE LO PASA A DIEGO Y SE LO PASA A MI FUNCION
-
-
-  };
-
-  const HandleResetPasswordsendEmail = async (email : string) => {
-    try {
-      // Validar los datos
-    var firstName = "Pepe"
-      if (!email || !firstName) {
-        alert("Por favor ingresa tu nombre y correo electrónico.");
-        return;
-      }
-
-      // Crear el cuerpo de la solicitud
-      const requestBody = {
-        firstName,
-        otp: "123456", // Valor estático por ahora; puedes integrarlo con un generador OTP
-        email,
-      };
-
-      // Realizar la solicitud al servidor
-      const response = await fetch("/api/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-
-      // Manejar respuesta del servidor
-      if (!response.ok) {
-        alert(`Error: ${data.error || "Ocurrió un error inesperado."}`);
-        return;
-      }
-
-      alert("Correo enviado con éxito.");
-      console.log("Respuesta del servidor:", data);
-    } catch (error) {
-      console.error("Error al enviar el correo:", error);
-      alert("No se pudo enviar el correo. Inténtalo de nuevo.");
-    }
-
-  };
-
-
- 
-  
   return (
     <>
       <Form {...form}>
@@ -393,7 +310,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
             type="submit"
             className="form-submit-button"
             disabled={isLoading}
-            
           >
             {type === 'sign-in' ? 'Ingresar' : 'Registrarse'}
             {isLoading && (
@@ -428,29 +344,31 @@ const AuthForm = ({ type }: { type: FormType }) => {
               />
             </Button>
             <>
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-              console.log(credentialResponse);
-              console.log(jwtDecode(credentialResponse.credential!));
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  console.log(credentialResponse);
+                  console.log(jwtDecode(credentialResponse.credential!));
 
-              const decoded = (jwtDecode(credentialResponse.credential!)) as GoogleJwtPayload;
+                  const decoded = jwtDecode(
+                    credentialResponse.credential!
+                  ) as GoogleJwtPayload;
 
-              console.log(decoded.email)
-              
-              // Adaptar los valores de Google al formato esperado por `onSubmit`
-              const googleValues = {
-                email: decoded.email, // Correo electrónico desde Google
-                password: 'googleauth1', // Contraseña no necesaria, 
-                firstName: decoded.given_name || '', // Nombre desde Google
-                lastName: decoded.family_name || '', // Apellido desde Google
-                rememberMe: true, // O lo que sea necesario para tu lógica
-              };
+                  console.log(decoded.email);
 
-              // Llamar a `onSubmit` con los valores adaptados
-              onSubmitGoogle(googleValues);
-              
-            }}
-            onError={() => console.log("Login failed")}/>
+                  // Adaptar los valores de Google al formato esperado por `onSubmit`
+                  const googleValues = {
+                    email: decoded.email, // Correo electrónico desde Google
+                    password: 'googleauth1', // Contraseña no necesaria,
+                    firstName: decoded.given_name || '', // Nombre desde Google
+                    lastName: decoded.family_name || '', // Apellido desde Google
+                    rememberMe: true, // O lo que sea necesario para tu lógica
+                  };
+
+                  // Llamar a `onSubmit` con los valores adaptados
+                  onSubmitGoogle(googleValues);
+                }}
+                onError={() => console.log('Login failed')}
+              />
             </>
             <Button
               className="bg-white hover:bg-neutral-100 text-neutral-900 p-2 rounded-full w-12 h-12"

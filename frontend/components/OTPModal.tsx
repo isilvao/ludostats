@@ -1,4 +1,7 @@
 'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { User } from '../api/user';
 import {
   AlertDialog,
@@ -9,18 +12,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from '@/components/ui/input-otp';
-import React, { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-// import { verifySecret, sendEmailOTP } from '@/lib/actions/user.actions';
-import { useRouter } from 'next/navigation';
-
 
 const OtpModal = ({
   accountId,
@@ -34,6 +32,8 @@ const OtpModal = ({
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [attempts, setAttempts] = useState(0);
+  const maxAttempts = 3;
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -43,11 +43,19 @@ const OtpModal = ({
     try {
       const userController = new User();
       const verification = await userController.verifyOtp(otp);
-    
-      if(verification){
+
+      if (verification) {
         router.push(`/reset-password/${accountId}`);
-      }else{
-        console.log("OTP no es correcto")
+      } else {
+        setAttempts((prev) => prev + 1);
+        if (attempts + 1 >= maxAttempts) {
+          setErrorMessage(
+            'Has alcanzado el número máximo de intentos. Inténtalo más tarde.'
+          );
+          // Aquí puedes agregar lógica adicional, como bloquear el envío de OTP o notificar al usuario.
+        } else {
+          setErrorMessage('Código incorrecto. Inténtalo de nuevo.');
+        }
       }
     } catch (error) {
       setErrorMessage('Failed to verify OTP. Please try again.');
@@ -57,9 +65,13 @@ const OtpModal = ({
   };
 
   const handleResendOtp = async () => {
-    const userController = new User();
-    const user = await userController.getUserByEmail(email);
-    await userController.sendEmail(email, user.nombre);
+    try {
+      const userController = new User();
+      const user = await userController.getUserByEmail(email);
+      await userController.sendEmail(email, user.nombre);
+    } catch (error) {
+      setErrorMessage('No se pudo enviar el OTP. Inténtalo de nuevo.');
+    }
   };
 
   return (
@@ -67,7 +79,7 @@ const OtpModal = ({
       <AlertDialogContent className="shad-alert-dialog">
         <AlertDialogHeader className="relative flex justify-center">
           <AlertDialogTitle className="h2 text-center">
-            Enter Your OTP
+            Ingresa el código
             <Image
               src="/assets/icons/close-dark.svg"
               alt="close"
@@ -78,7 +90,7 @@ const OtpModal = ({
             />
           </AlertDialogTitle>
           <AlertDialogDescription className="subtitle-2 text-center text-light-100">
-            We&apos;ve sent a code to{' '}
+            Hemos enviado un código a{' '}
             <span className="pl-1 text-brand">{email}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -100,6 +112,7 @@ const OtpModal = ({
               onClick={handleSubmit}
               className="shad-submit-btn h-12"
               type="button"
+              disabled={isLoading || attempts >= maxAttempts}
             >
               Submit
               {isLoading && (
@@ -116,14 +129,15 @@ const OtpModal = ({
             {errorMessage && <p className="error-message">*{errorMessage}</p>}
 
             <div className="subtitle-2 mt-2 text-center text-light-100">
-              Didn&apos;t get a code?
+              No recibiste el código?
               <Button
                 type="button"
                 variant="link"
                 className="pl-1 text-brand"
                 onClick={handleResendOtp}
+                disabled={isLoading || attempts >= maxAttempts}
               >
-                Click to resend
+                Click para reenviar
               </Button>
             </div>
           </div>

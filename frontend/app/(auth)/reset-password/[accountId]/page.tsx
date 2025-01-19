@@ -1,11 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import SetNewPasswordForm from '@/components/SetNewPassword';
 
 const ResetPasswordPage = () => {
-  const router = useRouter();
-  const { accountId } = router.query;
+  const { accountId } = useParams();
 
   if (!accountId) {
     return <p>Loading...</p>;
