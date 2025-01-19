@@ -2,6 +2,7 @@
 
 // Import for backend functions
 import { Auth } from '../api/auth';
+import { User } from '../api/user';
 import { useAuth } from "../hooks"
 //
 
@@ -64,6 +65,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const { login, user, logout } = useAuth();
   console.log("User de auth", user)
   const authController = new Auth();
+  const userController = new User();
+
   // Fin del hook
 
   const [isLoading, setIsLoading] = useState(false);
@@ -177,7 +180,73 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
     
   };
-  
+
+  const HandleLookUserByEmail = async (email : string) => {
+    try {
+      const user = await userController.getUserByEmail(email);
+      if (user) {
+          console.log("El correo ya está registrado:", user);
+      } else {
+          console.log("Correo no se Encuentra en la base de datos.");
+      }
+  } catch (error) {
+      const err = error as { msg?: string; message?: string };
+      console.error("Error al verificar el correo:", err.msg || err.message);
+  }
+
+
+  };
+
+  const HandleResetPasswordOTP = async () => {
+    
+
+
+  };
+
+  const HandleResetPasswordsendEmail = async (email : string) => {
+    try {
+      // Validar los datos
+    var firstName = "Pepe"
+      if (!email || !firstName) {
+        alert("Por favor ingresa tu nombre y correo electrónico.");
+        return;
+      }
+
+      // Crear el cuerpo de la solicitud
+      const requestBody = {
+        firstName,
+        otp: "123456", // Valor estático por ahora; puedes integrarlo con un generador OTP
+        email,
+      };
+
+      // Realizar la solicitud al servidor
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      // Manejar respuesta del servidor
+      if (!response.ok) {
+        alert(`Error: ${data.error || "Ocurrió un error inesperado."}`);
+        return;
+      }
+
+      alert("Correo enviado con éxito.");
+      console.log("Respuesta del servidor:", data);
+    } catch (error) {
+      console.error("Error al enviar el correo:", error);
+      alert("No se pudo enviar el correo. Inténtalo de nuevo.");
+    }
+
+  };
+
+
+ 
   
   return (
     <>
@@ -288,6 +357,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
               <Link
                 href="/forgot-password"
                 className="text-sm text-[#141e3a] hover:underline"
+                onClick={(event) => {
+                  event.preventDefault(); // Previene la acción predeterminada del enlace
+                  HandleLookUserByEmail("luisgmmh18v1@gmail.com");
+                  HandleResetPasswordsendEmail("lmarinmu@unal.edu.co");
+                }}
+                
               >
                 Olvidaste la contraseña?
               </Link>
@@ -313,6 +388,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
             type="submit"
             className="form-submit-button"
             disabled={isLoading}
+            
           >
             {type === 'sign-in' ? 'Ingresar' : 'Registrarse'}
             {isLoading && (

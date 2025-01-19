@@ -97,10 +97,34 @@ async function deleteUser(req,res){
     })
 }
 
+async function getUserByEmail(req, res) {
+    const { correo } = req.query; // Obtenemos "correo" desde los parámetros de consulta
+
+    if (!correo) {
+        return res.status(400).send({ msg: "El correo electrónico es requerido" });
+    }
+
+    try {
+        const user = await User.findOne({ where: { correo } }); // Busca el usuario por correo
+
+        if (!user) {
+            console.log("el usuario no existe")
+            return res.status(404).send({ msg: "Usuario no encontrado" });
+            
+        }
+ 
+        res.status(200).send(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ msg: "Error en el servidor" });
+    }
+}
+
 module.exports = {
     getMe,
     getUsers,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUserByEmail
 }

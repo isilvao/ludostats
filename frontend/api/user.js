@@ -74,4 +74,21 @@ export class User {
             throw error
         }
     }
+
+    async getUserByEmail(correo) {
+        try {
+            console.log("llegue a la api del email")
+            const url = `${this.baseApi}/user/email?correo=${correo}`;
+            const response = await fetch(url);
+            const result = await response.json();
+            if (response.status !== 200) throw result;
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+ 
+
+
 }
