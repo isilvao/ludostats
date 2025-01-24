@@ -53,6 +53,42 @@ export class User {
     }
   }
 
+
+  async updateMePassword(data) {
+    const { id } = data;
+
+    console.log(id,"entro a la api")
+    
+    //const baseApi = `https://ludostats.up.railway.app/api/v1`
+
+    try {
+      const url = `${this.baseApi}/user2/${id}`;
+
+      const params = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.log('error observado por la api', error)
+      throw error;
+    }
+  }
+
+
+
+
+
+
   async deteleMe(accessToken, id) {
     try {
       const url = `${this.baseApi}/user/${id}`;

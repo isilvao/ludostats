@@ -25,9 +25,9 @@ export async function POST(request: Request) {
     const { data, error } = await resend.emails.send({
       from: 'general@ludostats.com',
       to: [email],
-      subject: 'Welcome to Acme!',
+      subject: 'Solicitud cambio de contraseña',
       text: ``,
-      html: `<h1>Welcome, ${firstName}!</h1><p>Your One-Time Password (OTP) is: <strong>${otp}</strong></p><p>Please use this code to complete your action.</p>`,
+      html: `<h1>Bienvenido, ${firstName}!</h1><p>Tu codigo de un solo uso es: <strong>${otp}</strong></p><p>Porfavor usa esta codigo para reestablecer tu contraseña</p>`,
     });
 
     console.log(error);

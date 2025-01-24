@@ -77,6 +77,31 @@ async function updateUser(req,res){
             res.status(404).send({msg: "No se ha encontrado el usuario"})
         } else {
             res.status(200).send({msg: "Usuario actualizado correctamente"})
+            console.log("usuario actualizada correctamente")
+        }
+    }).catch((err) => {
+        res.status(500).send({msg: "Error al actualizar el usuario"})
+    })
+}
+
+async function updatePassword(req,res){
+    const { id } = req.params
+    const userData = req.body;
+
+    if (userData.contrasena){
+        const salt = bcrypt.genSaltSync(10)
+        userData.contrasena = bcrypt.hashSync(userData.contrasena, salt)
+    } else {
+        delete userData.contrasena
+    }
+
+
+    User.update(userData, {where: {id}}).then((response) => {
+        if (!response[0]) {
+            res.status(404).send({msg: "No se ha encontrado el usuario"})
+        } else {
+            res.status(200).send({msg: "Usuario actualizado correctamente"})
+            console.log("usuario actualizada correctamente")
         }
     }).catch((err) => {
         res.status(500).send({msg: "Error al actualizar el usuario"})
@@ -126,5 +151,6 @@ module.exports = {
     createUser,
     updateUser,
     deleteUser,
-    getUserByEmail
+    getUserByEmail,
+    updatePassword
 }

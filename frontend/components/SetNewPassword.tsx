@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Auth } from '../api/auth';
+import { User } from '../api/user';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -50,11 +50,20 @@ const SetNewPasswordForm = ({ accountId }: { accountId: string }) => {
     setErrorMessage('');
 
     try {
-      const authController = new Auth();
-      await authController.resetPassword(accountId, values.newPassword);
+      const userController = new User();
+      const data = {
+        id: accountId, 
+        contrasena: values.newPassword
+      };
+
+      //console.log(data)
+      
+      await userController.updateMePassword(data);
+      console.log('Contrasena actualizada correctamente')
       router.push('/sign-in');
-    } catch {
+    } catch(err) {
       setErrorMessage('Failed to reset password. Please try again.');
+      throw(err)
     } finally {
       setIsLoading(false);
     }
