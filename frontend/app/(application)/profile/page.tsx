@@ -8,12 +8,13 @@ import { Loader2 } from 'lucide-react'
 import { User, Auth } from '../../../api'
 
 
+
 const Profile = () => {
   const userController = new User();
   const authController = new Auth();
-  const { user, accessToken } = useAuth();
+  const { logout, user, accessToken } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
-
+  //alert(user.correo)
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
@@ -45,14 +46,29 @@ const Profile = () => {
 
   // Cambiar esta funcion por un async y poner await antes del userController.deleteMe
   const handleDeleteAccount = () => {
-    //const result = userController.deteleMe(accessToken, user.id)
+    const result = userController.deteleMe(accessToken, user.id)
 
     // if (result.success) {
-    //   authController.logout()
     //   alert('Cuenta eliminada con éxito')
     // }
+  
+    
     alert('Función para eliminar cuenta en desarrollo');
   };
+
+
+  const handleSignOut = async () => {
+    try {
+      await logout(); // Espera a que logout termine
+      console.log(user); // Imprime user después de que logout finalice
+      window.location.href = '/';
+    } catch (error) {
+      console.log("Error during logout:", error);
+    }
+
+
+  };
+  
 
   const renderContent = () => {
     switch (selectedOption) {
@@ -296,9 +312,17 @@ const Profile = () => {
             </li>
             <li
               className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-gray-100"
-              onClick={handleDeleteAccount}
+              onClick={handleSignOut}
+              //onClick={logout()}
             >
-              Boorar mi cuenta
+              Cerrar sesión
+            </li>
+            <li
+              className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-gray-100"
+              onClick={handleDeleteAccount}
+              //onClick={logout()}
+            >
+              Borrar mi cuenta
             </li>
           </ul>
         </div>

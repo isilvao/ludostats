@@ -60,11 +60,18 @@ export function AuthProvider(props) {
         }
     }
 
-    const logout = () => {
-        setUser(null)
-        setToken(null)
-        authController.removeTokens()
-    }
+    const logout = async () => {
+        return new Promise((resolve) => {
+          // Simulamos un pequeño retraso para ilustrar un flujo asincrónico
+          setTimeout(() => {
+            setUser(null);
+            setToken(null);
+            authController.removeTokens();
+            console.log("Cuenta cerrada exitosamente");
+            resolve(); // Marca que la operación se ha completado
+          }, 0); // Retraso mínimo; puede eliminarse si no es necesario
+        });
+      };
 
     const data = {
         accessToken: token,
