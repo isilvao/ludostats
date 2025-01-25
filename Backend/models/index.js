@@ -4,6 +4,7 @@ const Equipo = require('./Equipo');
 const Estadistica = require('./Estadistica');
 const TipoEstadistica = require('./TipoEstadistica');
 const Torneo = require('./Torneo');
+const UsuarioClub = require('./UsuarioClub');
 
 const sequelize = require('../db');
 
@@ -19,7 +20,6 @@ const initModels = async () => {
 
 //Asociaciones:
 /**               USUARIO                 */
-
 // Relación: un Usuario (acudiente) puede tener varios usuarios dependientes
 Usuario.hasMany(Usuario, {
   foreignKey: 'acudiente_id',
@@ -34,6 +34,11 @@ Usuario.belongsTo(Usuario, {
 // usuario.getAcudiente() o usuario.getDependientes()
 
 Usuario.hasMany(Club, { foreignKey: 'gerente_id' });
+
+Usuario.hasMany(UsuarioClub, {
+  foreignKey: 'usuario_id',
+  as: 'clubes',
+})
 
 Usuario.belongsTo(Equipo, {
   foreignKey: 'equipo_id',
@@ -76,6 +81,11 @@ Club.hasMany(TipoEstadistica, {
   foreignKey: 'club_id',
   as: 'tiposEstadistica'
 });
+
+Club.hasMany(UsuarioClub, {
+  foreignKey: 'club_id',
+  as: 'usuarios',
+})
 
 /**               EQUIPO                 */
 Equipo.belongsTo(Usuario, {
@@ -126,6 +136,19 @@ Torneo.belongsTo(Club, {
   as: 'club',
 })
 
+/**               USUARIOCLUB                 */
+UsuarioClub.belongsTo(Usuario, {
+  foreignKey: 'usuario_id',
+  targetKey: 'id',
+  as: 'usuario',
+})
+
+UsuarioClub.belongsTo(Club, {
+  foreignKey: 'club_id',
+  targetKey: 'id',
+  as: 'club',
+})
 
 
-module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, Torneo, initModels };
+
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, Torneo, initModels };

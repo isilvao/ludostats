@@ -1,6 +1,16 @@
 const TipoEstadistica = require('../models/TipoEstadistica');
 const User = require('../models/Usuario');
 
+
+// TODO:
+// Para hacer la validación necesito saber si el usuario pertenece al club
+// Es necesario crear una nueva tabla en la base de datos
+// La tabla se llamará UsuarioClub
+// UsuarioClub tendrá dos campos: id_usuario y id_club
+// Revisar diagrama ER y crea el modelo en el backend
+// Luego crea la relación en el modelo de Usuario
+// Luego crea la relación en el modelo de Club
+
 const validateAuthorizedUser = async (req, res, next) => {
     const {user_id} = req.user
 

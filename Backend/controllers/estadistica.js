@@ -14,5 +14,6 @@ async function getMyEstadisticas(req, res){
 
 
 module.exports = {
-    getMyEstadisticas
+    getMyEstadisticas,
+    
 }
