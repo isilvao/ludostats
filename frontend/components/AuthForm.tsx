@@ -30,7 +30,7 @@ interface GoogleJwtPayload extends JwtPayload {
   email: string;
 }
 
-type FormType = 'sign-in' | 'sign-up';
+type FormType = 'sign-in' | 'sign-up' | 'join-club';
 
 const authFormSchema = (formType: FormType) => {
   return z.object({
@@ -39,18 +39,22 @@ const authFormSchema = (formType: FormType) => {
       .string()
       .min(6, 'La contraseña debe tener al menos 6 caracteres'),
     firstName:
-      formType === 'sign-up'
+      formType === 'sign-up' || formType === 'join-club'
         ? z
             .string()
             .min(2, 'El nombre debe tener al menos 2 caracteres')
             .max(50, 'El nombre debe tener menos de 50 caracteres')
         : z.string().optional(),
     lastName:
-      formType === 'sign-up'
+      formType === 'sign-up' || formType === 'join-club'
         ? z
             .string()
             .min(2, 'El apellido debe tener al menos 2 caracteres')
             .max(50, 'El apellido debe tener menos de 50 caracteres')
+        : z.string().optional(),
+    clubCode:
+      formType === 'join-club'
+        ? z.string().min(1, 'El código del club es requerido')
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
@@ -58,13 +62,10 @@ const authFormSchema = (formType: FormType) => {
 };
 
 const AuthForm = ({ type }: { type: FormType }) => {
-  // Hook para traer la informacion del usuario (Ivan)
   const { login, user, logout } = useAuth();
   console.log('User de auth', user);
   const authController = new Auth();
   const userController = new User();
-
-  // Fin del hook
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -77,6 +78,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
       lastName: '',
       email: '',
       password: '',
+      clubCode: '',
       rememberMe: false,
     },
   });
@@ -88,12 +90,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
     try {
       console.log(1, values);
       const result =
-        type === 'sign-up'
+        type === 'sign-up' || type === 'join-club' //Si en register se puede hacer lo de unir a un club tambien
           ? await authController.register({
               nombre: values.firstName || '',
               apellido: values.lastName || '',
               correo: values.email,
               contrasena: values.password,
+              clubCode: values.clubCode,
             })
           : await authController.login({
               correo: values.email,
@@ -167,10 +170,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="auth-form">
           <h1 className="form-title">
-            {type === 'sign-in' ? 'Inicia sesión en tu cuenta' : 'Registrarse'}
+            {type === 'sign-in'
+              ? 'Inicia sesión en tu cuenta'
+              : type === 'sign-up'
+                ? 'Registrarse'
+                : 'Unirse a un club'}
           </h1>
 
-          {type === 'sign-up' && (
+          {(type === 'sign-up' || type === 'join-club') && (
             <>
               <FormField
                 control={form.control}
@@ -258,6 +265,30 @@ const AuthForm = ({ type }: { type: FormType }) => {
             )}
           />
 
+          {type === 'join-club' && (
+            <FormField
+              control={form.control}
+              name="clubCode"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="shad-form-item">
+                    <FormLabel className="shad-form-label">
+                      Código del Club
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ingresa el código del club"
+                        className="shad-input"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="shad-form-message" />
+                </FormItem>
+              )}
+            />
+          )}
+
           {type === 'sign-in' && (
             <div className="flex items-center justify-between mt-2 mb-4">
               <label className="flex items-center text-sm">
@@ -268,17 +299,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 />
                 Recordarme
               </label>
-              {/* <Link
-                href="/reset-password"
-                className="text-sm text-[#141e3a] hover:underline"
-                onClick={(event) => {
-                  event.preventDefault(); // Previene la acción predeterminada del enlace
-                  HandleLookUserByEmail("luisgmmh18v1@gmail.com");
-                  HandleResetPasswordsendEmail("lmarinmu@unal.edu.co");
-                }} 
-              >
-                Olvidaste la contraseña?
-              </Link> */}
               <Link
                 href="/reset-password"
                 className="text-sm text-[#141e3a] hover:underline"
@@ -287,7 +307,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
               </Link>
             </div>
           )}
-          {type === 'sign-up' && (
+          {(type === 'sign-up' || type === 'join-club') && (
             <p className="text-sm text-center mt-4 text-neutral-500">
               Al registrarte, aceptas nuestras{' '}
               <Link
@@ -311,7 +331,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
             className="form-submit-button"
             disabled={isLoading}
           >
-            {type === 'sign-in' ? 'Ingresar' : 'Registrarse'}
+            {type === 'sign-in'
+              ? 'Ingresar'
+              : type === 'sign-up'
+                ? 'Registrarse'
+                : 'Unirse al club'}
             {isLoading && (
               <Image
                 src="/assets/icons/loader.svg"
@@ -355,16 +379,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
                   console.log(decoded.email);
 
-                  // Adaptar los valores de Google al formato esperado por `onSubmit`
                   const googleValues = {
-                    email: decoded.email, // Correo electrónico desde Google
-                    password: 'googleauth1', // Contraseña no necesaria,
-                    firstName: decoded.given_name || '', // Nombre desde Google
-                    lastName: decoded.family_name || '', // Apellido desde Google
-                    rememberMe: true, // O lo que sea necesario para tu lógica
+                    email: decoded.email,
+                    password: 'googleauth1',
+                    firstName: decoded.given_name || '',
+                    lastName: decoded.family_name || '',
+                    rememberMe: true,
                   };
 
-                  // Llamar a `onSubmit` con los valores adaptados
                   onSubmitGoogle(googleValues);
                 }}
                 onError={() => console.log('Login failed')}
