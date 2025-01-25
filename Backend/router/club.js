@@ -8,9 +8,9 @@ const api = express.Router()
 const md_upload = multiparty({uploadDir: './uploads/clubLogo'})
 
 
-api.get('/myclubs/:id_gerente', [md_auth.asureAuth], clubController.getClubs) // id del gerente
-api.post('/newclub/:id_gerente', [md_auth.asureAuth, md_upload, md_clubOwn.validateGerente], clubController.createClub) // id del gerente
-api.patch('/updateclub/:id_gerente/:id_club', [md_auth.asureAuth, md_upload, md_clubOwn.validateGerente, md_clubOwn.validateClubOwnership], clubController.updateClub) // id del club
-api.delete('/deleteclub/:id_gerente/:id_club', [md_auth.asureAuth, md_clubOwn.validateGerente, md_clubOwn.validateClubOwnership], clubController.deleteClub) // id del club y del gerente
+api.get('/myclubs', [md_auth.asureAuth, md_clubOwn.validateAdmin], clubController.getClubs) // id del gerente
+api.post('/newclub', [md_auth.asureAuth, md_upload, md_clubOwn.validateGerente], clubController.createClub) // id del gerente
+api.patch('/updateclub/:id_club', [md_auth.asureAuth, md_upload, md_clubOwn.validateGerente, md_clubOwn.validateClubOwnership], clubController.updateClub) // id del club
+api.delete('/deleteclub/:id_club', [md_auth.asureAuth, md_clubOwn.validateGerente, md_clubOwn.validateClubOwnership], clubController.deleteClub) // id del club y del gerente
 
 module.exports = api

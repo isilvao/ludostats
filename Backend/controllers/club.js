@@ -1,11 +1,18 @@
 const image = require("../utils/image");
 const Club = require('../models/Club');
+const UsuarioClub = require('../models/UsuarioClub');
 
 async function getClubs(req, res){
 
-    const { id_gerente } = req.params;
+    const user = req.completeData;
+    let response = null
 
-    const response = await Club.findAll({where: {gerente_id: id_gerente}})
+    if (user.rol === 'administrador'){
+        response = await UsuarioClub.findAll({where: {usuario_id: user.id}, include: [{model: Club, as: 'club'}]})
+        response = response.map((club) => club.club)
+    } else {
+        response = await Club.findAll({where: {gerente_id: user.id}})
+    }
 
     if (!response) {
         res.status(404).send({msg: "No se han encontrado los clubes"})
@@ -23,7 +30,7 @@ async function createClub(req, res){
      * - Logo (opcional)
      */
 
-    const { id_gerente } = req.params;
+    const { user_id } = req.user;
 
     let imagePath = null
 
@@ -33,7 +40,7 @@ async function createClub(req, res){
 
     Club.create({
         ...req.body,
-        gerente_id: id_gerente,
+        gerente_id: user_id,
         logo: imagePath,
     }).then((clubStored) => {
         if (!clubStored) {
@@ -73,7 +80,7 @@ async function updateClub(req, res){
 }
 
 async function deleteClub(req, res){
-    const {id_club } = req.params
+    const { id_club } = req.params
 
     const club = req.club
 

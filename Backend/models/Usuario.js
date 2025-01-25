@@ -66,7 +66,6 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.UUID,
         allowNull: true
     }
-
 });
 
 module.exports = Usuario;

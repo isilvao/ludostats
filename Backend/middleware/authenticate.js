@@ -1,4 +1,5 @@
 const jwt = require('../utils/jwt');
+const User = require('../models/Usuario')
 
 function asureAuth(req, res, next){
 
