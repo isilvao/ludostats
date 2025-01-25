@@ -3,11 +3,10 @@ import { CiCamera } from 'react-icons/ci';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
-import { useAuth } from "../../../hooks"
-import { Loader2 } from 'lucide-react'
-import { User, Auth } from '../../../api'
-
-
+import { useAuth } from '../../../hooks';
+import { Loader2 } from 'lucide-react';
+import { User, Auth } from '../../../api';
+import { getProfileImage } from '@/lib/utils';
 
 const Profile = () => {
   const userController = new User();
@@ -19,10 +18,14 @@ const Profile = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        <h2 className="text-2xl font-semibold mt-4 text-foreground">Loading...</h2>
-        <p className="text-muted-foreground mt-2">Please wait while we fetch your data.</p>
+        <h2 className="text-2xl font-semibold mt-4 text-foreground">
+          Loading...
+        </h2>
+        <p className="text-muted-foreground mt-2">
+          Please wait while we fetch your data.
+        </p>
       </div>
-    )
+    );
   }
 
   //Modificar esta funcion por un async y poner await antes del userController.updateMe
@@ -36,26 +39,24 @@ const Profile = () => {
       telefono: '',
       fecha_nacimiento: '',
       genero: '',
-    }
+    };
 
-    console.log(data)
+    console.log(data);
     //const result = userController.updateMe(accessToken, data)
 
     alert('Función para guardar cambios en desarrollo');
-  }
+  };
 
   // Cambiar esta funcion por un async y poner await antes del userController.deleteMe
   const handleDeleteAccount = () => {
-    const result = userController.deteleMe(accessToken, user.id)
+    const result = userController.deteleMe(accessToken, user.id);
 
     // if (result.success) {
     //   alert('Cuenta eliminada con éxito')
     // }
-  
-    
+
     alert('Función para eliminar cuenta en desarrollo');
   };
-
 
   const handleSignOut = async () => {
     try {
@@ -63,12 +64,9 @@ const Profile = () => {
       console.log(user); // Imprime user después de que logout finalice
       window.location.href = '/';
     } catch (error) {
-      console.log("Error during logout:", error);
+      console.log('Error during logout:', error);
     }
-
-
   };
-  
 
   const renderContent = () => {
     switch (selectedOption) {
@@ -137,7 +135,10 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label htmlFor="fecha_nacimiento" className="block text-gray-600">
+                <label
+                  htmlFor="fecha_nacimiento"
+                  className="block text-gray-600"
+                >
                   Fecha de Nacimiento
                 </label>
                 <Input
@@ -278,7 +279,7 @@ const Profile = () => {
           <div className="flex flex-col items-center">
             <div className="relative">
               <Image
-                src="/assets/images/person-1.png"
+                src={getProfileImage(user)}
                 alt="Foto de perfil"
                 className="rounded-full w-24 h-24 "
                 width={100}
