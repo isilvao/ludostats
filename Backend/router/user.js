@@ -16,7 +16,13 @@ api.patch('/user/updateMe', [md_auth.asureAuth, md_upload], userController.updat
 api.get('/users', [md_auth.asureAuth], userController.getUsers)
 api.post('/user', [md_auth.asureAuth, md_upload], userController.createUser)
 api.patch('/user/:id', [md_auth.asureAuth, md_upload], userController.updateUser)
+
+api.patch('/user2/:id', userController.updatePassword)
+
 api.delete('/user/:id', [md_auth.asureAuth], userController.deleteUser)
+api.get('/user/email', userController.getUserByEmail);
+
+//api.get('/user/:correo', [md_auth.asureAuth], userController.getUserByEmail)
 
 // Club Routes
 api.get('/:id_club/users', [md_auth.asureAuth, md_clubOwn.validateAdmin, md_clubOwn.validateAdminClubOwnership], userController.getUsersByClub)

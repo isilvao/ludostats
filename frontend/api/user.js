@@ -1,77 +1,160 @@
+import { apiVersion, basePath } from './config';
+import jwtDecode from 'jwt-decode';
 
-import {apiVersion, basePath} from './config'
-import jwtDecode from 'jwt-decode'
+let storedOtp = null;
 
 export class User {
-    baseApi = `${basePath}/${apiVersion}`
+  baseApi = `${basePath}/${apiVersion}`;
 
-    async getMe(accessToken){
-        try {
-            const url = `${this.baseApi}/user/me`
+  async getMe(accessToken) {
+    try {
+      const url = `${this.baseApi}/user/me`;
 
-            const params = {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            }
+      const params = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
 
-            const response = await fetch(url, params)
-            const result = await response.json()
+      const response = await fetch(url, params);
+      const result = await response.json();
 
-            if (response.status !== 200) throw result
+      if (response.status !== 200) throw result;
 
-            return result
-        } catch (error) {
-            throw error
-        }
+      return result;
+    } catch (error) {
+      throw error;
     }
+  }
 
-    async updateMe(accessToken, data){
+  async updateMe(accessToken, data) {
+    const { id } = data;
 
-        const { id } = data
+    try {
+      const url = `${this.baseApi}/user/${id}`;
 
-        try {
-            const url = `${this.baseApi}/user/${id}`
+      const params = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(data),
+      };
 
-            const params = {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(data)
-            }
+      const response = await fetch(url, params);
+      const result = await response.json();
 
-            const response = await fetch(url, params)
-            const result = await response.json()
+      if (response.status !== 200) throw result;
 
-            if (response.status !== 200) throw result
-
-            return result
-        } catch (error) {
-            throw error
-        }
+      return result;
+    } catch (error) {
+      throw error;
     }
+  }
 
-    async deteleMe(accessToken, id){
-        try {
-            const url = `${this.baseApi}/user/${id}`
 
-            const params = {
-                method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            }
+  async updateMePassword(data) {
+    const { id } = data;
 
-            const response = await fetch(url, params)
-            const result = await response.json()
+    console.log(id,"entro a la api")
+    
+    //const baseApi = `https://ludostats.up.railway.app/api/v1`
 
-            if (response.status !== 200) throw result
+    try {
+      const url = `${this.baseApi}/user2/${id}`;
 
-            return result
-        } catch (error) {
-            throw error
-        }
+      const params = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.log('error observado por la api', error)
+      throw error;
     }
+  }
+
+
+
+
+
+
+  async deteleMe(accessToken, id) {
+    try {
+      const url = `${this.baseApi}/user/${id}`;
+
+      const params = {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserByEmail(correo) {
+    try {
+      const url = `${this.baseApi}/user/email?correo=${correo}`;
+      const response = await fetch(url);
+      const result = await response.json();
+      if (response.status !== 200)
+        throw new Error('El correo no existe en la plataforma.');
+      return result;
+    } catch (error) {
+      throw new Error('El correo no existe en la plataforma.');
+    }
+  }
+
+  async sendEmail(email, firstName) {
+    storedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    try {
+      const requestBody = {
+        firstName,
+        otp: storedOtp,
+        email,
+      };
+
+      const response = await fetch('/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ocurrió un error inesperado.');
+      }
+
+      return storedOtp;
+    } catch (error) {
+      throw new Error('No se pudo enviar el correo. Inténtalo de nuevo.');
+    }
+  }
+
+  verifyOtp(enteredOtp) {
+    return enteredOtp === storedOtp;
+  }
 }

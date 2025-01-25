@@ -126,6 +126,31 @@ async function updateUser(req,res){
             res.status(404).send({msg: "No se ha encontrado el usuario"})
         } else {
             res.status(200).send({msg: "Usuario actualizado correctamente"})
+            console.log("usuario actualizada correctamente")
+        }
+    }).catch((err) => {
+        res.status(500).send({msg: "Error al actualizar el usuario"})
+    })
+}
+
+async function updatePassword(req,res){
+    const { id } = req.params
+    const userData = req.body;
+
+    if (userData.contrasena){
+        const salt = bcrypt.genSaltSync(10)
+        userData.contrasena = bcrypt.hashSync(userData.contrasena, salt)
+    } else {
+        delete userData.contrasena
+    }
+
+
+    User.update(userData, {where: {id}}).then((response) => {
+        if (!response[0]) {
+            res.status(404).send({msg: "No se ha encontrado el usuario"})
+        } else {
+            res.status(200).send({msg: "Usuario actualizado correctamente"})
+            console.log("usuario actualizada correctamente")
         }
     }).catch((err) => {
         res.status(500).send({msg: "Error al actualizar el usuario"})
@@ -235,6 +260,29 @@ async function getUsersByClub(req, res){
 }
 
 
+async function getUserByEmail(req, res) {
+    const { correo } = req.query; // Obtenemos "correo" desde los parámetros de consulta
+
+    if (!correo) {
+        return res.status(400).send({ msg: "El correo electrónico es requerido" });
+    }
+
+    try {
+        const user = await User.findOne({ where: { correo } }); // Busca el usuario por correo
+
+        if (!user) {
+            console.log("el usuario no existe")
+            return res.status(404).send({ msg: "Usuario no encontrado" });
+            
+        }
+ 
+        res.status(200).send(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ msg: "Error en el servidor" });
+    }
+}
+
 module.exports = {
     getMe,
     getUsers,
@@ -245,5 +293,7 @@ module.exports = {
     updateMe,
     userJoinsClub,
     getMyAcudiente,
-    getMyChildren
+    getMyChildren,
+    getUserByEmail,
+    updatePassword
 }

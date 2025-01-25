@@ -2,13 +2,12 @@
 
 // Import for backend functions
 import { Auth } from '../api/auth';
-import { useAuth } from "../hooks"
-//
+import { User } from '../api/user';
+import { useAuth } from '../hooks';
 
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -22,6 +21,14 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+
+interface GoogleJwtPayload extends JwtPayload {
+  given_name?: string;
+  family_name?: string;
+  email: string;
+}
 
 type FormType = 'sign-in' | 'sign-up';
 
@@ -34,16 +41,16 @@ const authFormSchema = (formType: FormType) => {
     firstName:
       formType === 'sign-up'
         ? z
-          .string()
-          .min(2, 'El nombre debe tener al menos 2 caracteres')
-          .max(50, 'El nombre debe tener menos de 50 caracteres')
+            .string()
+            .min(2, 'El nombre debe tener al menos 2 caracteres')
+            .max(50, 'El nombre debe tener menos de 50 caracteres')
         : z.string().optional(),
     lastName:
       formType === 'sign-up'
         ? z
-          .string()
-          .min(2, 'El apellido debe tener al menos 2 caracteres')
-          .max(50, 'El apellido debe tener menos de 50 caracteres')
+            .string()
+            .min(2, 'El apellido debe tener al menos 2 caracteres')
+            .max(50, 'El apellido debe tener menos de 50 caracteres')
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
@@ -52,9 +59,11 @@ const authFormSchema = (formType: FormType) => {
 
 const AuthForm = ({ type }: { type: FormType }) => {
   // Hook para traer la informacion del usuario (Ivan)
-  const { login, user } = useAuth();
-  console.log("User de auth", user)
+  const { login, user, logout } = useAuth();
+  console.log('User de auth', user);
   const authController = new Auth();
+  const userController = new User();
+
   // Fin del hook
 
   const [isLoading, setIsLoading] = useState(false);
@@ -77,19 +86,20 @@ const AuthForm = ({ type }: { type: FormType }) => {
     setErrorMessage('');
 
     try {
+      console.log(1, values);
       const result =
         type === 'sign-up'
           ? await authController.register({
-            nombre: values.firstName || '',
-            apellido: values.lastName || '',
-            correo: values.email,
-            contrasena: values.password,
-          })
+              nombre: values.firstName || '',
+              apellido: values.lastName || '',
+              correo: values.email,
+              contrasena: values.password,
+            })
           : await authController.login({
-            correo: values.email,
-            contrasena: values.password,
-            rememberMe: values.rememberMe,
-          });
+              correo: values.email,
+              contrasena: values.password,
+              rememberMe: values.rememberMe,
+            });
 
       authController.setAccessToken(result.accessToken, result.rememberMe);
       authController.setRefreshToken(result.refreshToken, result.rememberMe);
@@ -103,7 +113,48 @@ const AuthForm = ({ type }: { type: FormType }) => {
       if (result.success) {
         window.location.href = '/sign-in';
       }
+    } catch {
+      setErrorMessage('Failed to create account. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const onSubmitGoogle = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      console.log(1, values);
+      const result = await authController.register({
+        nombre: values.firstName || '',
+        apellido: values.lastName || '',
+        correo: values.email,
+        contrasena: values.password,
+      });
+    } catch {}
+
+    try {
+      console.log(1, values);
+      const result = await authController.login({
+        correo: values.email,
+        contrasena: values.password,
+        rememberMe: values.rememberMe,
+      });
+      console.log(2);
+
+      authController.setAccessToken(result.accessToken, result.rememberMe);
+      authController.setRefreshToken(result.refreshToken, result.rememberMe);
+
+      const { accessToken, refreshToken } = result;
+      if (accessToken && refreshToken) {
+        login(accessToken);
+        window.location.href = '/home';
+      }
+
+      if (result.success) {
+        window.location.href = '/sign-in';
+      }
     } catch {
       setErrorMessage('Failed to create account. Please try again.');
     } finally {
@@ -217,8 +268,19 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 />
                 Recordarme
               </label>
+              {/* <Link
+                href="/reset-password"
+                className="text-sm text-[#141e3a] hover:underline"
+                onClick={(event) => {
+                  event.preventDefault(); // Previene la acción predeterminada del enlace
+                  HandleLookUserByEmail("luisgmmh18v1@gmail.com");
+                  HandleResetPasswordsendEmail("lmarinmu@unal.edu.co");
+                }} 
+              >
+                Olvidaste la contraseña?
+              </Link> */}
               <Link
-                href="/forgot-password"
+                href="/reset-password"
                 className="text-sm text-[#141e3a] hover:underline"
               >
                 Olvidaste la contraseña?
@@ -228,7 +290,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
           {type === 'sign-up' && (
             <p className="text-sm text-center mt-4 text-neutral-500">
               Al registrarte, aceptas nuestras{' '}
-              <Link href="/terms" className="text-[#141e3a] hover:underline">
+              <Link
+                href="/terms-of-service"
+                className="text-[#141e3a] hover:underline"
+              >
                 Condiciones
               </Link>{' '}
               y nuestra{' '}
@@ -278,6 +343,33 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 height={32}
               />
             </Button>
+            <>
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  console.log(credentialResponse);
+                  console.log(jwtDecode(credentialResponse.credential!));
+
+                  const decoded = jwtDecode(
+                    credentialResponse.credential!
+                  ) as GoogleJwtPayload;
+
+                  console.log(decoded.email);
+
+                  // Adaptar los valores de Google al formato esperado por `onSubmit`
+                  const googleValues = {
+                    email: decoded.email, // Correo electrónico desde Google
+                    password: 'googleauth1', // Contraseña no necesaria,
+                    firstName: decoded.given_name || '', // Nombre desde Google
+                    lastName: decoded.family_name || '', // Apellido desde Google
+                    rememberMe: true, // O lo que sea necesario para tu lógica
+                  };
+
+                  // Llamar a `onSubmit` con los valores adaptados
+                  onSubmitGoogle(googleValues);
+                }}
+                onError={() => console.log('Login failed')}
+              />
+            </>
             <Button
               className="bg-white hover:bg-neutral-100 text-neutral-900 p-2 rounded-full w-12 h-12"
               onClick={() => alert('Login with Google')}
