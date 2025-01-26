@@ -17,6 +17,16 @@ api.patch('/user2/:id', userController.updatePassword)
 api.delete('/user/:id', [md_auth.asureAuth], userController.deleteUser)
 api.get('/user/email', userController.getUserByEmail);
 
-//api.get('/user/:correo', [md_auth.asureAuth], userController.getUserByEmail)
+// Ruta para crear una invitación (requiere autenticación)
+api.post('/invitaciones', userController.generarInvitacion);
+
+// Ruta para verificar una invitación por ID
+api.get('/invitaciones/:id', userController.verificarInvitacion);
+
+// Ruta para marcar una invitación como usada
+api.patch('/invitaciones/:id/usar',  userController.marcarInvitacionUsada);
+
+// Ruta para eliminar una invitación
+api.delete('/invitaciones/:id', userController.eliminarInvitacion);
 
 module.exports = api

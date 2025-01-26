@@ -6,11 +6,13 @@ const TipoEstadistica = require('./TipoEstadistica');
 const Torneo = require('./Torneo');
 
 const sequelize = require('../db');
+const Invitacion = require('./invitacion');
 
 const initModels = async () => {
   try {
     // Sincroniza los modelos con la base de datos
     await sequelize.sync({ force: false }); // Cambia a true para reiniciar las tablas (solo en desarrollo)
+    // await sequelize.sync({ alter: true });
     console.log('Modelos sincronizados.');
   } catch (error) {
     console.error('Error al sincronizar los modelos:', error.message);
@@ -125,6 +127,33 @@ Torneo.belongsTo(Club, {
   targetKey: 'id',
   as: 'club',
 })
+
+
+
+
+
+/**               INVITACION              */
+// Relación: una invitación pertenece a un usuario (creador)
+Invitacion.belongsTo(Usuario, {
+  foreignKey: 'creator_id',
+  targetKey: 'id',
+  as: 'creador'
+});
+
+// Relación: una invitación puede tener un usuario adicional (extra_id)
+Invitacion.belongsTo(Usuario, {
+  foreignKey: 'extra_id',
+  targetKey: 'id',
+  as: 'extraUsuario'
+});
+
+// Relación: una invitación pertenece a un club
+Invitacion.belongsTo(Club, {
+  foreignKey: 'club_id',
+  targetKey: 'id',
+  as: 'club'
+});
+
 
 
 
