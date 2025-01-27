@@ -9,7 +9,7 @@ const Header = () => {
   const { user } = useAuth();
   return (
     <nav className="header">
-      <Link href="/home">
+      <Link href="/inicio">
         <Image
           src="/assets/images/logo-ludostats.svg"
           width={150}

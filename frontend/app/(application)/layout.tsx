@@ -1,20 +1,21 @@
 'use client';
 import React from 'react';
 import Header from '@/components/Header';
-import { redirect } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import { useAuth } from '../../hooks';
 
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const { user, loading } = useAuth();
+  const pathname = usePathname();
 
   if (loading) {
     return null;
   }
 
   if (!user) {
-    return redirect('/sign-in');
+    return redirect(`/sign-up?next=${encodeURIComponent(pathname)}`);
   }
 
   return (
