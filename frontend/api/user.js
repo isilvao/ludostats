@@ -153,7 +153,4 @@ export class User {
     return enteredOtp === storedOtp;
   }
 
-  async 
-
-
 }
