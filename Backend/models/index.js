@@ -7,6 +7,8 @@ const Torneo = require('./Torneo');
 
 const sequelize = require('../db');
 const Invitacion = require('./invitacion');
+const UsuariosEquipos = require('./UsuariosEquipos');
+
 
 const initModels = async () => {
   try {
@@ -148,13 +150,29 @@ Invitacion.belongsTo(Usuario, {
 });
 
 // Relación: una invitación pertenece a un club
-Invitacion.belongsTo(Club, {
-  foreignKey: 'club_id',
+Invitacion.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
   targetKey: 'id',
-  as: 'club'
+  as: 'equipo'
 });
 
 
+///// penis
 
+// Un usuario puede pertenecer a varios equipos
+Usuario.belongsToMany(Equipo, {
+    through: UsuariosEquipos,
+    foreignKey: 'usuario_id',
+    otherKey: 'equipo_id',
+    as: 'equipos'
+});
 
-module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, Torneo, initModels };
+// Un equipo puede tener varios usuarios
+Equipo.belongsToMany(Usuario, {
+    through: UsuariosEquipos,
+    foreignKey: 'equipo_id',
+    otherKey: 'usuario_id',
+    as: 'integrantes1'
+});
+
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, Torneo, initModels, };

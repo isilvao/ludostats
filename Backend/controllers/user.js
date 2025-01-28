@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const image = require("../utils/image");
 const User = require('../models/Usuario')
 const Invitacion = require('../models/invitacion');
+const Club = require('../models/Club');
 
 async function getMe(req, res){
 
@@ -146,89 +147,56 @@ async function getUserByEmail(req, res) {
     }
 }
 
-
-const generarInvitacion = async (req, res) => {
-    const { club_id, rol_invitado, creator_id, extra_id } = req.body;
-
-    if (!club_id || !rol_invitado || !creator_id) {
-        return res.status(400).json({ msg: "Faltan datos obligatorios" });
-    }
+const buscarEquiposUsuario = async (req, res) => {
+    const { usuario_id } = req.params;
 
     try {
-        const nuevaInvitacion = await Invitacion.create({
-            club_id,
-            rol_invitado,
-            usado: false,
-            fecha_exp: new Date(new Date().setDate(new Date().getDate() + 7)), // Expira en 7 días
-            creator_id,
-            extra_id: extra_id || null,
-        });
+        const registros = await UsuariosEquipos.findAll({ where: { usuario_id } });
 
-        res.status(201).json({ msg: "Invitación creada correctamente", invitacion: nuevaInvitacion });
+        if (!registros.length) {
+            return res.status(404).json({ msg: 'El usuario no pertenece a ningún equipo' });
+        }
+
+        const idsEquipos = registros.map((registro) => registro.equipo_id);
+
+        const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
+
+        res.status(200).json(equipos);
     } catch (error) {
-        console.error("Error al crear la invitación:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
+        console.error('Error al buscar equipos del usuario:', error);
+        res.status(500).json({ msg: 'Error interno del servidor' });
     }
 };
 
-const verificarInvitacion = async (req, res) => {
-    const { id } = req.params;
+
+
+
+const buscarClubesUsuario = async (req, res) => {
+    const { usuario_id } = req.params;
 
     try {
-        const invitacion = await Invitacion.findByPk(id);
+        const registros = await UsuariosEquipos.findAll({ where: { usuario_id } });
 
-        if (!invitacion) {
-            return res.status(404).json({ msg: "Invitación no encontrada" });
+        if (!registros.length) {
+            return res.status(404).json({ msg: 'El usuario no pertenece a ningún equipo' });
         }
 
-        res.status(200).json(invitacion);
+        const idsEquipos = registros.map((registro) => registro.equipo_id);
+
+        const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
+
+        const idsClubes = [...new Set(equipos.map((equipo) => equipo.club_id))];
+
+        const clubes = await Club.findAll({ where: { id: idsClubes } });
+
+        res.status(200).json(clubes);
     } catch (error) {
-        console.error("Error al verificar la invitación:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
+        console.error('Error al buscar clubes del usuario:', error);
+        res.status(500).json({ msg: 'Error interno del servidor' });
     }
 };
 
-const marcarInvitacionUsada = async (req, res) => {
-    const { id } = req.params;
 
-    try {
-        const invitacion = await Invitacion.findByPk(id);
-
-        if (!invitacion) {
-            return res.status(404).json({ msg: "Invitación no encontrada" });
-        }
-
-        if (invitacion.usado) {
-            return res.status(400).json({ msg: "La invitación ya ha sido utilizada" });
-        }
-
-        invitacion.usado = true;
-        await invitacion.save();
-
-        res.status(200).json({ msg: "Invitación marcada como usada" });
-    } catch (error) {
-        console.error("Error al actualizar la invitación:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
-    }
-};
-
-// Controlador para eliminar una invitación
-const eliminarInvitacion = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const resultado = await Invitacion.destroy({ where: { id } });
-
-        if (resultado === 0) {
-            return res.status(404).json({ msg: "Invitación no encontrada" });
-        }
-
-        res.status(200).json({ msg: "Invitación eliminada correctamente" });
-    } catch (error) {
-        console.error("Error al eliminar la invitación:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
-    }
-};
 
 
 module.exports = {
@@ -239,8 +207,7 @@ module.exports = {
     deleteUser,
     getUserByEmail,
     updatePassword,
-    generarInvitacion,
-    verificarInvitacion,
-    marcarInvitacionUsada,
-    eliminarInvitacion
+    buscarEquiposUsuario,
+    buscarClubesUsuario
+
 }

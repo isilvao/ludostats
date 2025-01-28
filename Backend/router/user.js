@@ -1,6 +1,7 @@
 const express = require('express')
 const multiparty = require('connect-multiparty')
 const userController = require('../controllers/user')
+const invitacionController = require('../controllers/invitacion')
 const md_auth = require('../middleware/authenticate')
 
 const api = express.Router()
@@ -17,16 +18,12 @@ api.patch('/user2/:id', userController.updatePassword)
 api.delete('/user/:id', [md_auth.asureAuth], userController.deleteUser)
 api.get('/user/email', userController.getUserByEmail);
 
-// Ruta para crear una invitación (requiere autenticación)
-api.post('/invitaciones', userController.generarInvitacion);
+api.post('/invitaciones', invitacionController.generarInvitacion);
+api.get('/invitaciones/:clave', invitacionController.verificarInvitacion);
+api.patch('/invitaciones/:clave/usar', invitacionController.marcarInvitacionUsada);
+api.delete('/invitaciones/:clave', invitacionController.eliminarInvitacion);
 
-// Ruta para verificar una invitación por ID
-api.get('/invitaciones/:id', userController.verificarInvitacion);
-
-// Ruta para marcar una invitación como usada
-api.patch('/invitaciones/:id/usar',  userController.marcarInvitacionUsada);
-
-// Ruta para eliminar una invitación
-api.delete('/invitaciones/:id', userController.eliminarInvitacion);
+api.get('/usuarios/:usuario_id/equipos', userController.buscarEquiposUsuario);
+api.get('/usuarios/:usuario_id/clubs', userController.buscarClubsUsuario);
 
 module.exports = api

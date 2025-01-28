@@ -1,14 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-
 const Invitacion = sequelize.define('Invitacion', {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
-    club_id: {
+    equipo_id: {
         type: DataTypes.UUID,
         allowNull: false,
     },
@@ -31,11 +30,16 @@ const Invitacion = sequelize.define('Invitacion', {
     },
     extra_id: {
         type: DataTypes.UUID,
-        allowNull: true, // Puede ser NULL
-    }
+        allowNull: true,
+    },
+    clave: {
+        type: DataTypes.STRING(6),
+        allowNull: false,
+        unique: true,
+    },
 }, {
-    tableName: 'Invitaciones', 
-    timestamps: false,  // No se incluyen campos createdAt/updatedAt
+    tableName: 'Invitaciones',
+    timestamps: false,
 });
 
 module.exports = Invitacion;

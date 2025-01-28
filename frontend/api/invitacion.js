@@ -3,35 +3,24 @@ import { apiVersion, basePath } from './config';
 export class InvitacionesAPI {
   baseApi = `${basePath}/${apiVersion}`;
 
-  // Convertir rol de string a número
-  getRolNumber(rol) {
-    switch (rol.toLowerCase()) {
-      case 'deportista':
-        return 0;
-      case 'profesor':
-        return 1;
-      case 'acudiente':
-        return 2;
-      default:
-        throw new Error('Rol no válido');
+  // Función para generar una clave aleatoria de 6 caracteres
+  generarClaveAleatoria() {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let clave = '';
+    for (let i = 0; i < 6; i++) {
+      clave += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
     }
+    return clave;
   }
 
-  // Acortar UUID para la URL (ejemplo base64)
-  encodeUUID(uuid) {
-    return btoa(uuid).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  }
-
-  // Decodificar el UUID cuando se recibe la versión corta
-  decodeUUID(encoded) {
-    return atob(encoded.replace(/-/g, '+').replace(/_/g, '/'));
-  }
-
-  // 1. Crear invitación (POST)
-  async crearInvitacion(clubId, rolStr, creatorId, extraId = null) {
+  // Crear una invitación enviando la clave generada al backend
+  async crearInvitacion(equipoId, rolStr, creatorId, extraId = null) {
     try {
       const rolNumerico = this.getRolNumber(rolStr);
-      
+
+      // Generar la clave aleatoria en el frontend
+      const claveGenerada = this.generarClaveAleatoria();
+
       // Calcular la fecha de expiración (hoy + 1 día)
       const fechaExp = new Date();
       fechaExp.setDate(fechaExp.getDate() + 1);
@@ -43,12 +32,13 @@ export class InvitacionesAPI {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          club_id: clubId,
+          equipo_id: equipoId,
           rol_invitado: rolNumerico,
           usado: false,
           fecha_exp: fechaExp.toISOString(),
           creator_id: creatorId,
           extra_id: extraId,
+          clave: claveGenerada,
         }),
       };
 
@@ -57,20 +47,18 @@ export class InvitacionesAPI {
 
       if (response.status !== 201) throw result;
 
-      // Acortar el UUID para la URL
-      const shortId = this.encodeUUID(result.id);
-
-      return `https://www.ludostats.com/unirse/${shortId}`;
+      // Retornar la URL con la clave generada
+      console.log(`https://www.ludostats.com/unirse/${claveGenerada}`)
+      return `https://www.ludostats.com/unirse/${claveGenerada}`;
     } catch (error) {
       throw new Error('Error al crear la invitación.');
     }
   }
 
-  // 2. Verificar invitación por ID (GET)
-  async verificarInvitacion(encodedId) {
+  // Obtener invitación por clave
+  async verificarInvitacion(clave) {
     try {
-      const uuid = this.decodeUUID(encodedId);
-      const url = `${this.baseApi}/invitaciones/${uuid}`;
+      const url = `${this.baseApi}/invitaciones/${clave}`;
       const response = await fetch(url);
       const result = await response.json();
 
@@ -82,11 +70,10 @@ export class InvitacionesAPI {
     }
   }
 
-  // 3. Marcar invitación como usada (PATCH)
-  async marcarInvitacionUsada(encodedId) {
+  // Marcar invitación como usada
+  async marcarInvitacionUsada(clave) {
     try {
-      const uuid = this.decodeUUID(encodedId);
-      const url = `${this.baseApi}/invitaciones/${uuid}/usar`;
+      const url = `${this.baseApi}/invitaciones/${clave}/usar`;
 
       const params = {
         method: 'PATCH',
@@ -107,11 +94,10 @@ export class InvitacionesAPI {
     }
   }
 
-  // 4. Eliminar invitación (DELETE)
-  async eliminarInvitacion(encodedId) {
+  // Eliminar invitación por clave
+  async eliminarInvitacion(clave) {
     try {
-      const uuid = this.decodeUUID(encodedId);
-      const url = `${this.baseApi}/invitaciones/${uuid}`;
+      const url = `${this.baseApi}/invitaciones/${clave}`;
 
       const params = {
         method: 'DELETE',
@@ -131,4 +117,18 @@ export class InvitacionesAPI {
       throw new Error('Error al eliminar la invitación.');
     }
   }
+
+  // Convertir rol de string a número
+  getRolNumber(rol) {
+    switch (rol.toLowerCase()) {
+        case 'deportista':
+            return 1;
+        case 'acudiente':
+            return 2;
+        case 'profesor':
+            return 3;
+        default:
+            throw new Error('Rol no válido');
+    }
+}
 }
