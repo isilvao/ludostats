@@ -56,7 +56,10 @@ const Navbar = () => {
       </div>
 
       <div className="hidden lg:flex items-center gap-4">
-        <Link href="/join" className="hover:text-gray-700 transition">
+        <Link
+          href="/sign-up?next=/join"
+          className="hover:text-gray-700 transition"
+        >
           Unirme a un club
         </Link>
         <Link
@@ -119,7 +122,7 @@ const Navbar = () => {
               </ul>
               <div className="flex flex-col items-center gap-4 mt-8 text-center">
                 <Link
-                  href="/join"
+                  href="/sign-up?next=/join"
                   className="hover:text-gray-700 w-full transition"
                 >
                   Unirme a un club

@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const image = require("../utils/image");
 const User = require('../models/Usuario')
+const Invitacion = require('../models/invitacion');
+const Club = require('../models/Club');
 const UsuarioClub = require('../models/UsuarioClub')
 
 
@@ -299,6 +301,58 @@ async function getUserByEmail(req, res) {
     }
 }
 
+const buscarEquiposUsuario = async (req, res) => {
+    const { usuario_id } = req.params;
+
+    try {
+        const registros = await UsuariosEquipos.findAll({ where: { usuario_id } });
+
+        if (!registros.length) {
+            return res.status(404).json({ msg: 'El usuario no pertenece a ningún equipo' });
+        }
+
+        const idsEquipos = registros.map((registro) => registro.equipo_id);
+
+        const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
+
+        res.status(200).json(equipos);
+    } catch (error) {
+        console.error('Error al buscar equipos del usuario:', error);
+        res.status(500).json({ msg: 'Error interno del servidor' });
+    }
+};
+
+
+
+
+const buscarClubesUsuario = async (req, res) => {
+    const { usuario_id } = req.params;
+
+    try {
+        const registros = await UsuariosEquipos.findAll({ where: { usuario_id } });
+
+        if (!registros.length) {
+            return res.status(404).json({ msg: 'El usuario no pertenece a ningún equipo' });
+        }
+
+        const idsEquipos = registros.map((registro) => registro.equipo_id);
+
+        const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
+
+        const idsClubes = [...new Set(equipos.map((equipo) => equipo.club_id))];
+
+        const clubes = await Club.findAll({ where: { id: idsClubes } });
+
+        res.status(200).json(clubes);
+    } catch (error) {
+        console.error('Error al buscar clubes del usuario:', error);
+        res.status(500).json({ msg: 'Error interno del servidor' });
+    }
+};
+
+
+
+
 module.exports = {
     getMe,
     getUsers,
@@ -311,5 +365,8 @@ module.exports = {
     getOneChild,
     getMyChildren,
     getUserByEmail,
-    updatePassword
+    updatePassword,
+    buscarEquiposUsuario,
+    buscarClubesUsuario
+
 }

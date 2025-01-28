@@ -4,9 +4,14 @@ const userController = require('../controllers/user')
 const md_auth = require('../middleware/authenticate')
 const md_clubOwn = require('../middleware/clubValidations')
 const md_user = require('../middleware/userValidation')
+const express = require("express");
+const multiparty = require("connect-multiparty");
+const userController = require("../controllers/user");
+const invitacionController = require("../controllers/invitacion");
+const md_auth = require("../middleware/authenticate");
 
-const api = express.Router()
-const md_upload = multiparty({uploadDir: './uploads/usersFoto'})
+const api = express.Router();
+const md_upload = multiparty({ uploadDir: "./uploads/usersFoto" });
 
 // Personal Routes
 api.get('/user/me', [md_auth.asureAuth],userController.getMe)
@@ -16,13 +21,30 @@ api.patch('/user/updateMe', [md_auth.asureAuth, md_upload], userController.updat
 api.get('/users', [md_auth.asureAuth], userController.getUsers)
 api.post('/user', [md_auth.asureAuth, md_upload], userController.createUser)
 api.patch('/user/:id', [md_auth.asureAuth, md_upload], userController.updateUser)
+api.get("/user/me", [md_auth.asureAuth], userController.getMe);
+api.get("/users", [md_auth.asureAuth], userController.getUsers);
+api.post("/user", [md_auth.asureAuth, md_upload], userController.createUser);
+api.patch(
+  "/user/:id",
+  [md_auth.asureAuth, md_upload],
+  userController.updateUser
+);
 
-api.patch('/user2/:id', userController.updatePassword)
+api.patch("/user2/:id", userController.updatePassword);
 
-api.delete('/user/:id', [md_auth.asureAuth], userController.deleteUser)
-api.get('/user/email', userController.getUserByEmail);
+api.delete("/user/:id", [md_auth.asureAuth], userController.deleteUser);
+api.get("/user/email", userController.getUserByEmail);
 
-//api.get('/user/:correo', [md_auth.asureAuth], userController.getUserByEmail)
+api.post("/invitaciones", invitacionController.generarInvitacion);
+api.get("/invitaciones/:clave", invitacionController.verificarInvitacion);
+api.patch(
+  "/invitaciones/:clave/usar",
+  invitacionController.marcarInvitacionUsada
+);
+api.delete("/invitaciones/:clave", invitacionController.eliminarInvitacion);
+
+api.get("/usuarios/:usuario_id/equipos", userController.buscarEquiposUsuario);
+api.get("/usuarios/:usuario_id/clubs", userController.buscarClubesUsuario);
 
 // Club Routes
 api.get('/:id_club/users', [md_auth.asureAuth, md_clubOwn.validateAdmin, md_clubOwn.validateAdminClubOwnership], userController.getUsersByClub)
@@ -34,3 +56,4 @@ api.get('/children/:id_child', [md_auth.asureAuth, md_user.validateChildOrFamily
 
 
 module.exports = api
+module.exports = api;

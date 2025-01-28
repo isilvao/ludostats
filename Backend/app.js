@@ -1,40 +1,40 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const { initModels } = require('./models/index')
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const { initModels } = require('./models/index');
 const { API_VERSION } = require('./constants');
 
-const app = express()
+const app = express();
 
-//Import routings
+// Import routings
 const authRoutes = require('./router/auth');
 const userRoutes = require('./router/user');
 const clubRoutes = require('./router/club');
 const tipoEstadisticaRoutes = require('./router/tipoEstadistica');
 const estadisticaRoutes = require('./router/estadistica');
+const equiposRoutes = require('./router/equipos'); // Rutas para Equipos
+const usuariosEquiposRoutes = require('./router/usuariosEquipos'); // Rutas para UsuariosEquipos
 
+// Configure body parser
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-//Configure body parser
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
-
-//Configure static files
-app.use(express.static('uploads'))
+// Configure static files
+app.use(express.static('uploads'));
 
 // Configure HTTP - CORS
-app.use(cors())
-
+app.use(cors());
 
 // Configure routes
-app.use(`/api/${API_VERSION}`, authRoutes)
-app.use(`/api/${API_VERSION}`, userRoutes)
-app.use(`/api/${API_VERSION}`, clubRoutes)
-app.use(`/api/${API_VERSION}`, tipoEstadisticaRoutes)
-app.use(`/api/${API_VERSION}`, estadisticaRoutes)
-
+app.use(`/api/${API_VERSION}`, authRoutes);
+app.use(`/api/${API_VERSION}`, userRoutes);
+app.use(`/api/${API_VERSION}`, clubRoutes);
+app.use(`/api/${API_VERSION}`, tipoEstadisticaRoutes);
+app.use(`/api/${API_VERSION}`, estadisticaRoutes);
+app.use(`/api/${API_VERSION}`, equiposRoutes); // Agregar rutas de equipos
+app.use(`/api/${API_VERSION}`, usuariosEquiposRoutes); // Agregar rutas de usuariosEquipos
 
 // Initialize models and sync with db
-initModels()
+initModels();
 
-
-module.exports = app
+module.exports = app;
