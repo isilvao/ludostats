@@ -9,12 +9,18 @@ async function getMe(req, res){
 
     const {user_id} = req.user
 
-    const response = await User.findByPk(user_id)
+    const response = await User.findOne({where: {id: user_id}, include: {model: User, as: 'acudiente'}})
 
     if (!response) {
         res.status(404).send({msg: "No se ha encontrado el usuario"})
-    } else {
+    } else if (response.rol === 'deportista'){
         res.status(200).send(response)
+        console.log(response)
+    } else {
+        response.acudiente = null
+        res.status(200).send(response)
+
+        console.log(response)
     }
 }
 
@@ -180,24 +186,6 @@ async function deleteUser(req,res){
 }
 //*********************     ACUDIENTE ROUTES     *********************
 
-async function getMyAcudiente(req, res){
-    const {user_id} = req.user
-
-    try {
-        const deportista = await User.findOne({where: {id: user_id}, include: {model: User, as: 'acudiente'}})
-
-        console.log(deportista)
-
-        if (!deportista){
-            res.status(404).send({msg: "No se ha encontrado el usuario"})
-        } else {
-            res.status(200).send(deportista.acudiente)
-        }
-    } catch (error) {
-        res.status(500).send({msg: "Error al obtener el acudiente"})
-    }
-}
-
 async function getMyChildren(req, res){
     const {user_id} = req.user
 
@@ -214,6 +202,35 @@ async function getMyChildren(req, res){
     }
 }
 
+async function getOneChild(req, res){
+    const { id_child } = req.params
+    const {user_id} = req.user
+
+    try {
+        const acudiente = await User.findOne({
+            where: { id: user_id },
+            include: { model: User, as: 'dependientes' }
+        });
+
+        if (!acudiente) {
+            return res.status(404).send({ msg: "No se ha encontrado el acudiente" });
+        }
+        console.log(id_child)
+        console.log("dependientes IDs:", acudiente.dependientes.map(dep => dep.id));
+
+        const dependiente = acudiente.dependientes.find(dependientes => dependientes.id.toString() === id_child);
+
+        if (!dependiente) {
+            return res.status(404).send({ msg: "No se ha encontrado el dependiente con el ID especificado" });
+        }
+
+        return res.status(200).send(dependiente);
+
+    } catch (error) {
+        console.error(error); // Log del error
+        return res.status(500).send({ msg: "Error al obtener al deportista" });
+    }
+}
 
 //*********************     CLUB ROUTES     *********************
 
@@ -260,6 +277,28 @@ async function getUsersByClub(req, res){
 }
 
 
+async function getUserByEmail(req, res) {
+    const { correo } = req.query; // Obtenemos "correo" desde los parámetros de consulta
+
+    if (!correo) {
+        return res.status(400).send({ msg: "El correo electrónico es requerido" });
+    }
+
+    try {
+        const user = await User.findOne({ where: { correo } }); // Busca el usuario por correo
+
+        if (!user) {
+            console.log("el usuario no existe")
+            return res.status(404).send({ msg: "Usuario no encontrado" });
+        }
+
+        res.status(200).send(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ msg: "Error en el servidor" });
+    }
+}
+
 module.exports = {
     getMe,
     getUsers,
@@ -269,6 +308,8 @@ module.exports = {
     getUsersByClub,
     updateMe,
     userJoinsClub,
-    getMyAcudiente,
-    getMyChildren
+    getOneChild,
+    getMyChildren,
+    getUserByEmail,
+    updatePassword
 }
