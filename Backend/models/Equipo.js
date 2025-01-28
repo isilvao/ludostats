@@ -21,7 +21,7 @@ const Equipo = sequelize.define('Equipo', {
     },
     entrenador_id: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
     },
     club_id: {
         type: DataTypes.UUID,

@@ -7,11 +7,15 @@ const Torneo = require('./Torneo');
 const UsuarioClub = require('./UsuarioClub');
 
 const sequelize = require('../db');
+const Invitacion = require('./invitacion');
+const UsuariosEquipos = require('./UsuariosEquipos');
+
 
 const initModels = async () => {
   try {
     // Sincroniza los modelos con la base de datos
     await sequelize.sync({ force: false }); // Cambia a true para reiniciar las tablas (solo en desarrollo)
+    // await sequelize.sync({ alter: true });
     console.log('Modelos sincronizados.');
   } catch (error) {
     console.error('Error al sincronizar los modelos:', error.message);
@@ -150,5 +154,47 @@ UsuarioClub.belongsTo(Club, {
 })
 
 
+
+
+/**               INVITACION              */
+// Relación: una invitación pertenece a un usuario (creador)
+Invitacion.belongsTo(Usuario, {
+  foreignKey: 'creator_id',
+  targetKey: 'id',
+  as: 'creador'
+});
+
+// Relación: una invitación puede tener un usuario adicional (extra_id)
+Invitacion.belongsTo(Usuario, {
+  foreignKey: 'extra_id',
+  targetKey: 'id',
+  as: 'extraUsuario'
+});
+
+// Relación: una invitación pertenece a un club
+Invitacion.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  targetKey: 'id',
+  as: 'equipo'
+});
+
+
+///// penis
+
+// Un usuario puede pertenecer a varios equipos
+Usuario.belongsToMany(Equipo, {
+  through: UsuariosEquipos,
+  foreignKey: 'usuario_id',
+  otherKey: 'equipo_id',
+  as: 'equipos'
+});
+
+// Un equipo puede tener varios usuarios
+Equipo.belongsToMany(Usuario, {
+  through: UsuariosEquipos,
+  foreignKey: 'equipo_id',
+  otherKey: 'usuario_id',
+  as: 'integrantes1'
+});
 
 module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, Torneo, initModels };

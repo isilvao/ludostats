@@ -1,6 +1,7 @@
 const image = require("../utils/image");
 const Club = require('../models/Club');
 const UsuarioClub = require('../models/UsuarioClub');
+const Equipo = require('../models/Equipo');
 
 async function getClubs(req, res){
 
@@ -95,9 +96,59 @@ async function deleteClub(req, res){
     })
 }
 
+const encontrarClubPorId = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const club = await Club.findByPk(id);
+
+        if (!club) {
+            return res.status(404).json({ msg: "Club no encontrado" });
+        }
+
+        res.status(200).json(club);
+    } catch (error) {
+        console.error("Error al buscar el club:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
+
+
+
+
+const encontrarClubPorEquipoId = async (req, res) => {
+    const { equipo_id } = req.params;
+
+    try {
+        // Buscar el equipo para obtener el club_id
+        const equipo = await Equipo.findByPk(equipo_id);
+
+        if (!equipo) {
+            return res.status(404).json({ msg: "Equipo no encontrado" });
+        }
+
+        // Buscar el club asociado al club_id del equipo
+        const club = await Club.findByPk(equipo.club_id);
+
+        if (!club) {
+            return res.status(404).json({ msg: "Club no encontrado para el equipo proporcionado" });
+        }
+
+        res.status(200).json(club);
+    } catch (error) {
+        console.error("Error al buscar el club por equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
 module.exports = {
     getClubs,
     createClub,
     updateClub,
-    deleteClub
+    deleteClub,
+    encontrarClubPorId,
+    encontrarClubPorEquipoId
 }
