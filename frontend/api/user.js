@@ -58,7 +58,6 @@ export class User {
     const { id } = data;
 
     console.log(id,"entro a la api")
-    
     //const baseApi = `https://ludostats.up.railway.app/api/v1`
 
     try {
@@ -83,10 +82,6 @@ export class User {
       throw error;
     }
   }
-
-
-
-
 
 
   async deteleMe(accessToken, id) {
@@ -157,4 +152,8 @@ export class User {
   verifyOtp(enteredOtp) {
     return enteredOtp === storedOtp;
   }
+
+  async 
+
+
 }

@@ -29,7 +29,8 @@ api.get('/:id_club/users', [md_auth.asureAuth, md_clubOwn.validateAdmin, md_club
 api.post('/joinClub/:id_club', [md_auth.asureAuth], userController.userJoinsClub)
 
 //Acudiente
-api.get('/acudiente', [md_auth.asureAuth, md_user.validateChildOrFamily], userController.getMyAcudiente)
-api.get('/children', [md_auth.asureAuth, md_user.validateChildOrFamily], userController.getMyChildren)
+api.get('/children', [md_auth.asureAuth], userController.getMyChildren)
+api.get('/children/:id_child', [md_auth.asureAuth, md_user.validateChildOrFamily], userController.getOneChild)
+
 
 module.exports = api
