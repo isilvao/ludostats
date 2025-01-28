@@ -2,7 +2,6 @@
 
 // Import for backend functions
 import { Auth } from '../api/auth';
-import { User } from '../api/user';
 import { useAuth } from '../hooks';
 
 import { z } from 'zod';
@@ -18,7 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GoogleLogin } from '@react-oauth/google';
@@ -58,18 +57,19 @@ const authFormSchema = (formType: FormType) => {
 };
 
 const AuthForm = ({ type }: { type: FormType }) => {
-  // Hook para traer la informacion del usuario (Ivan)
   const { login, user, logout } = useAuth();
-  console.log('User de auth', user);
   const authController = new Auth();
-  const userController = new User();
-
-  // Fin del hook
-
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
   const formSchema = authFormSchema(type);
+
+  const [next, setNext] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setNext(params.get('next'));
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -86,20 +86,26 @@ const AuthForm = ({ type }: { type: FormType }) => {
     setErrorMessage('');
 
     try {
-      console.log(1, values);
-      const result =
-        type === 'sign-up'
-          ? await authController.register({
-              nombre: values.firstName || '',
-              apellido: values.lastName || '',
-              correo: values.email,
-              contrasena: values.password,
-            })
-          : await authController.login({
-              correo: values.email,
-              contrasena: values.password,
-              rememberMe: values.rememberMe,
-            });
+      let result;
+      if (type === 'sign-up') {
+        await authController.register({
+          nombre: values.firstName || '',
+          apellido: values.lastName || '',
+          correo: values.email,
+          contrasena: values.password,
+        });
+        result = await authController.login({
+          correo: values.email,
+          contrasena: values.password,
+          rememberMe: values.rememberMe,
+        });
+      } else {
+        result = await authController.login({
+          correo: values.email,
+          contrasena: values.password,
+          rememberMe: values.rememberMe,
+        });
+      }
 
       authController.setAccessToken(result.accessToken, result.rememberMe);
       authController.setRefreshToken(result.refreshToken, result.rememberMe);
@@ -107,14 +113,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
       const { accessToken, refreshToken } = result;
       if (accessToken && refreshToken) {
         login(accessToken);
-        window.location.href = '/home';
-      }
-
-      if (result.success) {
-        window.location.href = '/sign-in';
+        window.location.href = next || '/home';
       }
     } catch {
-      setErrorMessage('Failed to create account. Please try again.');
+      setErrorMessage('Fallo al iniciar sesión. Inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +127,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
     setErrorMessage('');
 
     try {
-      console.log(1, values);
       const result = await authController.register({
         nombre: values.firstName || '',
         apellido: values.lastName || '',
@@ -135,13 +136,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
     } catch {}
 
     try {
-      console.log(1, values);
       const result = await authController.login({
         correo: values.email,
         contrasena: values.password,
         rememberMe: values.rememberMe,
       });
-      console.log(2);
 
       authController.setAccessToken(result.accessToken, result.rememberMe);
       authController.setRefreshToken(result.refreshToken, result.rememberMe);
@@ -149,14 +148,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
       const { accessToken, refreshToken } = result;
       if (accessToken && refreshToken) {
         login(accessToken);
-        window.location.href = '/home';
-      }
-
-      if (result.success) {
-        window.location.href = '/sign-in';
+        window.location.href = next || '/home';
       }
     } catch {
-      setErrorMessage('Failed to create account. Please try again.');
+      setErrorMessage('Fallo al iniciar sesión. Inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -257,7 +252,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
               </FormItem>
             )}
           />
-
           {type === 'sign-in' && (
             <div className="flex items-center justify-between mt-2 mb-4">
               <label className="flex items-center text-sm">
@@ -268,17 +262,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 />
                 Recordarme
               </label>
-              {/* <Link
-                href="/reset-password"
-                className="text-sm text-[#141e3a] hover:underline"
-                onClick={(event) => {
-                  event.preventDefault(); // Previene la acción predeterminada del enlace
-                  HandleLookUserByEmail("luisgmmh18v1@gmail.com");
-                  HandleResetPasswordsendEmail("lmarinmu@unal.edu.co");
-                }} 
-              >
-                Olvidaste la contraseña?
-              </Link> */}
               <Link
                 href="/reset-password"
                 className="text-sm text-[#141e3a] hover:underline"
@@ -332,55 +315,23 @@ const AuthForm = ({ type }: { type: FormType }) => {
           </div>
 
           <div className="flex justify-center space-x-12">
-            <Button
-              className="bg-white hover:bg-neutral-100 p-2 rounded-full w-12 h-12"
-              onClick={() => alert('Login with Facebook')}
-            >
-              <Image
-                src="/assets/icons/facebook-icon.svg"
-                alt="Facebook"
-                width={32}
-                height={32}
-              />
-            </Button>
-            <>
-              <GoogleLogin
-                onSuccess={(credentialResponse) => {
-                  console.log(credentialResponse);
-                  console.log(jwtDecode(credentialResponse.credential!));
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                const decoded = jwtDecode(
+                  credentialResponse.credential!
+                ) as GoogleJwtPayload;
 
-                  const decoded = jwtDecode(
-                    credentialResponse.credential!
-                  ) as GoogleJwtPayload;
+                const googleValues = {
+                  email: decoded.email,
+                  password: 'googleauth1',
+                  firstName: decoded.given_name || '',
+                  lastName: decoded.family_name || '',
+                  rememberMe: true,
+                };
 
-                  console.log(decoded.email);
-
-                  // Adaptar los valores de Google al formato esperado por `onSubmit`
-                  const googleValues = {
-                    email: decoded.email, // Correo electrónico desde Google
-                    password: 'googleauth1', // Contraseña no necesaria,
-                    firstName: decoded.given_name || '', // Nombre desde Google
-                    lastName: decoded.family_name || '', // Apellido desde Google
-                    rememberMe: true, // O lo que sea necesario para tu lógica
-                  };
-
-                  // Llamar a `onSubmit` con los valores adaptados
-                  onSubmitGoogle(googleValues);
-                }}
-                onError={() => console.log('Login failed')}
-              />
-            </>
-            <Button
-              className="bg-white hover:bg-neutral-100 text-neutral-900 p-2 rounded-full w-12 h-12"
-              onClick={() => alert('Login with Google')}
-            >
-              <Image
-                src="/assets/icons/google-icon.svg"
-                alt="Google"
-                width={28}
-                height={28}
-              />
-            </Button>
+                onSubmitGoogle(googleValues);
+              }}
+            />
           </div>
 
           <div className="body-2 flex justify-center mt-4">
@@ -390,7 +341,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 : 'Ya tienes una cuenta?'}
             </p>
             <Link
-              href={type === 'sign-in' ? '/sign-up' : '/sign-in'}
+              href={
+                type === 'sign-in'
+                  ? `/sign-up${next ? `?next=${next}` : ''}`
+                  : `/sign-in${next ? `?next=${next}` : ''}`
+              }
               className="ml-1 font-medium text-[#141e3a] hover:underline"
             >
               {type === 'sign-in' ? 'Registrarse' : 'Iniciar sesión'}

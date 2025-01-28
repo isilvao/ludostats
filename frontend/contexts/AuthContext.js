@@ -1,89 +1,85 @@
-'use client'
+'use client';
 
-import { useState, useEffect, createContext } from "react";
-import { User, Auth } from '../api'
-import { hasExpiredToken } from '../utils'
+import { useState, useEffect, createContext } from 'react';
+import { User, Auth } from '../api';
+import { hasExpiredToken } from '../utils';
 
-const userController = new User()
-const authController = new Auth()
+const userController = new User();
+const authController = new Auth();
 
 export const AuthContext = createContext();
 
-
 export function AuthProvider(props) {
-    const { children } = props;
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const { children } = props;
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        (async () => {
-            const accessToken = authController.getAccessToken();
-            const refreshToken = authController.getRefreshToken();
+  useEffect(() => {
+    (async () => {
+      const accessToken = authController.getAccessToken();
+      const refreshToken = authController.getRefreshToken();
 
-            if (!accessToken || !refreshToken) {
-                logout()
-                setLoading(false)
-                return
-            }
+      if (!accessToken || !refreshToken) {
+        logout();
+        setLoading(false);
+        return;
+      }
 
-            if (hasExpiredToken(accessToken)) {
-                if (hasExpiredToken(refreshToken)){
-                    logout()
-                } else {
-                    await reLogin(refreshToken)
-                }
-            } else {
-                await login(accessToken)
-            }
-            setLoading(false)
-        })()
-    }, [])
-
-    const reLogin = async (refreshToken) => {
-        try {
-            const { accessToken } = await authController.refreshAccessToken(refreshToken)
-            authController.setAccessToken(accessToken)
-            await login(accessToken)
-        } catch (error) {
-            console.error(error)
+      if (hasExpiredToken(accessToken)) {
+        if (hasExpiredToken(refreshToken)) {
+          logout();
+        } else {
+          await reLogin(refreshToken);
         }
+      } else {
+        await login(accessToken);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const reLogin = async (refreshToken) => {
+    try {
+      const { accessToken } =
+        await authController.refreshAccessToken(refreshToken);
+      authController.setAccessToken(accessToken);
+      await login(accessToken);
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    const login = async (accessToken) => {
-        try {
-            const response = await userController.getMe(accessToken)
-            setUser(response)
-            setToken(accessToken)
-        } catch (error) {
-            console.error(error);
-        }
+  const login = async (accessToken) => {
+    try {
+      const response = await userController.getMe(accessToken);
+      setUser(response);
+      setToken(accessToken);
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    const logout = async () => {
-        return new Promise((resolve) => {
-          // Simulamos un pequeño retraso para ilustrar un flujo asincrónico
-          setTimeout(() => {
-            setUser(null);
-            setToken(null);
-            authController.removeTokens();
-            console.log("Cuenta cerrada exitosamente");
-            resolve(); // Marca que la operación se ha completado
-          }, 0); // Retraso mínimo; puede eliminarse si no es necesario
-        });
-      };
+  const logout = async () => {
+    return new Promise((resolve) => {
+      // Simulamos un pequeño retraso para ilustrar un flujo asincrónico
+      setTimeout(() => {
+        setUser(null);
+        setToken(null);
+        authController.removeTokens();
+        console.log('Cuenta cerrada exitosamente');
+        resolve(); // Marca que la operación se ha completado
+      }, 0); // Retraso mínimo; puede eliminarse si no es necesario
+    });
+  };
 
-    const data = {
-        accessToken: token,
-        user,
-        login,
-        logout
-    }
+  const data = {
+    accessToken: token,
+    user,
+    loading,
+    login,
+    logout,
+  };
 
-
-    return (
-        <AuthContext.Provider value={data}>
-            {children}
-        </AuthContext.Provider>
-    )
+  return <AuthContext.Provider value={data}>{children}</AuthContext.Provider>;
 }

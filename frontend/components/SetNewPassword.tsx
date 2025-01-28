@@ -52,18 +52,19 @@ const SetNewPasswordForm = ({ accountId }: { accountId: string }) => {
     try {
       const userController = new User();
       const data = {
-        id: accountId, 
-        contrasena: values.newPassword
+        id: accountId,
+        contrasena: values.newPassword,
       };
 
       //console.log(data)
-      
+
       await userController.updateMePassword(data);
-      console.log('Contrasena actualizada correctamente')
       router.push('/sign-in');
-    } catch(err) {
-      setErrorMessage('Failed to reset password. Please try again.');
-      throw(err)
+    } catch (err) {
+      setErrorMessage(
+        'No se pudo actualizar la contraseña. Inténtalo de nuevo.'
+      );
+      throw err;
     } finally {
       setIsLoading(false);
     }
