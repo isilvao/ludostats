@@ -3,6 +3,7 @@ const image = require("../utils/image");
 const User = require('../models/Usuario')
 const UsuarioClub = require('../models/UsuarioClub')
 const Invitacion = require('../models/invitacion');
+const Equipo = require('../models/Equipo');
 const Club = require('../models/Club');
 
 
@@ -172,7 +173,7 @@ async function deleteUser(req,res){
     const user = await User.findByPk(user_id)
 
     if (user.rol !== 'administrador' && user.rol !== 'gerente'){
-        res.status(400).send({msg: "No tienes permisos para eliminar un usuario"})
+        return res.status(400).send({msg: "No tienes permisos para eliminar un usuario"})
     }
 
 
@@ -323,9 +324,12 @@ const buscarEquiposUsuario = async (req, res) => {
 };
 
 
-
-
 const buscarClubesUsuario = async (req, res) => {
+    /**
+     * Funcion para buscar los clubes a los que pertenece un usuario
+     */
+
+
     const { usuario_id } = req.params;
 
     try {
@@ -350,6 +354,69 @@ const buscarClubesUsuario = async (req, res) => {
     }
 };
 
+const userLeavesClub = async (req, res) => {
+    /**
+     * Funcion para cuando un usuario decide salirse de un club
+     */
+
+    const {user_id} = req.user
+    const {id_club} = req.params
+
+    try {
+        const user = await User.findOne({where: {id: user_id}})
+
+        console.log(user)
+
+        if (user.rol === 'gerente'){
+            return res.status(400).send({msg: "Un gerente no puede abandonar un club"})
+        }
+
+        UsuarioClub.destroy({where: {usuario_id: user_id, club_id: id_club}}).then((response) => {
+            if (!response){
+                return res.status(400).send({msg: "No se ha encontrado el usuario en este club"})
+            } else {
+                return res.status(200).send({msg: "Ha dejado el club de forma correcta."})
+            }
+        }).catch((error) => {
+            return res.status(500).send({msg: 'Error en el servidor', error})
+        })
+    } catch (error) {
+        return res.status(500).send({msg: 'Error del servidor'})
+    }
+}
+
+const eliminarUsuarioClub = async (req, res) => {
+    /**
+     * Funcion para eliminar un usuario de un club
+     */
+
+    const {user_id} = req.user
+    const {id_club, id_user} = req.params
+
+    try {
+        const userGerente = await User.findOne({where: {id: user_id}})
+
+        if (userGerente.rol !== 'gerente' || userGerente.rol !== 'administrador'){
+            return res.status(400).send({msg: "No tienes permisos para eliminar un usuario de un club"})
+        }
+
+        UsuarioClub.destroy({where: {usuario_id: id_user, club_id: id_club}}).then((response) => {
+            if (!response){
+                return res.status(400).send({msg: "No se ha encontrado el usuario en este club"})
+            } else {
+                return res.status(200).send({msg: "Usuario eliminado del club de forma correcta."})
+            }
+        }).catch((error) => {
+            return res.status(500).send({msg: 'Error en el servidor', error})
+        })
+
+
+    } catch (error) {
+        return res.status(200).send({msg: "Error en el servidor"})
+    }
+
+
+}
 
 
 
@@ -367,6 +434,7 @@ module.exports = {
     getUserByEmail,
     updatePassword,
     buscarEquiposUsuario,
-    buscarClubesUsuario
-
+    buscarClubesUsuario,
+    eliminarUsuarioClub,
+    userLeavesClub
 }

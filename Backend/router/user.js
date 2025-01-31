@@ -36,10 +36,13 @@ api.get("/usuarios/:usuario_id/clubs", userController.buscarClubesUsuario);
 // Club Routes
 api.get('/:id_club/users', [md_auth.asureAuth, md_clubOwn.validateAdmin, md_clubOwn.validateAdminClubOwnership], userController.getUsersByClub)
 api.post('/joinClub/:id_club', [md_auth.asureAuth], userController.userJoinsClub)
+api.delete(':id_club/leaveclub/', [md_auth.asureAuth], userController.userLeavesClub)
+api.delete(':id_club/removeuserfromclub/:id_user', [md_auth.asureAuth, md_clubOwn.validateAdmin, md_clubOwn.validateAdminClubOwnership], userController.eliminarUsuarioClub)
 
 //Acudiente
 api.get('/children', [md_auth.asureAuth], userController.getMyChildren)
 api.get('/children/:id_child', [md_auth.asureAuth, md_user.validateChildOrFamily], userController.getOneChild)
+
 
 
 module.exports = api;

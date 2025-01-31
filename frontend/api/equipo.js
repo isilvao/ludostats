@@ -3,7 +3,7 @@ export class EquipoAPI {
   
     async obtenerEquipoPorId(equipoId) {
       try {
-        const url = `${this.baseApi}/equipos/${equipoId}`;
+        const url = `${this.baseApi}/equipo/${equipoId}`;
         const response = await fetch(url);
         const result = await response.json();
   
