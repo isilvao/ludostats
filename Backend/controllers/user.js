@@ -262,15 +262,13 @@ async function getUsersByClub(req, res){
     const { id_club } = req.params
 
     try {
-        const response = await UsuarioClub.findAll({
+        const registros = await UsuarioClub.findAll({
             where: { club_id: id_club },
-            include: [
-                {
-                    model: User, // Modelo que estás incluyendo
-                    as: 'usuario', // Alias que definiste en la asociación
-                },
-            ],
         });
+
+        const idsUsuarios = registros.map((registro) => registro.usuario_id);
+
+        const response = await User.findAll({ where: { id: idsUsuarios } });
 
         res.status(200).send(response);
     } catch (error) {

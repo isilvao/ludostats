@@ -18,8 +18,9 @@ const validateAuthorizedUser = async (req, res, next) => {
         const user = await User.findByPk(user_id)
 
         if (!user || (user.rol !== 'gerente' && user.rol !== 'administrador' && user.rol !== 'entrenador')){
-            res.status(400).send({msg: "No tienes permisos para consultar las estadisticas"})
+            res.status(400).send({msg: "No tienes permisos para consultar los tipos de estadisticas"})
         } else {
+            req.usuario = user
             next()
         }
 
