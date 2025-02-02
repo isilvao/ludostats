@@ -3,6 +3,7 @@ import React from 'react';
 import Header from '@/components/Header';
 import { redirect, usePathname } from 'next/navigation';
 import { useAuth } from '../../hooks';
+import LoadingScreen from '@/components/LoadingScreen';
 
 export default function Layout({
   children,
@@ -11,7 +12,7 @@ export default function Layout({
   const pathname = usePathname();
 
   if (loading) {
-    return null;
+    return <LoadingScreen />;
   }
 
   if (!user) {
