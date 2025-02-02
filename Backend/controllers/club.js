@@ -50,13 +50,11 @@ async function createClub(req, res) {
       if (!clubStored) {
         res.status(400).send({ msg: "Error al crear el club" });
       } else {
-        res
-          .status(200)
-          .send({
-            msg: "Club creado correctamente",
-            club: clubStored,
-            success: true,
-          });
+        res.status(200).send({
+          msg: "Club creado correctamente",
+          club: clubStored,
+          success: true,
+        });
       }
     })
     .catch((err) => {
@@ -161,6 +159,23 @@ const encontrarClubPorEquipoId = async (req, res) => {
   }
 };
 
+const buscarMisClubes = async (req, res) => {
+  const { user_id } = req.user;
+
+  try {
+    const clubes = await UsuarioClub.findAll({
+      where: { usuario_id: user_id },
+      include: [{ model: Club, as: "club" }],
+    });
+    const clubesResponse = clubes.map((club) => club.club);
+
+    res.status(200).json(clubesResponse);
+  } catch (error) {
+    console.error("Error al buscar los clubes del usuario:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
+
 module.exports = {
   getClubs,
   createClub,
@@ -168,4 +183,5 @@ module.exports = {
   deleteClub,
   encontrarClubPorId,
   encontrarClubPorEquipoId,
+  buscarMisClubes,
 };
