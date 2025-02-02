@@ -1,10 +1,40 @@
+'use client';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaTshirt, FaShieldAlt, FaHandshake } from 'react-icons/fa';
+import { useAuth } from '@/hooks/useAuth';
+import { EquipoAPI } from '@/api/equipo';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const Page: React.FC = () => {
-  const userHasTeamsOrClubs = false; // Simulación para verificar si tiene clubes o equipos
-  const userHasChildren = false; // Simulación para mostrar sección de hijos (puedes expandir con datos más adelante)
+  const { user, accessToken } = useAuth();
+  const [equipos, setEquipos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const userHasChildren = false;
+
+  useEffect(() => {
+    const fetchEquipos = async () => {
+      try {
+        const equipoAPI = new EquipoAPI();
+        console.log('User:', user);
+        const equipos = await equipoAPI.obtenerMisEquipos(accessToken);
+        setEquipos(equipos);
+        console.log('Equipos:', equipos);
+      } catch (error) {
+        console.error('Error al obtener los equipos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchEquipos();
+    }
+  }, [user]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <section className="py-6 px-6 items-center max-w-7xl mx-auto">
@@ -15,7 +45,7 @@ const Page: React.FC = () => {
           </h1>
         </div>
         <div>
-          {!userHasTeamsOrClubs ? (
+          {equipos.length === 0 ? (
             <div>
               <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">
                 No tienes un equipo todavía.
@@ -70,10 +100,17 @@ const Page: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-700 mb-4">
                 Tus equipos y clubes
               </h2>
-              {/* Aquí puedes iterar sobre los equipos o clubes */}
-              <p className="text-gray-600">
-                Aquí se mostrarán tus equipos y clubes.
-              </p>
+              <ul className="text-gray-600 space-y-2">
+                {equipos.map((equipo) => (
+                  <li key={equipo.id}>
+                    <h3 className="text-lg font-semibold">{equipo.nombre}</h3>
+                    <p>Deportistas: {equipo.cantidad_deportistas}</p>
+                    {equipo.logo && (
+                      <img src={equipo.logo} alt={`${equipo.nombre} logo`} />
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
