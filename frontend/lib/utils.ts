@@ -9,8 +9,21 @@ interface User {
   foto?: string;
 }
 
-export const getProfileImage = (user: User) => {
-  const defaultImage = '/assets/images/default-profile.png';
+interface Club {
+  logo?: string;
+}
 
-  return user.foto || defaultImage;
+const defaultProfileImage = '/assets/images/default-profile.png';
+const defaultClubLogo = '/assets/images/default-club-logo.png';
+
+const getDefaultImage = (obj: any, key: string, defaultImage: string) => {
+  return obj[key] || defaultImage;
+};
+
+export const getProfileImage = (user: User) => {
+  return getDefaultImage(user, 'foto', defaultProfileImage);
+};
+
+export const getClubLogo = (club: Club) => {
+  return getDefaultImage(club, 'logo', defaultClubLogo);
 };
