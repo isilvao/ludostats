@@ -114,10 +114,6 @@ const encontrarClubPorId = async (req, res) => {
 };
 
 
-
-
-
-
 const encontrarClubPorEquipoId = async (req, res) => {
     const { equipo_id } = req.params;
 
@@ -143,6 +139,20 @@ const encontrarClubPorEquipoId = async (req, res) => {
     }
 };
 
+const buscarMisClubes = async (req, res) => {
+    const {user_id} = req.user
+
+    try {
+        const clubes = await UsuarioClub.findAll({ where: { usuario_id: user_id }, include: [{ model: Club, as: 'club' }] });
+        const clubesResponse = clubes.map((club) => club.club);
+
+        res.status(200).json(clubesResponse);
+    } catch (error) {
+        console.error("Error al buscar los clubes del usuario:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+}
+
 
 module.exports = {
     getClubs,
@@ -150,5 +160,6 @@ module.exports = {
     updateClub,
     deleteClub,
     encontrarClubPorId,
-    encontrarClubPorEquipoId
+    encontrarClubPorEquipoId,
+    buscarMisClubes
 }

@@ -106,4 +106,27 @@ export class ClubAPI {
           throw error;
         }
       }
+
+      async buscarMisClubes(accessToken){
+        try {
+          const url = `${this.baseApi}/misclubes`;
+
+          const params = {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+
+          const response = await fetch(url, params);
+          const result = await response.json();
+
+          if (response.status !== 200) throw new Error('No se pudo encontrar el club asociado al equipo.');
+
+            return result;
+        } catch (error) {
+          console.error('Error al buscar mis clubes:', error);
+          throw error;
+        }
+      }
   }
