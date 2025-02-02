@@ -60,6 +60,11 @@ Usuario.hasMany(Estadistica, {
   as: 'estadisticas'
 })
 
+Usuario.hasMany(UsuariosEquipos, {
+  foreignKey: 'usuario_id',
+  as: 'usuariosEquipos'
+})
+
 /**               CLUB                 */
 // Relación: un Club pertenece a un Usuario (gerente)
 // foreignKey = la columna de Club que contiene la FK
@@ -108,6 +113,11 @@ Equipo.belongsTo(Club, {
   as: 'club',
 });
 
+Equipo.hasMany(UsuariosEquipos,{
+  foreignKey: 'equipo_id',
+  as: 'usuariosEquipos'
+})
+
 /**               ESTADISTICA                 */
 Estadistica.belongsTo(TipoEstadistica, {
   foreignKey: 'tipoEstadistica_id',
@@ -153,6 +163,16 @@ UsuarioClub.belongsTo(Club, {
   as: 'club',
 })
 
+UsuariosEquipos.belongsTo(Usuario, {
+  foreignKey: 'usuario_id',
+  targetKey: 'id',
+  as: 'usuario',
+})
+
+UsuariosEquipos.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  targetKey: 'id',
+})
 
 
 
@@ -196,5 +216,6 @@ Equipo.belongsToMany(Usuario, {
   otherKey: 'usuario_id',
   as: 'integrantes1'
 });
+
 
 module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, Torneo, initModels };
