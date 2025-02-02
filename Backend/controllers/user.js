@@ -4,6 +4,8 @@ const User = require('../models/Usuario')
 const UsuarioClub = require('../models/UsuarioClub')
 const Invitacion = require('../models/invitacion');
 const Club = require('../models/Club');
+const UsuariosEquipos = require('../models/UsuariosEquipos');
+const Equipo = require('../models/Equipo');
 
 
 //*********************     PERSONAL ROUTES     *********************
