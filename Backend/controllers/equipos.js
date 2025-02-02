@@ -1,6 +1,7 @@
 const Equipo = require("../models/Equipo");
 const Usuario = require("../models/Usuario");
 const Club = require("../models/Club");
+const UsuarioEquipo = require("../models/UsuariosEquipos");
 
 const crearEquipo = async (req, res) => {
   const { nombre, cantidad_deportistas, club_id, entrenador_id } =
@@ -96,34 +97,23 @@ const obtenerMisEquipos = async (req, res) => {
 
   try {
 
-    const usuario = await Usuario.findByPk(user_id);
-
-    if (!usuario) {
-      return res.status(404).json({ msg: "Usuario no encontrado" });
-    }
-    if (usuario.rol === 'gerente'){
-      const clubes = await Club.findAll({where: {gerente_id: user_id}, attributes: ['id']});
-
-      const clubsIds = clubes.map(club => club.id);
-
-      const equipos = await Equipo.findAll({
-        where: {
-          club_id: clubsIds // Busca todos los equipos cuyo club_id esté en la lista de IDs
-        }, include: {
-          model: Club,
-          as: 'club',
-          attributes: ['nombre', 'deporte']
+    const equipos = await UsuarioEquipo.findAll({
+      where: {
+        usuario_id: user_id
+      },
+      include: [
+        {
+          model: Equipo,
+          include: [
+            {
+              model: Club
+            }
+          ]
         }
-      },);
+      ]
+    });
 
-
-      return res.status(200).json(equipos);
-    } else if (usuario.rol === 'entrenador'){
-      const equipos = await Equipo.findAll({where: {entrenador_id: user_id}});
-      return res.status(200).json(equipos);
-    }
-
-    res.status(200).json(usuario);
+    res.status(200).json(equipos);
 
   } catch (error) {
     console.error("Error al obtener los equipos:", error);
