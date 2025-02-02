@@ -7,6 +7,7 @@ import { useAuth } from '../../../hooks';
 import { Loader2 } from 'lucide-react';
 import { User, Auth } from '../../../api';
 import { getProfileImage } from '@/lib/utils';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const Profile = () => {
   const userController = new User();
@@ -15,17 +16,7 @@ const Profile = () => {
   const [selectedOption, setSelectedOption] = useState('profile');
   //alert(user.correo)
   if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        <h2 className="text-2xl font-semibold mt-4 text-foreground">
-          Loading...
-        </h2>
-        <p className="text-muted-foreground mt-2">
-          Please wait while we fetch your data.
-        </p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   //Modificar esta funcion por un async y poner await antes del userController.updateMe
