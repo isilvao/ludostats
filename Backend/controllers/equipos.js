@@ -106,7 +106,8 @@ const obtenerMisEquipos = async (req, res) => {
           model: Equipo,
           include: [
             {
-              model: Club
+              model: Club,
+              as: "club",
             }
           ]
         }

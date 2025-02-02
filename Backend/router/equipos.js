@@ -21,7 +21,7 @@ api.delete("/eliminarequipo/:id", [md_auth.asureAuth, md_user.validateAdmin], eq
 api.get("/equipo/:id", [md_auth.asureAuth], equipoController.obtenerEquipoPorId);
 
 // Obtener los equipos de un gerente
-api.get('/misequipos', [md_auth.asureAuth, md_user.validateAdmin], equipoController.obtenerMisEquipos);
+api.get('/misequipos', [md_auth.asureAuth], equipoController.obtenerMisEquipos);
 
 module.exports = api;
 
