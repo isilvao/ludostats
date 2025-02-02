@@ -75,8 +75,31 @@ const validateAdminClubOwnership = async (req, res, next) => {
             next()
         }
 
-    }catch (err){
+    } catch (err){
         res.status(500).send({msg: "Error al validar la propiedad del club"})
+    }
+}
+
+const validateStatisticsTypeUserOwnership = async (req, res, next) => {
+    const user  = req.usuario
+    const { id_club } = req.params
+
+    try {
+        let club = null;
+
+        if (user.rol === 'gerente'){
+            club = await Club.findOne({where: {id: id_club, gerente_id: user.id}})
+        } else {
+            club = await UsuarioClub.findOne({where: {usuario_id: user.id, club_id: id_club}})
+        }
+
+        if (!club){
+            res.status(400).send({msg: "No tienes permisos para consultar las estadisticas"})
+        } else {
+            next()
+        }
+    } catch (error) {
+        res.status(500).send({msg: "Error al validar los permisos para el club"})
     }
 }
 
@@ -84,5 +107,6 @@ module.exports = {
     validateClubOwnership,
     validateGerente,
     validateAdmin,
-    validateAdminClubOwnership
+    validateAdminClubOwnership,
+    validateStatisticsTypeUserOwnership
 }
