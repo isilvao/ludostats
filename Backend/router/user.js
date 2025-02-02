@@ -42,4 +42,8 @@ api.get('/children', [md_auth.asureAuth], userController.getMyChildren)
 api.get('/children/:id_child', [md_auth.asureAuth, md_user.validateChildOrFamily], userController.getOneChild)
 
 
+
+
+
+
 module.exports = api;

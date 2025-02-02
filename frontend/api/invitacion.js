@@ -127,6 +127,10 @@ export class InvitacionesAPI {
             return 2;
         case 'profesor':
             return 3;
+        case 'administrador':
+            return 4;
+        case 'hijo':
+            return 5;
         default:
             throw new Error('Rol no válido');
     }
