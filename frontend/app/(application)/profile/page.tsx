@@ -14,7 +14,7 @@ const Profile = () => {
   const authController = new Auth();
   const { logout, user, accessToken } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
-  //alert(user.correo)
+
   if (!user) {
     return <LoadingScreen />;
   }
