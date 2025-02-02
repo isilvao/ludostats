@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { InvitacionesAPI } from '../../../../../api/invitacion';
 import { ClubAPI } from '../../../../../api/club';
-import { UsuariosEquiposAPI } from '../../../../../api//usuariosEquipos';
+import { UsuariosEquipos } from '../../../../../api//usuariosEquipos';
 import { useAuth } from '../../../../../hooks/useAuth';
 import LoadingScreen from '@/components/LoadingScreen';
 import { FaCheckCircle } from 'react-icons/fa';
@@ -24,7 +24,7 @@ const ClubInfoPage: React.FC = () => {
   const [isAccepted, setIsAccepted] = useState(false);
   const invitacionesAPI = new InvitacionesAPI();
   const clubAPI = new ClubAPI();
-  const usuariosEquiposAPI = new UsuariosEquiposAPI();
+  const usuariosEquiposAPI = new UsuariosEquipos();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const ClubInfoPage: React.FC = () => {
 
   const handleAccept = () => {
     if (user && clubInfo && invitacion) {
-      usuariosEquiposAPI.crearUsuarioEquipo(
+      usuariosEquiposAPI.agregarUsuarioEquipo(
         user.id,
         invitacion.equipo_id,
         invitacion.rol_invitado

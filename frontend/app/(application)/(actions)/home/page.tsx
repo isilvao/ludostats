@@ -7,6 +7,7 @@ import { EquipoAPI } from '@/api/equipo';
 import { ClubAPI } from '@/api/club';
 import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
+import { UsuariosEquipos } from '@/api/usuariosEquipos';
 
 // Interfaces para cada tipo (puedes modificarlas según tu API)
 interface Equipo {
@@ -53,7 +54,11 @@ const Page: React.FC = () => {
       try {
         const equipoAPI = new EquipoAPI();
         const clubAPI = new ClubAPI();
+        const usuariosEquiposAPI = new UsuariosEquipos();
         const equiposData = await equipoAPI.obtenerMisEquipos(accessToken);
+        // const clubesData = await usuariosEquiposAPI.obtenerClubesDeUsuario(
+        //   user.id
+        // );
         const clubesData = await clubAPI.buscarMisClubes(accessToken);
         setEquipos(equiposData);
         setClubes(clubesData);
