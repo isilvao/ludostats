@@ -119,14 +119,17 @@ const encontrarClubPorId = async (req, res) => {
 
 
 const encontrarClubPorEquipoId = async (req, res) => {
-    const { equipo_id } = req.params;
+    const { id } = req.params;
 
     try {
         // Buscar el equipo para obtener el club_id
-        const equipo = await Equipo.findByPk(equipo_id);
+        const equipo = await Equipo.findByPk(id);
+        console.log(id, 1)
 
         if (!equipo) {
+            console.log(id, 2, "problema con el equpo")
             return res.status(404).json({ msg: "Equipo no encontrado" });
+            
         }
 
         // Buscar el club asociado al club_id del equipo
