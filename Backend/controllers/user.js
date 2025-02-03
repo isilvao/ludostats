@@ -6,6 +6,7 @@ const Invitacion = require("../models/invitacion");
 const Equipo = require("../models/Equipo");
 const Club = require("../models/Club");
 const UsuariosEquipos = require("../models/UsuariosEquipos");
+const { Op } = require("sequelize");
 
 //*********************     PERSONAL ROUTES     *********************
 async function getMe(req, res) {
@@ -355,35 +356,41 @@ const buscarEquiposUsuario = async (req, res) => {
 };
 
 const buscarClubesUsuario = async (req, res) => {
-  /**
-   * Funcion para buscar los clubes a los que pertenece un usuario
-   */
-
-  const { usuario_id } = req.params;
-
-  try {
-    const registros = await UsuariosEquipos.findAll({ where: { usuario_id } });
-
-    if (!registros.length) {
-      return res
-        .status(404)
-        .json({ msg: "El usuario no pertenece a ningún equipo" });
+    const { usuario_id } = req.params;
+  
+    try {
+      // 📌 Obtener los equipos del usuario, excluyendo los donde su rol sea `2` (padre)
+      const registros = await UsuariosEquipos.findAll({
+        where: {
+          usuario_id,
+          rol: { [Op.ne]: 2 }, // 📌 Excluir equipos donde el usuario sea solo "padre"
+        },
+      });
+  
+      if (!registros.length) {
+        return res
+          .status(404)
+          .json({ msg: "El usuario no pertenece a ningún equipo válido" });
+      }
+  
+      // 📌 Extraer las `id` de los equipos
+      const idsEquipos = registros.map((registro) => registro.equipo_id);
+  
+      // 📌 Buscar los equipos en la base de datos
+      const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
+  
+      // 📌 Extraer `id` de los clubes, eliminando duplicados
+      const idsClubes = [...new Set(equipos.map((equipo) => equipo.club_id))];
+  
+      // 📌 Obtener los datos de los clubes
+      const clubes = await Club.findAll({ where: { id: idsClubes } });
+  
+      res.status(200).json(clubes);
+    } catch (error) {
+      console.error("Error al buscar clubes del usuario:", error);
+      res.status(500).json({ msg: "Error interno del servidor" });
     }
-
-    const idsEquipos = registros.map((registro) => registro.equipo_id);
-
-    const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
-
-    const idsClubes = [...new Set(equipos.map((equipo) => equipo.club_id))];
-
-    const clubes = await Club.findAll({ where: { id: idsClubes } });
-
-    res.status(200).json(clubes);
-  } catch (error) {
-    console.error("Error al buscar clubes del usuario:", error);
-    res.status(500).json({ msg: "Error interno del servidor" });
-  }
-};
+  };
 
 const userLeavesClub = async (req, res) => {
   /**

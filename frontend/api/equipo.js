@@ -95,17 +95,14 @@ export class EquipoAPI {
 
   async obtenerMisEquipos(userId) {
     try {
-      const body = {
-        user_id: userId,
-      };
-      const url = `${this.baseApi}/misequiposv2`;
+      // 📌 Pasamos `userId` como query param en la URL
+      const url = `${this.baseApi}/misequiposv2?user_id=${userId}`;
 
       const params = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body),
       };
 
       const response = await fetch(url, params);
