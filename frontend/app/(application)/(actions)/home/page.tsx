@@ -9,12 +9,14 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
 import { UsuariosEquipos } from '@/api/usuariosEquipos';
 import { User } from '@/api/user';
+import CardClub from '@/components/CardClub';
+import CardTeam from '@/components/CardTeam';
+
 // Interfaces para cada tipo (puedes modificarlas según tu API)
 interface Equipo {
   id: number;
   Equipo: {
     nombre: string;
-    cantidad_deportistas: number;
     logo?: string;
     club: {
       nombre: string;
@@ -24,16 +26,21 @@ interface Equipo {
 }
 
 interface Club {
-  id: number;
+  id: string;
   nombre: string;
   deporte: string;
   logo?: string;
 }
 
 interface Hijo {
-  id: number;
+  id: string;
   nombre: string;
-  edad: number;
+}
+
+interface HijoConEquiposYClubes {
+  hijo: Hijo;
+  equipos: Equipo[];
+  clubes: Club[];
 }
 
 type Tab = 'equipos' | 'clubes' | 'hijos';
@@ -44,7 +51,7 @@ const Page: React.FC = () => {
   // Estados para cada categoría
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [clubes, setClubes] = useState<Club[]>([]);
-  const [hijos, setHijos] = useState<Hijo[]>([]);
+  const [equiposhijo, setEquiposhijo] = useState<HijoConEquiposYClubes[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('equipos');
 
@@ -52,7 +59,6 @@ const Page: React.FC = () => {
     const fetchData = async () => {
       try {
         const equipoAPI = new EquipoAPI();
-        // const clubAPI = new ClubAPI();
         const usuariosEquiposAPI = new UsuariosEquipos();
         const userhijo = new User();
         const equiposData = await equipoAPI.obtenerMisEquipos(user.id);
@@ -60,11 +66,30 @@ const Page: React.FC = () => {
         const clubesData = await usuariosEquiposAPI.obtenerClubesDeUsuario(
           user.id
         );
-        // const clubesData = await clubAPI.buscarMisClubes(accessToken);
         setClubes(clubesData);
-        const hijosData = await userhijo.obtenerMisHijos(accessToken);
-        console.log(hijosData);
-        setHijos(hijosData);
+
+        const hijos = await userhijo.obtenerMisHijos(accessToken);
+        const equiposhijoData = await Promise.all(
+          hijos.map(async (hijo: Hijo) => {
+            const equipos = await equipoAPI.obtenerMisEquipos(hijo.id);
+            return { hijo, equipos };
+          })
+        );
+        const clubeshijoData = await Promise.all(
+          hijos.map(async (hijo: Hijo) => {
+            const clubes = await usuariosEquiposAPI.obtenerClubesDeUsuario(
+              hijo.id
+            );
+            return { hijo, clubes };
+          })
+        );
+        const combinedData = hijos.map((hijo: Hijo, index: number) => ({
+          hijo,
+          equipos: equiposhijoData[index].equipos,
+          clubes: clubeshijoData[index].clubes,
+        }));
+        setEquiposhijo(combinedData);
+        console.log(combinedData);
       } catch (error) {
         console.error('Error al obtener la información:', error);
       } finally {
@@ -83,7 +108,7 @@ const Page: React.FC = () => {
 
   // Si el usuario no tiene ningún equipo, club ni hijo, mostramos las tarjetas de "Crear" y "Unirse"
   const noTieneNinguno =
-    equipos.length === 0 && clubes.length === 0 && hijos.length === 0;
+    equipos.length === 0 && clubes.length === 0 && equiposhijo.length === 0;
 
   if (noTieneNinguno) {
     return (
@@ -161,30 +186,11 @@ const Page: React.FC = () => {
                 No tienes ningún equipo asignado.
               </p>
             ) : (
-              <ul className="text-gray-600 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {equipos.map((equipo) => (
-                  <li
-                    key={equipo.id}
-                    className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center"
-                  >
-                    <div className="flex items-center space-x-12">
-                      <img
-                        src={getClubLogo(equipo.Equipo)}
-                        alt={`${equipo.Equipo.nombre} logo`}
-                        className="w-20 h-20 object-contain rounded-full border-4 border-gray-100 shadow-md"
-                      />
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {equipo.Equipo.nombre}
-                        </h3>
-                        <p>Club: {equipo.Equipo.club.nombre}</p>
-                        <p>Deporte: {equipo.Equipo.club.deporte}</p>
-                        <p>Deportistas: {equipo.Equipo.cantidad_deportistas}</p>
-                      </div>
-                    </div>
-                  </li>
+                  <CardTeam key={equipo.id} equipo={equipo.Equipo} />
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         );
@@ -196,56 +202,37 @@ const Page: React.FC = () => {
                 No tienes ningún club asignado.
               </p>
             ) : (
-              <ul className="text-gray-600 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {clubes.map((club) => (
-                  <li
-                    key={club.id}
-                    className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center"
-                  >
-                    <div className="flex items-center space-x-12">
-                      <img
-                        src={getClubLogo(club)}
-                        alt={`${club.nombre} logo`}
-                        className="w-20 h-20 object-contain rounded-full border-4 border-gray-100 shadow-md"
-                      />
-                      <div>
-                        <h3 className="text-lg font-semibold">{club.nombre}</h3>
-                        <p>Deporte: {club.deporte}</p>
-                      </div>
-                    </div>
-                  </li>
+                  <CardClub key={club.id} club={club} />
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         );
       case 'hijos':
         return (
           <div>
-            {hijos.length === 0 ? (
+            {equiposhijo.length === 0 ? (
               <p className="text-center text-gray-600">
                 No tienes ningún hijo registrado.
               </p>
             ) : (
-              <ul className="text-gray-600 space-y-4">
-                {hijos.map((hijo) => (
-                  <li
-                    key={hijo.id}
-                    className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center"
-                  >
-                    <div className="flex items-center space-x-12">
-                      {/* <img
-                      src={getClubLogo(club)}
-                      alt={`${club.nombre} logo`}
-                      className="w-20 h-20 object-contain rounded-full border-4 border-gray-100 shadow-md"
-                    /> */}
-                      <div>
-                        <h3 className="text-lg font-semibold">{hijo.nombre}</h3>
-                      </div>
-                    </div>
-                  </li>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {equiposhijo.map(({ hijo, equipos, clubes }) => (
+                  <React.Fragment key={hijo.id}>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-3 col-span-full">
+                      {hijo.nombre}
+                    </h2>
+                    {equipos.map((equipo) => (
+                      <CardTeam key={equipo.id} equipo={equipo.Equipo} />
+                    ))}
+                    {clubes.map((club) => (
+                      <CardClub key={club.id} club={club} />
+                    ))}
+                  </React.Fragment>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         );

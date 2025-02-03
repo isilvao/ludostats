@@ -39,4 +39,6 @@ api.get(
 // Obtener los equipos de un gerente
 api.get("/misequipos", [md_auth.asureAuth], equipoController.obtenerMisEquipos);
 
+api.get("/misequiposv2", equipoController.obtenerMisEquipos);
+
 module.exports = api;
