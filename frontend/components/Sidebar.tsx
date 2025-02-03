@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { navItems } from '@/constants';
-import { usePathname } from 'next/navigation';
+import { usePathname, useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -14,17 +14,28 @@ interface Props {
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const params = useParams();
+  const nameTeam = params
+    ? Array.isArray(params.dashboard)
+      ? params.dashboard[0]
+      : params.dashboard
+    : null;
 
   return (
     <aside className="sidebar bg-white">
       <nav className="sidebar-nav">
         <ul className="flex flex-1 flex-col gap-6">
           {navItems.map(({ url, name, icon }) => (
-            <Link key={name} href={url} className="lg:w-full">
+            <Link
+              key={name}
+              href={url.replace('[dashboard]', nameTeam)}
+              className="lg:w-full"
+            >
               <li
                 className={cn(
                   'sidebar-nav-item',
-                  pathname === url && 'shad-active'
+                  pathname === url.replace('[dashboard]', nameTeam) &&
+                    'shad-active'
                 )}
               >
                 <Image
@@ -34,7 +45,8 @@ const Sidebar = () => {
                   height={24}
                   className={cn(
                     'nav-icon',
-                    pathname === url && 'nav-icon-active'
+                    pathname === url.replace('[dashboard]', nameTeam) &&
+                      'nav-icon-active'
                   )}
                 />
                 <p className="hidden lg:block">{name}</p>

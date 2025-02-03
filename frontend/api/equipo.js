@@ -1,118 +1,119 @@
+import { basePath, apiVersion } from './config';
+import jwtDecode from 'jwt-decode';
 export class EquipoAPI {
+  baseApi = `${basePath}/${apiVersion}`;
+
+  async obtenerEquipoPorId(equipoId) {
+    try {
+      const url = `${this.baseApi}/equipo/${equipoId}`;
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error('Equipo no encontrado.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener el equipo:', error);
+      throw error;
+    }
+  }
+
+  async crearEquipo(equipo, accessToken) {
     baseApi = `${basePath}/${apiVersion}`;
 
-    async obtenerEquipoPorId(equipoId) {
-      try {
-        const url = `${this.baseApi}/equipo/${equipoId}`;
-        const response = await fetch(url);
-        const result = await response.json();
+    try {
+      const url = `${this.baseApi}/nuevoequipo`;
 
-        if (response.status !== 200) throw new Error('Equipo no encontrado.');
+      const params = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(equipo),
+      };
 
-        return result;
-      } catch (error) {
-        console.error('Error al obtener el equipo:', error);
-        throw error;
-      }
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.error('Error al crear el equipo:', error);
     }
+  }
 
-    async crearEquipo(equipo, accessToken){
-      baseApi = `${basePath}/${apiVersion}`;
+  async modificarEquipo(equipo, accessToken) {
+    try {
+      const url = `${this.baseApi}/patchequipo/${equipo.id}`;
 
-      try {
-        const url = `${this.baseApi}/nuevoequipo`
+      const params = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(equipo),
+      };
 
-        const params = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify(equipo),
-        }
+      const response = await fetch(url, params);
+      const result = await response.json();
 
-        const response = await fetch(url, params)
-        const result = await response.json()
+      if (response.status !== 200) throw result;
 
-        if (response.status !== 200) throw result
-
-        return result
-      } catch (error) {
-        console.error('Error al crear el equipo:', error);
-      }
+      return result;
+    } catch (error) {
+      console.error('Error al modificar el equipo:', error);
+      throw error;
     }
+  }
 
-    async modificarEquipo(equipo, accessToken){
-      try {
-        const url = `${this.baseApi}/patchequipo/${equipo.id}`;
+  async eliminarEquipo(equipoId, accessToken) {
+    try {
+      const url = `${this.baseApi}/eliminarequipo/${equipoId}`;
 
-        const params = {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify(equipo),
-        }
+      const params = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
 
-        const response = await fetch(url, params);
-        const result = await response.json();
+      const response = await fetch(url, params);
+      const result = await response.json();
 
-        if (response.status !== 200) throw result;
+      if (response.status !== 200) throw result;
 
-        return result;
-      } catch (error) {
-        console.error('Error al modificar el equipo:', error);
-        throw error;
-      }
+      return result;
+    } catch (error) {
+      console.error('Error al eliminar el equipo:', error);
+      throw error;
     }
+  }
 
-    async eliminarEquipo(equipoId, accessToken){
-      try {
-        const url = `${this.baseApi}/eliminarequipo/${equipoId}`;
+  async obtenerMisEquipos(userId) {
+    try {
+      // 📌 Pasamos `userId` como query param en la URL
+      const url = `${this.baseApi}/misequiposv2?user_id=${userId}`;
 
-        const params = {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
 
-        const response = await fetch(url, params);
-        const result = await response.json();
+      const response = await fetch(url, params);
+      const result = await response.json();
 
-        if (response.status !== 200) throw result;
+      if (response.status !== 200) throw result;
 
-        return result;
-      } catch (error) {
-        console.error('Error al eliminar el equipo:', error);
-        throw error;
-      }
+      return result;
+    } catch (error) {
+      console.error('Error al obtener mis equipos:', error);
+      throw error;
     }
-
-    async obtenerMisEquipos(accessToken){
-      try {
-        const url = `${this.baseApi}/misequipos`;
-
-        const params = {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-
-        const response = await fetch(url, params);
-        const result = await response.json();
-
-        if (response.status !== 200) throw result;
-
-        return result;
-      } catch (error) {
-        console.error('Error al obtener mis equipos:', error);
-        throw error;
-      }
-    }
-
+  }
 }
