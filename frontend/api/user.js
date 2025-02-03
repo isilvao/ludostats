@@ -173,6 +173,31 @@ export class User {
     }
   }
 
+  async obtenerMisHijos(accessToken) {
+    try {
+      const url = `${this.baseApi}/children`;
+
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error(result.msg || 'Error al obtener los hijos.');
+
+      console.log("📌 Hijos obtenidos:", result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error al obtener hijos:', error);
+      throw error;
+    }
+  }
+
   verifyOtp(enteredOtp) {
     return enteredOtp === storedOtp;
   }
