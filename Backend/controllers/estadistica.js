@@ -2,6 +2,7 @@
 const Estadistica = require('../models/Estadistica');
 const tipoEstadistica = require('../models/TipoEstadistica')
 const Club = require('../models/Club')
+const Usuario = require('../models/Usuario')
 
 async function getMyEstadisticas(req, res){
     const {id_usuario} = req.params
@@ -31,11 +32,11 @@ async function createEstadistica(req, res){
             }
         }
 
-        const estadistica = await Estadistica.create({
+        await Estadistica.create({
             tipoEstadistica_id: id_tipoEstadistica,
             usuario_id: id_usuario,
             valor: req.body.valor || 0,
-            fecha : new Date()
+            fecha : req.body.fecha || new Date()
         }).then((tipoEstadistica) => {
             if (!tipoEstadistica){
                 return res.status(400).send({msg: "No se pudo crear la estadistica"})
@@ -49,7 +50,60 @@ async function createEstadistica(req, res){
     }
 }
 
+async function updateEstadistica(req, res){
+    const {id_estadistica} = req.params
+
+    try {
+        Estadistica.update({
+            valor: req.body.valor,
+            fecha: req.body.fecha
+        }, {where: {id: id_estadistica}}).then((estadistica) => {
+            if (!estadistica){
+                return res.status(400).send({msg: "No se pudo encontrar la estadistica"})
+            }
+            return res.status(200).send(estadistica)
+        }).catch((err) => {
+            return res.status(500).send({msg: "Error al actualizar la estadistica"})
+        })
+
+    } catch (error) {
+        return res.status(500).send({msg: "Error al actualizar la estadistica"})
+    }
+}
+
+async function deleteEstadistica(req, res){
+    const {id_estadistica} = req.params
+
+    try {
+        await Estadistica.destroy({where: {id: id_estadistica}}).then((estadistica) => {
+            if (!estadistica){
+                return res.status(400).send({msg: "No se pudo encontrar la estadistica"})
+            }
+            return res.status(200).send(estadistica)
+        }).catch((err) => {
+            return res.status(500).send({msg: "Error al eliminar la estadistica"})
+        })
+
+    } catch (error) {
+        return res.status(500).send({msg: "Error al eliminar la estadistica"})
+    }
+}
+
+async function getAllEstadisticas(req, res){
+    const {id_tipoEstadistica} = req.params
+
+    try {
+        const estadisticas = await Estadistica.findAll({where: {tipoEstadistica_id: id_tipoEstadistica}, include: {model: Usuario, as: 'usuario'}})
+        return res.status(200).send(estadisticas)
+    }catch (error){
+        return res.status(500).send({msg: "Error al consultar las estadisticas"})
+    }
+}
+
 module.exports = {
     getMyEstadisticas,
-    createEstadistica
+    createEstadistica,
+    updateEstadistica,
+    deleteEstadistica,
+    getAllEstadisticas
 }
