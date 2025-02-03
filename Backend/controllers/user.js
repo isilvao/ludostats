@@ -20,7 +20,7 @@ async function getMe(req, res){
         res.status(200).send(response)
         console.log(response)
     } else {
-        response. = null
+        response = null
         res.status(200).send(response)
 
         console.log(response)
