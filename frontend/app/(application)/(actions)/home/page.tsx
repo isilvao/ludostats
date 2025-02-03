@@ -8,7 +8,7 @@ import { ClubAPI } from '@/api/club';
 import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
 import { UsuariosEquipos } from '@/api/usuariosEquipos';
-
+import { User } from '@/api/user';
 // Interfaces para cada tipo (puedes modificarlas según tu API)
 interface Equipo {
   id: number;
@@ -25,10 +25,9 @@ interface Equipo {
 
 interface Club {
   id: number;
-  Club: {
-    nombre: string;
-    deporte: string;
-  };
+  nombre: string;
+  deporte: string;
+  logo?: string;
 }
 
 interface Hijo {
@@ -53,16 +52,19 @@ const Page: React.FC = () => {
     const fetchData = async () => {
       try {
         const equipoAPI = new EquipoAPI();
-        const clubAPI = new ClubAPI();
+        // const clubAPI = new ClubAPI();
         const usuariosEquiposAPI = new UsuariosEquipos();
+        const userhijo = new User();
         const equiposData = await equipoAPI.obtenerMisEquipos(accessToken);
-        // const clubesData = await usuariosEquiposAPI.obtenerClubesDeUsuario(
-        //   user.id
-        // );
-        const clubesData = await clubAPI.buscarMisClubes(accessToken);
         setEquipos(equiposData);
+        const clubesData = await usuariosEquiposAPI.obtenerClubesDeUsuario(
+          user.id
+        );
+        // const clubesData = await clubAPI.buscarMisClubes(accessToken);
         setClubes(clubesData);
-        console.log(clubes);
+        const hijosData = await userhijo.obtenerMisHijos(accessToken);
+        console.log(hijosData);
+        setHijos(hijosData);
       } catch (error) {
         console.error('Error al obtener la información:', error);
       } finally {
@@ -194,19 +196,21 @@ const Page: React.FC = () => {
                 No tienes ningún club asignado.
               </p>
             ) : (
-              <ul className="text-gray-600 space-y-4">
+              <ul className="text-gray-600 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {clubes.map((club) => (
                   <li
                     key={club.id}
-                    className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center"
+                    className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center"
                   >
-                    <div className="flex items-center space-x-4">
-                      <FaShieldAlt className="text-brand text-2xl" />
+                    <div className="flex items-center space-x-12">
+                      <img
+                        src={getClubLogo(club)}
+                        alt={`${club.nombre} logo`}
+                        className="w-20 h-20 object-contain rounded-full border-4 border-gray-100 shadow-md"
+                      />
                       <div>
-                        <h3 className="text-lg font-semibold">
-                          {club.Club.nombre}
-                        </h3>
-                        <p>Deporte: {club.Club.deporte}</p>
+                        <h3 className="text-lg font-semibold">{club.nombre}</h3>
+                        <p>Deporte: {club.deporte}</p>
                       </div>
                     </div>
                   </li>
@@ -227,13 +231,16 @@ const Page: React.FC = () => {
                 {hijos.map((hijo) => (
                   <li
                     key={hijo.id}
-                    className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center"
+                    className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center"
                   >
-                    <div className="flex items-center space-x-4">
-                      <FaTshirt className="text-brand text-2xl" />
+                    <div className="flex items-center space-x-12">
+                      {/* <img
+                      src={getClubLogo(club)}
+                      alt={`${club.nombre} logo`}
+                      className="w-20 h-20 object-contain rounded-full border-4 border-gray-100 shadow-md"
+                    /> */}
                       <div>
                         <h3 className="text-lg font-semibold">{hijo.nombre}</h3>
-                        <p>Edad: {hijo.edad}</p>
                       </div>
                     </div>
                   </li>

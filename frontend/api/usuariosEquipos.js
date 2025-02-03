@@ -17,7 +17,7 @@ export class UsuariosEquipos {
       const body = {
         usuario_id: usuarioId,
         equipo_id: equipoId,
-        rol
+        rol,
       };
 
       // 📌 Si el usuario es padre (2), incluir datos del hijo
@@ -37,9 +37,10 @@ export class UsuariosEquipos {
       const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 201) throw new Error(result.msg || 'Error al agregar usuario al equipo.');
+      if (response.status !== 201)
+        throw new Error(result.msg || 'Error al agregar usuario al equipo.');
 
-      console.log("📌 Usuario agregado correctamente:", result);
+      console.log('📌 Usuario agregado correctamente:', result);
 
       return result;
     } catch (error) {
@@ -68,9 +69,10 @@ export class UsuariosEquipos {
       const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error(result.msg || 'Error al eliminar usuario del equipo.');
+      if (response.status !== 200)
+        throw new Error(result.msg || 'Error al eliminar usuario del equipo.');
 
-      console.log("📌 Usuario eliminado correctamente:", result);
+      console.log('📌 Usuario eliminado correctamente:', result);
       return result;
     } catch (error) {
       console.error('❌ Error al eliminar usuario del equipo:', error);
@@ -90,9 +92,12 @@ export class UsuariosEquipos {
       const response = await fetch(url);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error(result.msg || 'Error al obtener los equipos del usuario.');
+      if (response.status !== 200)
+        throw new Error(
+          result.msg || 'Error al obtener los equipos del usuario.'
+        );
 
-      console.log("📌 Equipos del usuario obtenidos:", result);
+      console.log('📌 Equipos del usuario obtenidos:', result);
       return result;
     } catch (error) {
       console.error('❌ Error al obtener equipos del usuario:', error);
@@ -112,9 +117,11 @@ export class UsuariosEquipos {
       const response = await fetch(url);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error(result.msg || 'Error al obtener los clubes del usuario.');
+      if (response.status !== 200)
+        throw new Error(
+          result.msg || 'Error al obtener los clubes del usuario.'
+        );
 
-      console.log("📌 Clubes del usuario obtenidos:", result);
       return result;
     } catch (error) {
       console.error('❌ Error al obtener clubes del usuario:', error);
