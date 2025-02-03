@@ -147,6 +147,55 @@ export class User {
     } catch (error) {
       throw new Error('No se pudo enviar el correo. Inténtalo de nuevo.');
     }
+
+
+  }
+
+   /**
+   * 📌 Obtener todos los clubes de un usuario.
+   * @param {string} usuarioId - ID del usuario.
+   * @returns {Promise} - Lista de clubes en los que participa el usuario.
+   */
+   async obtenerClubesDeUsuario(usuarioId) {
+    try {
+      const url = `${this.baseApi}/usuarios-equipos/${usuarioId}/clubes`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error(result.msg || 'Error al obtener los clubes del usuario.');
+
+      console.log("📌 Clubes del usuario obtenidos:", result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error al obtener clubes del usuario:', error);
+      throw error;
+    }
+  }
+
+  async obtenerMisHijos(accessToken) {
+    try {
+      const url = `${this.baseApi}/children`;
+
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error(result.msg || 'Error al obtener los hijos.');
+
+      console.log("📌 Hijos obtenidos:", result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error al obtener hijos:', error);
+      throw error;
+    }
   }
 
   verifyOtp(enteredOtp) {
