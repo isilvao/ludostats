@@ -1,66 +1,55 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { tipoEstadisticasAPI } from "@/api/tipoEstadisticas";
+import { useAuth } from "@/hooks";
 
 const StatisticsDetails: React.FC = () => {
-  const router = useRouter();
-  const { query } = router;
-  const tipoEstadisticaId = query?.tipoEstadisticaId;
-
+  const { usuario } = useAuth();
+  const { tipoEstadisticaId } = useParams();
   const [estadisticaInfo, setEstadisticaInfo] = useState<any>(null);
-
-  // Simulación de datos falsos para cada tipo de estadística
-  const estadisticasFalsas = [
-    {
-      tipoEstadistica_id: "1",
-      nombre: "Salto alto",
-      descripcion: "Se mide el salto alto en centímetros",
-      unidades: "cm",
-      datos: [
-        { id: 1, deportista: "Juan Pérez", valor: 85, fecha: "2025-01-01" },
-        { id: 2, deportista: "María López", valor: 90, fecha: "2025-01-02" },
-      ],
-    },
-    {
-      tipoEstadistica_id: "2",
-      nombre: "Velocidad",
-      descripcion: "Se mide la velocidad en metros por segundo",
-      unidades: "m/s",
-      datos: [
-        { id: 1, deportista: "Carlos Gómez", valor: 12.5, fecha: "2025-01-01" },
-        { id: 2, deportista: "Ana Torres", valor: 11.8, fecha: "2025-01-02" },
-      ],
-    },
-    {
-      tipoEstadistica_id: "3",
-      nombre: "Resistencia",
-      descripcion: "Se mide la resistencia en minutos",
-      unidades: "min",
-      datos: [
-        { id: 1, deportista: "Pedro Ruiz", valor: 45, fecha: "2025-01-01" },
-        { id: 2, deportista: "Luisa Méndez", valor: 50, fecha: "2025-01-02" },
-      ],
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (tipoEstadisticaId) {
-      const estadisticaSeleccionada = estadisticasFalsas.find(
-        (e) => e.tipoEstadistica_id === tipoEstadisticaId
-      );
-      setEstadisticaInfo(estadisticaSeleccionada);
-    }
-  }, [tipoEstadisticaId]);
+    const fetchTipoEstadistica = async () => {
+      try {
+        if (!usuario?.accessToken || !tipoEstadisticaId) {
+          console.error("Faltan datos para la petición");
+          setError("No se pudieron obtener las estadísticas");
+          setIsLoading(false);
+          return;
+        }
+        const api = new tipoEstadisticasAPI();
+        const data = await api.getTipoEstadistica("ID_CLUB", usuario.accessToken);
+        const estadisticaSeleccionada = data.find(
+          (e: any) => e.tipoEstadistica_id === tipoEstadisticaId
+        );
+        setEstadisticaInfo(estadisticaSeleccionada);
+      } catch (error) {
+        console.error("Error al obtener el tipo de estadística:", error);
+        setError("Error al obtener los datos de estadísticas");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTipoEstadistica();
+  }, [usuario, tipoEstadisticaId]);
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <Header />
 
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
-        {estadisticaInfo ? (
+        {isLoading ? (
+          <p className="text-center text-gray-600">Cargando información...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : estadisticaInfo ? (
           <>
             <h1 className="text-3xl font-bold text-gray-800 mb-4">
               {estadisticaInfo.nombre}
@@ -87,7 +76,7 @@ const StatisticsDetails: React.FC = () => {
             </table>
           </>
         ) : (
-          <p className="text-gray-600">Cargando información...</p>
+          <p className="text-gray-600">No se encontró información.</p>
         )}
       </section>
 
