@@ -93,15 +93,15 @@ export class EquipoAPI {
     }
   }
 
-  async obtenerMisEquipos(accessToken) {
+  async obtenerMisEquipos(user_id) {
     try {
-      const url = `${this.baseApi}/misequipos`;
+      const url = `${this.baseApi}/misequiposv2`;
 
       const params = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${user_id}`,
         },
       };
 
