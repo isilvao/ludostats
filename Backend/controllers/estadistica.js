@@ -2,6 +2,7 @@
 const Estadistica = require('../models/Estadistica');
 const tipoEstadistica = require('../models/TipoEstadistica')
 const Club = require('../models/Club')
+const Usuario = require('../models/Usuario')
 
 async function getMyEstadisticas(req, res){
     const {id_usuario} = req.params
@@ -88,9 +89,21 @@ async function deleteEstadistica(req, res){
     }
 }
 
+async function getAllEstadisticas(req, res){
+    const {id_tipoEstadistica} = req.params
+
+    try {
+        const estadisticas = await Estadistica.findAll({where: {tipoEstadistica_id: id_tipoEstadistica}, include: {model: Usuario, as: 'usuario'}})
+        return res.status(200).send(estadisticas)
+    }catch (error){
+        return res.status(500).send({msg: "Error al consultar las estadisticas"})
+    }
+}
+
 module.exports = {
     getMyEstadisticas,
     createEstadistica,
     updateEstadistica,
-    deleteEstadistica
+    deleteEstadistica,
+    getAllEstadisticas
 }

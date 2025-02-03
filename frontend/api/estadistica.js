@@ -95,7 +95,31 @@ export class estadisticaAPI {
 
             return result;
         } catch (error) {
+            console.error('Error al crear la estadistica:', error);
             throw error;
+        }
+    }
+
+    async getAllEstadisticas(accessToken, id_tipoEstadistica) {
+        // Se buscan todas las estadisticas de un tipo especifico
+        try {
+            const url = `${this.baseApi}/estadisticas/${id_tipoEstadistica}`;
+
+            const params = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            };
+
+            const response = await fetch(url, params);
+            const result = await response.json();
+
+            if (response.status !== 200) throw result;
+
+            return result;
+        } catch (error) {
+            console.error('Error al obtener todas las estadisticas:', error);
+            throw error
         }
     }
 

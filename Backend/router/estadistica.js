@@ -9,6 +9,7 @@ api.get('/misestadisticas', [md_auth.asureAuth, md_stats.validateDeportista], es
 api.post('/:id_tipoEstadistica/:id_usuario', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.createEstadistica) // id del usuario
 api.patch('editarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.updateEstadistica) // id del usuario
 api.delete('eliminarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.deleteEstadistica) // id del usuario
+api.get('estadisticas/:id_tipoEstadistica', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.getAllEstadisticas) // id del usuario
 
 
 module.exports = api
