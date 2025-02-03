@@ -55,7 +55,7 @@ const Page: React.FC = () => {
         // const clubAPI = new ClubAPI();
         const usuariosEquiposAPI = new UsuariosEquipos();
         const userhijo = new User();
-        const equiposData = await equipoAPI.obtenerMisEquipos(accessToken);
+        const equiposData = await equipoAPI.obtenerMisEquipos(user.id);
         setEquipos(equiposData);
         const clubesData = await usuariosEquiposAPI.obtenerClubesDeUsuario(
           user.id

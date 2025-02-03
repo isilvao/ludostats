@@ -8,6 +8,7 @@ import { useAuth } from '../../../../../hooks/useAuth';
 import LoadingScreen from '@/components/LoadingScreen';
 import { FaCheckCircle } from 'react-icons/fa';
 import { getClubLogo } from '@/lib/utils';
+import Link from 'next/link';
 
 const ClubInfoPage: React.FC = () => {
   const router = useRouter();
@@ -60,11 +61,6 @@ const ClubInfoPage: React.FC = () => {
     }
   };
 
-  const handleCancel = () => {
-    // Lógica para cancelar la invitación
-    router.push('/home');
-  };
-
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -101,18 +97,18 @@ const ClubInfoPage: React.FC = () => {
               </div>
 
               <div className="flex gap-4 w-full mt-6">
-                <button
-                  onClick={handleAccept}
+                <Link
+                  href={`/join/${code}/role`}
                   className="flex-1 bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
                 >
                   Aceptar
-                </button>
-                <button
-                  onClick={handleCancel}
+                </Link>
+                <Link
+                  href="/home"
                   className="flex-1 bg-red hover:bg-red/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
                 >
                   Cancelar
-                </button>
+                </Link>
               </div>
             </div>
           </div>
