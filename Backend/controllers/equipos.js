@@ -93,10 +93,13 @@ const obtenerEquipoPorId = async (req, res) => {
 
 
 const obtenerMisEquipos = async (req, res) => {
-  const { user_id } = req.user;
+  const { user_id } = req.query; // 📌 Extraer `user_id` desde la URL
+
+  if (!user_id) {
+    return res.status(400).json({ msg: "Falta el parámetro user_id" });
+  }
 
   try {
-
     const equipos = await UsuarioEquipo.findAll({
       where: {
         usuario_id: user_id
@@ -115,12 +118,11 @@ const obtenerMisEquipos = async (req, res) => {
     });
 
     res.status(200).json(equipos);
-
   } catch (error) {
     console.error("Error al obtener los equipos:", error);
     res.status(500).json({ msg: "Error interno del servidor" });
   }
-}
+};
 
 module.exports = {
   crearEquipo,
