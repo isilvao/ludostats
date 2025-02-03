@@ -2,6 +2,7 @@ const Equipo = require("../models/Equipo");
 const Usuario = require("../models/Usuario");
 const Club = require("../models/Club");
 const UsuarioEquipo = require("../models/UsuariosEquipos");
+const { Op } = require("sequelize"); // 📌 Importamos operadores de Sequelize
 
 const crearEquipo = async (req, res) => {
   const { nombre, cantidad_deportistas, club_id, entrenador_id } =
@@ -102,7 +103,8 @@ const obtenerMisEquipos = async (req, res) => {
   try {
     const equipos = await UsuarioEquipo.findAll({
       where: {
-        usuario_id: user_id
+        usuario_id: user_id,
+        rol: { [Op.ne]: 2 } // 📌 Excluir donde rol sea igual a 2 (padre)
       },
       include: [
         {
