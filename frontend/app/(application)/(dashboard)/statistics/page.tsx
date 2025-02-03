@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks"; // Importar el hook de autenticación
 
 const Statistics: React.FC = () => {
-  const { usuario } = useAuth();
-  const router = useRouter();
   const [tipoEstadisticaData, setTipoEstadisticaData] = useState([]);
 
   // Simulación de una API para datos iniciales (reemplazar con fetch hacia el backend)
@@ -25,17 +22,9 @@ const Statistics: React.FC = () => {
     fetchTipoEstadistica();
   }, []);
 
-  const handleCardClick = (tipoEstadisticaId: number) => {
-    router.push(`/estadisticas/${tipoEstadisticaId}`);
-  };
-
-  if (usuario?.rol !== "admin") {
-    return <div>No tienes permiso para acceder a esta página</div>;
-  }
-
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <Header />
+ 
 
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Tipos de Estadísticas</h1>
@@ -44,24 +33,23 @@ const Statistics: React.FC = () => {
           {tipoEstadisticaData.map((tipo) => (
             <div
               key={tipo.tipoEstadistica_id}
-              className="p-4 border rounded shadow hover:shadow-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all"
+              className="p-4 border rounded shadow-lg hover:shadow-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all flex flex-col items-center justify-between w-full h-48"
             >
               <h2 className="text-xl font-semibold mb-2 text-center">{tipo.nombre}</h2>
               <p className="text-gray-600 text-center mb-4">{tipo.descripcion}</p>
               <div className="flex justify-center">
-                <button
-                  onClick={() => handleCardClick(tipo.tipoEstadistica_id)}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-                >
-                  Entrar
-                </button>
+                <Link href={`/statisticsDetails/${tipo.tipoEstadistica_id}?nombre=${encodeURIComponent(tipo.nombre)}&descripcion=${encodeURIComponent(tipo.descripcion)}`}>
+                  <button className="bg-[rgb(76,175,79)] text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                    Ver Detalles
+                  </button>
+                </Link>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <Footer />
+     
     </div>
   );
 };
