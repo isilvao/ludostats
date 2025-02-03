@@ -16,7 +16,7 @@ interface EquipoCardProps {
 
 const EquipoCard: React.FC<EquipoCardProps> = ({ equipo }) => {
   return (
-    <Link href="/inicio">
+    <Link href={`/${equipo.nombre.replace(/\s+/g, '')}`}>
       <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center align-middle h-full">
         <div className="flex items-center space-x-12">
           <img

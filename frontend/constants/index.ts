@@ -104,17 +104,17 @@ export const navItems = [
   {
     name: 'Calendario',
     icon: '/assets/icons/documents.svg',
-    url: '/calendar',
+    url: '/[dashboard]/calendar',
   },
   {
     name: 'Estadísticas',
     icon: '/assets/icons/images.svg',
-    url: '/statistics',
+    url: '/[dashboard]/statistics',
   },
   {
     name: 'Suscripción',
     icon: '/assets/icons/video.svg',
-    url: '/subscription',
+    url: '/[dashboard]/subscription',
   },
   {
     name: 'Others',

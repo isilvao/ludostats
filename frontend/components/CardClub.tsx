@@ -13,7 +13,7 @@ interface ClubCardProps {
 
 const ClubCard: React.FC<ClubCardProps> = ({ club }) => {
   return (
-    <Link href="/inicio">
+    <Link href={`/${club.nombre.replace(/\s+/g, '')}`}>
       <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center align-middle h-full">
         <div className="flex items-center space-x-12">
           <img
