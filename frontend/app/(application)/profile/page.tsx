@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '../../../hooks';
-import { Loader2 } from 'lucide-react';
 import { User, Auth } from '../../../api';
 import { getProfileImage } from '@/lib/utils';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -12,7 +11,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 const Profile = () => {
   const userController = new User();
   const authController = new Auth();
-  const { logout, user, accessToken } = useAuth();
+  const { user, accessToken } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
 
   if (!user) {
@@ -47,16 +46,6 @@ const Profile = () => {
     // }
 
     alert('Función para eliminar cuenta en desarrollo');
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await logout(); // Espera a que logout termine
-      console.log(user); // Imprime user después de que logout finalice
-      window.location.href = '/';
-    } catch (error) {
-      console.log('Error during logout:', error);
-    }
   };
 
   const renderContent = () => {
@@ -301,13 +290,6 @@ const Profile = () => {
               onClick={() => setSelectedOption('preferences')}
             >
               Preferencias
-            </li>
-            <li
-              className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-gray-100"
-              onClick={handleSignOut}
-              //onClick={logout()}
-            >
-              Cerrar sesión
             </li>
             <li
               className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-gray-100"

@@ -69,7 +69,6 @@ const CreateForm = ({ type }: { type: FormType }) => {
   const onSubmit = async (values: z.infer<typeof schema>) => {
     setIsLoading(true);
     try {
-      // Construir FormData para enviar datos y archivos
       if (type === 'club') {
         await clubcreate.crearClub(
           {
