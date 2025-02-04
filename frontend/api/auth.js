@@ -18,7 +18,7 @@ export class Auth {
                     apellido: data.apellido,
                     correo: data.correo,
                     contrasena: data.contrasena,
-                    rol: 'externo',
+                    rol: 'gerente',
                     activo: true
                 })
             }
@@ -90,7 +90,6 @@ export class Auth {
             localStorage.setItem(JWT.ACCESS, token)
         }else {
             sessionStorage.setItem(JWT.ACCESS, token)
-            console.log("QUE PUTAS")
         }
     }
 
