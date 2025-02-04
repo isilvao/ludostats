@@ -37,9 +37,9 @@ async function createClub(req, res) {
 
   let imagePath = null;
 
-  if (req.files.logo) {
-    imagePath = image.getFilePath(req.files.logo);
-  }
+  // if (req.files.logo) {
+  //   imagePath = image.getFilePath(req.files.logo);
+  // }
 
   Club.create({
     ...req.body,
