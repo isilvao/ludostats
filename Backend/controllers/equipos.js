@@ -5,10 +5,10 @@ const UsuarioEquipo = require("../models/UsuariosEquipos");
 const { Op } = require("sequelize"); // 📌 Importamos operadores de Sequelize
 
 const crearEquipo = async (req, res) => {
-  const { nombre, cantidad_deportistas, club_id, entrenador_id } =
+  const { nombre, club_id, entrenador_id, nivelPractica, descripcion } =
     req.body;
 
-  if (!nombre || !cantidad_deportistas || !club_id) {
+  if (!nombre || !club_id || !nivelPractica) {
     return res.status(400).json({ msg: "Faltan datos obligatorios" });
   }
 
@@ -22,10 +22,11 @@ const crearEquipo = async (req, res) => {
 
     const nuevoEquipo = await Equipo.create({
       nombre,
-      cantidad_deportistas,
       logo: imagePath,
+      descripcion: descripcion,
       entrenador_id: entrenador_id || null,
       club_id,
+      nivelPractica,
     });
 
     res
