@@ -4,7 +4,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { ClubAPI } from '@/api/club';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks';
 
 import {
   Form,
@@ -24,7 +26,12 @@ const createFormSchema = (formType: FormType) => {
   return z.object({
     name: z.string().min(2, 'Nombre obligatorio').max(50),
     sport: z.string().min(1, 'Deporte obligatorio'),
-    phone: z.string().min(10, 'Teléfono inválido').optional(),
+    phone: z
+      .string()
+      .refine((val) => val === '' || val.length >= 10, {
+        message: 'Teléfono inválido',
+      })
+      .optional(),
     logo: z.instanceof(Blob).optional(),
     ...(formType === 'team' && {
       gender: z.string().min(1, 'Género obligatorio'),
@@ -37,6 +44,11 @@ const createFormSchema = (formType: FormType) => {
 
 const CreateForm = ({ type }: { type: FormType }) => {
   const schema = createFormSchema(type);
+  const clubcreate = new ClubAPI();
+
+  const { accessToken } = useAuth();
+
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -59,7 +71,22 @@ const CreateForm = ({ type }: { type: FormType }) => {
   const onSubmit = async (values: z.infer<typeof schema>) => {
     setIsLoading(true);
     try {
+      if (type === 'club') {
+        await clubcreate.crearClub(
+          {
+            nombre: values.name,
+            deporte: values.sport,
+            telefono: values.phone || '',
+            logo: values.logo || '',
+          },
+          accessToken
+        );
+        // Redirigir al usuario a /home después de un envío exitoso
+        router.push('/home');
+      }
       console.log('Form submitted:', values);
+    } catch (error) {
+      console.error('Error al crear el club:', error);
     } finally {
       setIsLoading(false);
     }
