@@ -10,6 +10,13 @@ const api = express.Router();
 const md_upload = multiparty({ uploadDir: "./uploads/usersFoto" });
 
 // Personal Routes
+api.get('/user/me', [md_auth.asureAuth],userController.getMe)
+api.patch('/user/updateMe', [md_auth.asureAuth, md_upload], userController.updateMe)
+
+// General Routes
+api.get('/users', [md_auth.asureAuth], userController.getUsers)
+api.post('/user', [md_auth.asureAuth, md_upload], userController.createUser)
+api.patch('/user/:id', [md_auth.asureAuth, md_upload], userController.updateUser)
 api.get("/user/me", [md_auth.asureAuth], userController.getMe);
 api.patch(
   "/user/updateMe",

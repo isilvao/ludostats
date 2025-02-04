@@ -28,13 +28,13 @@ const Sidebar = () => {
           {navItems.map(({ url, name, icon }) => (
             <Link
               key={name}
-              href={url.replace('[dashboard]', nameTeam)}
+              href={url.replace('[dashboard]', nameTeam ?? '')}
               className="lg:w-full"
             >
               <li
                 className={cn(
                   'sidebar-nav-item',
-                  pathname === url.replace('[dashboard]', nameTeam) &&
+                  pathname === url.replace('[dashboard]', nameTeam ?? '') &&
                     'shad-active'
                 )}
               >
@@ -45,7 +45,7 @@ const Sidebar = () => {
                   height={24}
                   className={cn(
                     'nav-icon',
-                    pathname === url.replace('[dashboard]', nameTeam) &&
+                    pathname === url.replace('[dashboard]', nameTeam ?? '') &&
                       'nav-icon-active'
                   )}
                 />
