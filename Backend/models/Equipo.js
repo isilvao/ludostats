@@ -11,10 +11,6 @@ const Equipo = sequelize.define('Equipo', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    cantidad_deportistas: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
     logo: {
         type: DataTypes.STRING,
         allowNull: true
@@ -27,6 +23,14 @@ const Equipo = sequelize.define('Equipo', {
         type: DataTypes.UUID,
         allowNull: false,
     },
+    descripcion: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    nivelPractica: {
+        type: DataTypes.ENUM('Competitivo', 'Recreativo'),
+        allowNull: true,
+    }
 });
 
 

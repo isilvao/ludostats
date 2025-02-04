@@ -5,6 +5,7 @@ const Estadistica = require('./Estadistica');
 const TipoEstadistica = require('./TipoEstadistica');
 const Torneo = require('./Torneo');
 const UsuarioClub = require('./UsuarioClub');
+const Evento = require('./Evento');
 
 const sequelize = require('../db');
 const Invitacion = require('./invitacion');
@@ -90,6 +91,11 @@ Club.hasMany(TipoEstadistica, {
   foreignKey: 'club_id',
   as: 'tiposEstadistica'
 });
+
+Club.hasMany(Evento, {
+  foreignKey: 'club_id',
+  as: 'eventos'
+})
 
 Club.hasMany(UsuarioClub, {
   foreignKey: 'club_id',
@@ -216,6 +222,13 @@ Equipo.belongsToMany(Usuario, {
   otherKey: 'usuario_id',
   as: 'integrantes1'
 });
+
+// Eventos
+Evento.belongsTo(Club, {
+  foreignKey: 'club_id',
+  targetKey: 'id',
+  as: 'club'
+})
 
 
 module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, Torneo, initModels };
