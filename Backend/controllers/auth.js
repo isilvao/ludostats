@@ -3,13 +3,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("../utils/jwt");
 
 function register(req, res){
-    const { nombre, apellido, correo, contrasena} = req.body;
+    const { nombre, apellido, correo, contrasena, foto } = req.body;
 
-    if (!correo) res.status(400).send({msg: "El correo es obligatorio"})
-    if (!contrasena) res.status(400).send({msg: "La contraseña es obligatoria"})
-    if (!nombre) res.status(400).send({msg: "El nombre es obligatorio"})
-    if (!apellido) res.status(400).send({msg: "El apellido es obligatorio"})
-
+    if (!correo) return res.status(400).send({ msg: "El correo es obligatorio" });
+    if (!contrasena) return res.status(400).send({ msg: "La contraseña es obligatoria" });
+    if (!nombre) return res.status(400).send({ msg: "El nombre es obligatorio" });
+    if (!apellido) return res.status(400).send({ msg: "El apellido es obligatorio" });
 
     const salt = bcrypt.genSaltSync(10);
     const hashPassword = bcrypt.hashSync(contrasena, salt);
@@ -20,14 +19,16 @@ function register(req, res){
         correo: correo.toLowerCase(),
         contrasena: hashPassword,
         activo: true,
-        rol: "otro"
-    }).then((userStored) => {
-        // userStored es la instancia creada
+        rol: "otro",
+        foto: foto || null // 📌 Si no se envía la foto, guardamos `null`
+    })
+    .then((userStored) => {
         if (!userStored) {
             return res.status(400).send({ msg: "Error al crear el usuario" });
         }
         return res.status(200).send({ msg: "Usuario creado correctamente", success: true });
-    }).catch((err) => {
+    })
+    .catch((err) => {
         console.error(err);
         return res.status(500).send({ msg: "Error al crear el usuario" });
     });

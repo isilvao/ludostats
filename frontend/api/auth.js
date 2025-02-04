@@ -8,19 +8,23 @@ export class Auth {
         try {
             const url = `${this.baseApiUrl}/register`;
 
+             // 📌 No incluimos `foto` si es `undefined`
+            const requestBody = {
+                nombre: data.nombre,
+                apellido: data.apellido,
+                correo: data.correo,
+                contrasena: data.contrasena,
+                rol: "gerente",
+                activo: true,
+                ...(data.foto && { foto: data.foto }) // 📌 Solo añade foto si existe
+            };
+
             const params = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    nombre: data.nombre,
-                    apellido: data.apellido,
-                    correo: data.correo,
-                    contrasena: data.contrasena,
-                    rol: 'gerente',
-                    activo: true
-                })
+                body: JSON.stringify(requestBody)
             }
 
             const response = await fetch(url, params);
