@@ -155,7 +155,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         login(accessToken);
         window.location.href = next || '/home';
       }
-      alert(values)
+      
     } catch {
       setErrorMessage('Fallo al iniciar sesión. Inténtalo de nuevo.');
     } finally {

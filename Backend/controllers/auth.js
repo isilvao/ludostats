@@ -20,7 +20,7 @@ function register(req, res){
         correo: correo.toLowerCase(),
         contrasena: hashPassword,
         activo: true,
-        rol: "otro",
+        rol: "gerente",
         foto: foto || null // 📌 Si no se envía la foto, guardamos `null`
     })
     .then((userStored) => {
