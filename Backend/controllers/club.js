@@ -61,7 +61,6 @@ async function createClub(req, res) {
       }
     })
     .catch((err) => {
-      console.error(err);
       return res.status(500).send({ msg: "Error al crear el club" });
     });
 }
