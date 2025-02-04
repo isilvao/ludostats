@@ -4,9 +4,27 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '../hooks';
 import { getProfileImage } from '../lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const handleSignOut = async () => {
+    try {
+      await logout(); // Espera a que logout termine
+      console.log(user); // Imprime user después de que logout finalice
+      window.location.href = '/';
+    } catch (error) {
+      console.log('Error during logout:', error);
+    }
+  };
+
   return (
     <nav className="header">
       <Link href="/home">
@@ -17,22 +35,37 @@ const Header = () => {
           alt="Logo"
         />
       </Link>
-      <Link href="/profile">
-        <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full overflow-hidden">
-            <Image
-              src={getProfileImage(user)}
-              width={40}
-              height={40}
-              alt="Foto de perfil"
-              className="object-cover w-full h-full"
-            />
+      <DropdownMenu>
+        <DropdownMenuTrigger className="outline-none">
+          <div className="flex items-center">
+            <div className="w-10 h-10 rounded-full overflow-hidden">
+              <Image
+                src={getProfileImage(user)}
+                width={40}
+                height={40}
+                alt="Foto de perfil"
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <span className="ml-2 text-gray-400 hover:text-gray-600">
+              {user.nombre}
+            </span>
           </div>
-          <span className="ml-2 text-gray-400 hover:text-gray-600">
-            {user.nombre}
-          </span>
-        </div>
-      </Link>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="min-w-40">
+          <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href="/profile">Mi Perfil</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleSignOut}
+            className="text-[#e32424] cursor-pointer"
+          >
+            Cerrar sesión
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </nav>
   );
 };
