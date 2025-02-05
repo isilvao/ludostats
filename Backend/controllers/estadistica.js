@@ -107,7 +107,7 @@ async function getAllEstadisticas(req, res){
 
     try {
         const usuarios = await Usuario.findAll({include: {
-            model, Estadistica,
+            model: Estadistica,
             as: "estadisticas",
             where: {tipoEstadistica_id: id_tipoEstadistica}
         }})
