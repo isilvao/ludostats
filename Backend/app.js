@@ -10,6 +10,7 @@ const app = express();
 const authRoutes = require('./router/auth');
 const userRoutes = require('./router/user');
 const clubRoutes = require('./router/club');
+const diegoRoutes = require('./router/teams');
 const tipoEstadisticaRoutes = require('./router/tipoEstadistica');
 const estadisticaRoutes = require('./router/estadistica');
 const equiposRoutes = require('./router/equipos'); // Rutas para Equipos
@@ -35,6 +36,8 @@ app.use(`/api/${API_VERSION}`, estadisticaRoutes);
 app.use(`/api/${API_VERSION}`, equiposRoutes); // Agregar rutas de equipos
 app.use(`/api/${API_VERSION}`, usuariosEquiposRoutes); // Agregar rutas de usuariosEquipos
 app.use(`/api/${API_VERSION}`, eventosRoutes); // Agregar rutas de eventos
+
+app.use(`/api/${API_VERSION}`, diegoRoutes); // Agregar rutas de eventos
 
 // Initialize models and sync with db
 initModels();
