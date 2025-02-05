@@ -106,8 +106,13 @@ async function getAllEstadisticas(req, res){
     const {id_tipoEstadistica} = req.params
 
     try {
-        const estadisticas = await Estadistica.findAll({where: {tipoEstadistica_id: id_tipoEstadistica}, include: {model: Usuario, as: 'usuario'}})
-        return res.status(200).send(estadisticas)
+        const usuarios = await Usuario.findAll({include: {
+            model: Estadistica,
+            as: "estadisticas",
+            where: {tipoEstadistica_id: id_tipoEstadistica}
+        }})
+
+        return res.status(200).send(usuarios)
     }catch (error){
         return res.status(500).send({msg: "Error al consultar las estadisticas"})
     }
