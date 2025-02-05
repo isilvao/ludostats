@@ -111,34 +111,38 @@ const Navbar = () => {
             <div className="grid gap-4 py-4 mt-5">
               <ul className="flex flex-col gap-4 text-black w-full">
                 {NavLinks.map((link) => (
-                  <Link
-                    href={link.href}
-                    key={link.text}
-                    className="hover:text-gray-700"
-                  >
-                    {link.text}
-                  </Link>
+                  <SheetClose asChild key={link.text}>
+                    <Link href={link.href} className="hover:text-gray-700">
+                      {link.text}
+                    </Link>
+                  </SheetClose>
                 ))}
               </ul>
               <div className="flex flex-col items-center gap-4 mt-8 text-center">
-                <Link
-                  href="/sign-up?next=/join"
-                  className="hover:text-gray-700 w-full transition"
-                >
-                  Unirme a un club
-                </Link>
-                <Link
-                  href="/sign-in"
-                  className="border border-dark-200 px-4 py-2 rounded-md hover:bg-slate-50 transition w-full"
-                >
-                  Ingresar
-                </Link>
-                <Link
-                  href="/sign-up"
-                  className="bg-[#4CAF4F] text-white hover:bg-[#4CAF4F]/80 px-4 py-2 rounded-md w-full transition"
-                >
-                  Registrarse
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/sign-up?next=/join"
+                    className="hover:text-gray-700 w-full transition"
+                  >
+                    Unirme a un club
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    href="/sign-in"
+                    className="border border-dark-200 px-4 py-2 rounded-md hover:bg-slate-50 transition w-full"
+                  >
+                    Ingresar
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    href="/sign-up"
+                    className="bg-[#4CAF4F] text-white hover:bg-[#4CAF4F]/80 px-4 py-2 rounded-md w-full transition"
+                  >
+                    Registrarse
+                  </Link>
+                </SheetClose>
               </div>
             </div>
           </SheetContent>

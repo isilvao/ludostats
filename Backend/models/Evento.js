@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
+const {DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-const Equipo = sequelize.define('Equipo', {
+const Evento = sequelize.define('Evento', {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -13,25 +13,21 @@ const Equipo = sequelize.define('Equipo', {
     },
     descripcion: {
         type: DataTypes.STRING,
-        allowNull: true
-    },
-    nivelPractica: {
-        type: DataTypes.ENUM('Competitivo', 'Recreativo'),
         allowNull: false,
     },
-    logo: {
-        type: DataTypes.STRING,
-        allowNull: true
+    fecha_inicio: {
+        type: DataTypes.DATE,
+        allowNull: false,
     },
-    entrenador_id: {
-        type: DataTypes.UUID,
+    fecha_fin: {
+        type: DataTypes.DATE,
         allowNull: true,
     },
     club_id: {
         type: DataTypes.UUID,
         allowNull: false,
-    }
-});
+    },
+})
 
 
-module.exports = Equipo;
+module.exports = Evento;

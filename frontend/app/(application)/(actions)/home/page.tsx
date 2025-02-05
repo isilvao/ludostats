@@ -15,14 +15,14 @@ import CardTeam from '@/components/CardTeam';
 // Interfaces para cada tipo (puedes modificarlas según tu API)
 interface Equipo {
   id: number;
-  Equipo: {
+  //Equipo: {
     nombre: string;
     logo?: string;
     club: {
       nombre: string;
       deporte: string;
     };
-  };
+  //};
 }
 
 interface Club {
@@ -188,7 +188,7 @@ const Page: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {equipos.map((equipo) => (
-                  <CardTeam key={equipo.id} equipo={equipo.Equipo} />
+                  <CardTeam key={equipo.id} equipo={equipo} />
                 ))}
               </div>
             )}
@@ -225,7 +225,7 @@ const Page: React.FC = () => {
                       {hijo.nombre}
                     </h2>
                     {equipos.map((equipo) => (
-                      <CardTeam key={equipo.id} equipo={equipo.Equipo} />
+                      <CardTeam key={equipo.id} equipo={equipo} />
                     ))}
                     {clubes.map((club) => (
                       <CardClub key={club.id} club={club} />

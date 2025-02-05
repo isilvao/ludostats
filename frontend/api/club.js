@@ -38,19 +38,24 @@ export class ClubAPI {
         try {
           const url = `${this.baseApi}/newclub`;
 
+          const data = new FormData();
+          data.append("nombre", club.nombre);
+          data.append("deporte", club.deporte);
+          if (club.telefono) data.append("telefono", club.telefono);
+          if (club.logo) data.append("logo", club.logo); // Agregar el logo si existe
+
           const params = {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
               Authorization: `Bearer ${accessToken}`,
             },
-            body: JSON.stringify(club),
-          }
+            body: data, // Se envía como FormData
+          };
 
           const response = await fetch(url, params);
           const result = await response.json();
 
-          if (response.status !== 201) throw result;
+          //if (response.status !== 201) throw result;
 
           return result;
         } catch (error) {

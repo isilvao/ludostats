@@ -27,6 +27,7 @@ interface GoogleJwtPayload extends JwtPayload {
   given_name?: string;
   family_name?: string;
   email: string;
+  picture: string;
 }
 
 type FormType = 'sign-in' | 'sign-up';
@@ -53,6 +54,8 @@ const authFormSchema = (formType: FormType) => {
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
+    picture:
+      z.string().optional(),
   });
 };
 
@@ -125,6 +128,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const onSubmitGoogle = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage('');
+    console.log(values)
 
     try {
       const result = await authController.register({
@@ -132,6 +136,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         apellido: values.lastName || '',
         correo: values.email,
         contrasena: values.password,
+        foto: values.picture || undefined // 📌 Si no hay foto, enviamos `undefined`
       });
     } catch {}
 
@@ -150,6 +155,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         login(accessToken);
         window.location.href = next || '/home';
       }
+      
     } catch {
       setErrorMessage('Fallo al iniciar sesión. Inténtalo de nuevo.');
     } finally {
@@ -320,6 +326,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 const decoded = jwtDecode(
                   credentialResponse.credential!
                 ) as GoogleJwtPayload;
+                //alert(decoded.picture)
 
                 const googleValues = {
                   email: decoded.email,
@@ -327,6 +334,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                   firstName: decoded.given_name || '',
                   lastName: decoded.family_name || '',
                   rememberMe: true,
+                  picture: decoded.picture,
                 };
 
                 onSubmitGoogle(googleValues);

@@ -1,6 +1,5 @@
 const UsuariosEquipos = require('../models/UsuariosEquipos');
 const Equipo = require('../models/Equipo');
-
 const Usuario = require('../models/Usuario');
 const bcrypt = require("bcryptjs");
 
@@ -21,8 +20,6 @@ const borrarUsuarioEquipo = async (req, res) => {
     }
 };
 
-
-
 const modificarUsuarioEquipo = async (req, res) => {
     const { id } = req.params;
     const datosActualizados = req.body;
@@ -42,7 +39,6 @@ const modificarUsuarioEquipo = async (req, res) => {
         res.status(500).json({ msg: 'Error interno del servidor' });
     }
 };
-
 
 // 📌 Contraseña fija para todos los hijos
 const PASSWORD_HIJOS = "Hijo123*";
@@ -84,12 +80,12 @@ const asignarEntrenadorAEquipo = async (equipoId, usuario_id) => {
     console.log(`📌 Entrenador asignado correctamente: ${usuario_id}`);
 };
 
-// 📌 Maneja la asignación del acudiente y del hijo
-const asignarAcudienteYHijo = async (acudiente_id, equipo_id, nombreHijo, apellidoHijo) => {
-    // 📌 Registrar al hijo en la base de datos con correo y contraseña
+// 📌 Función para asignar solo el hijo al equipo (el padre NO se registra en `UsuariosEquipos`)
+const asignarHijoAlEquipo = async (acudiente_id, equipo_id, nombreHijo, apellidoHijo) => {
+    // 📌 Registrar al hijo en la tabla `Usuarios`
     const extra_id = await registrarHijo(nombreHijo, apellidoHijo, acudiente_id);
 
-    // 📌 Verificar si el usuario hijo ya está en el equipo
+    // 📌 Verificar si el hijo ya está en el equipo
     const registroHijo = await UsuariosEquipos.findOne({
         where: { usuario_id: extra_id, equipo_id },
     });
@@ -98,7 +94,7 @@ const asignarAcudienteYHijo = async (acudiente_id, equipo_id, nombreHijo, apelli
         throw new Error('El usuario hijo ya está registrado en este equipo.');
     }
 
-    // 📌 Registrar el hijo en UsuariosEquipos con rol de Hijo (5)
+    // 📌 Registrar solo el hijo en `UsuariosEquipos` con rol de Hijo (5)
     console.log(`📌 Asignando automáticamente el usuario hijo ${extra_id} al equipo ${equipo_id} como hijo.`);
     await UsuariosEquipos.create({
         usuario_id: extra_id,
@@ -109,67 +105,67 @@ const asignarAcudienteYHijo = async (acudiente_id, equipo_id, nombreHijo, apelli
     return extra_id;
 };
 
+// 📌 Controlador principal para registrar usuarios en `UsuariosEquipos`
 const crearUsuarioEquipo = async (req, res) => {
-    const { usuario_id, equipo_id, rol, nombre, apellido } = req.body;
-
-    if (!usuario_id || !equipo_id || rol === undefined || rol === null) {
-        return res.status(400).json({ msg: 'Faltan datos obligatorios' });
-    }
-
-    try {
-        // 📌 Verificar si el usuario ya está registrado en el equipo
-        const usuarioExistente = await UsuariosEquipos.findOne({
-            where: { usuario_id, equipo_id },
-        });
-
-        if (usuarioExistente) {
-            return res.status(409).json({ msg: 'El usuario ya está registrado en este equipo.' });
+        const { usuario_id, equipo_id, rol, nombre, apellido } = req.body;
+    
+        if (!usuario_id || !equipo_id || rol === undefined || rol === null) {
+            return res.status(400).json({ msg: 'Faltan datos obligatorios' });
         }
-
-        // 📌 Crear el registro en UsuariosEquipos
-        const nuevoRegistro = await UsuariosEquipos.create({
-            usuario_id,
-            equipo_id,
-            rol,
-        });
-
-        console.log(`📌 Usuario ${usuario_id} asignado al equipo ${equipo_id} con rol ${rol}`);
-
-        // 📌 Si el usuario es profesor (3), asignarlo automáticamente como entrenador
-        if (rol === 3) {
-            await asignarEntrenadorAEquipo(equipo_id, usuario_id);
-        }
-
-        // 📌 Si el usuario es acudiente (2) y se recibe nombre/apellido, se crea el hijo
-        if (rol === 2 && nombre && apellido) {
-            try {
-                const extra_id = await asignarAcudienteYHijo(usuario_id, equipo_id, nombre, apellido);
-                console.log(`📌 Registro del hijo completado con ID ${extra_id}`);
-            } catch (error) {
-                console.error('❌ Error al asignar acudiente e hijo:', error.message);
-                return res.status(400).json({ msg: error.message });
+    
+        try {
+            // 📌 Verificar si el usuario ya está registrado en el equipo
+            const usuarioExistente = await UsuariosEquipos.findOne({
+                where: { usuario_id, equipo_id },
+            });
+    
+            if (usuarioExistente) {
+                return res.status(409).json({ msg: 'El usuario ya está registrado en este equipo.' });
             }
+    
+            // 📌 Si el usuario es acudiente (2) y se recibe nombre/apellido, solo creamos al hijo
+            if (rol === 2 && nombre && apellido) {
+                try {
+                    const extra_id = await asignarHijoAlEquipo(usuario_id, equipo_id, nombre, apellido);
+                    console.log(`📌 Registro del hijo completado con ID ${extra_id}`);
+    
+                    // 📌 Enviar respuesta para que Insomnia no se quede esperando
+                    return res.status(201).json({
+                        msg: 'Hijo registrado correctamente en el equipo',
+                        hijo_id: extra_id
+                    });
+                } catch (error) {
+                    console.error('❌ Error al asignar hijo:', error.message);
+                    return res.status(400).json({ msg: error.message });
+                }
+            } 
+            
+            // 📌 Si no es acudiente, registrar normalmente en `UsuariosEquipos`
+            const nuevoRegistro = await UsuariosEquipos.create({
+                usuario_id,
+                equipo_id,
+                rol,
+            });
+    
+            console.log(`📌 Usuario ${usuario_id} asignado al equipo ${equipo_id} con rol ${rol}`);
+    
+            // 📌 Si el usuario es profesor (3), asignarlo automáticamente como entrenador
+            if (rol === 3) {
+                await asignarEntrenadorAEquipo(equipo_id, usuario_id);
+            }
+    
+            return res.status(201).json({ msg: 'Registro creado correctamente', registro: nuevoRegistro });
+    
+        } catch (error) {
+            console.error('❌ Error al crear el registro:', error);
+            return res.status(500).json({ msg: 'Error interno del servidor' });
         }
-
-        res.status(201).json({ msg: 'Registro creado correctamente', registro: nuevoRegistro });
-
-    } catch (error) {
-        console.error('❌ Error al crear el registro:', error);
-        res.status(500).json({ msg: 'Error interno del servidor' });
-    }
-};
-
-
-
-
-
-
-
+    };
+    
 
 module.exports = {
     crearUsuarioEquipo,
     modificarUsuarioEquipo,
     borrarUsuarioEquipo,
     asignarEntrenadorAEquipo
-
-}
+};
