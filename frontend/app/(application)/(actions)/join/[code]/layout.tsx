@@ -29,11 +29,19 @@ export default function Layout({
       try {
         const invitacion = await invitacionesAPI.verificarInvitacion(clave);
         const club = await clubAPI.obtenerClubPorEquipoId(invitacion.equipo_id);
-        // const equipo = await equipoAPI.obtenerEquipoPorId(invitacion.equipo_id);
-        // console.log('club', club);
-        // console.log('invitacion', invitacion);
-        setClubInfo({ ...club, rol: invitacion.rol_invitado });
-        // console.log('clubInfo', { ...club, rol: invitacion.rol_invitado });
+        const equipo = await equipoAPI.obtenerEquipoPorId(invitacion.equipo_id);
+        console.log('club', club);
+        console.log('invitacion', invitacion);
+        setClubInfo({
+          club: { ...club },
+          equipo: { ...equipo },
+          rol: invitacion.rol_invitado,
+        });
+        console.log('clubInfo', {
+          club: { ...club },
+          equipo: { ...equipo },
+          rol: invitacion.rol_invitado,
+        });
         setIsLoading(false);
       } catch (error) {
         setError(error as string);
@@ -73,17 +81,20 @@ export default function Layout({
           <div className="bg-[#FEFEFF] relative rounded-2xl shadow-lg p-6 max-w-2xl w-full transition-all duration-300 hover:shadow-xl mt-8">
             <div className="flex flex-col items-center space-y-2">
               <img
-                src={getClubLogo(clubInfo)}
-                alt={`${clubInfo.nombre} logo`}
+                src={getClubLogo(clubInfo.equipo)}
+                alt={`${clubInfo.equipo.nombre} logo`}
                 className="w-28 h-28 rounded-full object-cover border-4 border-gray-100 shadow-md"
               />
 
-              <h1 className="text-2xl font-bold text-[#4D4D4D] mt-2">
-                {clubInfo.nombre}
-              </h1>
+              <h2 className="text-2xl font-bold text-[#4D4D4D] mt-2">
+                {clubInfo.equipo.nombre}
+              </h2>
+              <h3 className="text-lg font-semibold text-gray-600">
+                Club: {clubInfo.club.nombre}
+              </h3>
 
               <div className="bg-gray-200 text-black px-4 py-2 rounded-full text-sm font-semibold">
-                {clubInfo.deporte}
+                {clubInfo.club.deporte}
               </div>
             </div>
             <div>{children}</div>

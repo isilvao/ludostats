@@ -36,11 +36,7 @@ api.delete(
 );
 
 // Obtener información completa de un equipo por su ID
-api.get(
-  "/equipo/:id",
-  [md_auth.asureAuth],
-  equipoController.obtenerEquipoPorId
-);
+api.get("/equipo/:id", equipoController.obtenerEquipoPorId);
 
 // Obtener los equipos de un gerente
 api.get("/misequipos", [md_auth.asureAuth], equipoController.obtenerMisEquipos);

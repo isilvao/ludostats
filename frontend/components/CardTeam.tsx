@@ -1,11 +1,14 @@
 // frontend/components/EquipoCard.tsx
 'use client';
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { getClubLogo } from '@/lib/utils';
 import Link from 'next/link';
+import { UsuariosEquipos } from '@/api/usuariosEquipos';
+import { useAuth } from '@/hooks';
 
 interface EquipoCardProps {
   equipo: {
+    id: string;
     nombre: string;
     logo?: string;
     club: {
@@ -13,16 +16,24 @@ interface EquipoCardProps {
       deporte: string;
     };
   };
-  onLeaveTeam?: () => void;
+  onRemoveTeam: (teamId: string) => void;
 }
 
-const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onLeaveTeam }) => {
+const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const usuariosEquipos = new UsuariosEquipos();
+  const { user } = useAuth();
 
   const handleLeaveTeam = () => {
     setShowConfirmation(false);
-    onLeaveTeam?.();
+    console.log(user.id, equipo.id);
+    try {
+      usuariosEquipos.eliminarUsuarioEquipo(user.id, equipo.id);
+      onRemoveTeam(equipo.id);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

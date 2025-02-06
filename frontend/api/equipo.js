@@ -9,7 +9,8 @@ export class EquipoAPI {
       const response = await fetch(url);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error('Equipo no encontrado.');
+      if (response.status !== 200)
+        throw new Error('Equipo no encontrado. jeje');
 
       return result;
     } catch (error) {
@@ -121,10 +122,10 @@ export class EquipoAPI {
     try {
       const url = `${this.baseApi}/equipo_logo/${equipoId}`;
       const formData = new FormData();
-      formData.append("logo", file);
+      formData.append('logo', file);
 
       const params = {
-        method: "PATCH",
+        method: 'PATCH',
         body: formData,
       };
 
