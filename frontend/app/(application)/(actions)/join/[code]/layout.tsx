@@ -29,11 +29,11 @@ export default function Layout({
       try {
         const invitacion = await invitacionesAPI.verificarInvitacion(clave);
         const club = await clubAPI.obtenerClubPorEquipoId(invitacion.equipo_id);
-        const equipo = await equipoAPI.obtenerEquipoPorId(invitacion.equipo_id);
-        console.log('club', club);
-        console.log('invitacion', invitacion);
+        // const equipo = await equipoAPI.obtenerEquipoPorId(invitacion.equipo_id);
+        // console.log('club', club);
+        // console.log('invitacion', invitacion);
         setClubInfo({ ...club, rol: invitacion.rol_invitado });
-        console.log('clubInfo', { ...club, rol: invitacion.rol_invitado });
+        // console.log('clubInfo', { ...club, rol: invitacion.rol_invitado });
         setIsLoading(false);
       } catch (error) {
         setError(error as string);
