@@ -9,6 +9,8 @@ const invitacionController = require("../controllers/invitacion");
 const api = express.Router();
 const md_upload = multiparty({ uploadDir: "./uploads/usersFoto" });
 
+const upload = require("../middleware/upload"); // 📌 Importamos el middleware
+
 // Personal Routes
 api.get('/user/me', [md_auth.asureAuth],userController.getMe)
 api.patch('/user/updateMe', [md_auth.asureAuth, md_upload], userController.updateMe)
@@ -86,4 +88,12 @@ api.get(
   userController.getOneChild
 );
 
+
+
+
+
+
+api.patch("/user_foto/:id", upload.single("foto"), userController.actualizarUsuario);
+
 module.exports = api;
+

@@ -115,13 +115,17 @@ const crearUsuarioEquipo = async (req, res) => {
     
         try {
             // 📌 Verificar si el usuario ya está registrado en el equipo
-            const usuarioExistente = await UsuariosEquipos.findOne({
-                where: { usuario_id, equipo_id },
-            });
-    
-            if (usuarioExistente) {
-                return res.status(409).json({ msg: 'El usuario ya está registrado en este equipo.' });
+            if(rol != 2){
+                const usuarioExistente = await UsuariosEquipos.findOne({
+                    where: { usuario_id, equipo_id },
+                });
+        
+                if (usuarioExistente) {
+                    return res.status(409).json({ msg: 'El usuario ya está registrado en este equipo.' });
+                }
+
             }
+            
     
             // 📌 Si el usuario es acudiente (2) y se recibe nombre/apellido, solo creamos al hijo
             if (rol === 2 && nombre && apellido) {

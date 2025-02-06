@@ -202,4 +202,26 @@ export class User {
     return enteredOtp === storedOtp;
   }
 
+  async actualizarFotoPerfil(userId, file) {
+    try {
+      const url = `${this.baseApi}/usuario_foto/${userId}`;
+      const formData = new FormData();
+      formData.append("foto", file);
+
+      const params = {
+        method: "PATCH",
+        body: formData,
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
