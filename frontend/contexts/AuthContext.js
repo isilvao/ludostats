@@ -40,13 +40,27 @@ export function AuthProvider(props) {
   }, []);
 
   const reLogin = async (refreshToken) => {
+    if (!refreshToken) {
+      console.error('Refresh token is missing');
+      return;
+    }
+
     try {
-      const { accessToken } =
-        await authController.refreshAccessToken(refreshToken);
+      const response = await authController.refreshAccessToken(refreshToken);
+      if (!response || !response.accessToken) {
+        throw new Error('No access token in response');
+      }
+      const { accessToken } = response;
       authController.setAccessToken(accessToken);
       await login(accessToken);
     } catch (error) {
-      console.error(error);
+      if (error.msg !== 'No se ha encontrado el token') {
+        console.error(
+          'Error during reLogin:',
+          error.message || error,
+          JSON.stringify(error)
+        );
+      }
     }
   };
 
@@ -56,7 +70,11 @@ export function AuthProvider(props) {
       setUser(response);
       setToken(accessToken);
     } catch (error) {
-      console.error(error);
+      console.error(
+        'Error during login:',
+        error.message || error,
+        JSON.stringify(error)
+      );
     }
   };
 

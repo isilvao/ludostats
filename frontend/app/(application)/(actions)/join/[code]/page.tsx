@@ -12,19 +12,21 @@ const ClubInfoPage: React.FC = () => {
     : null;
   return (
     <div className="flex items-center justify-center p-4 w-full h-full">
-      <div className="flex gap-4 w-full mt-6 text-center">
-        <Link
-          href={`/join/${code}/role`}
-          className="flex-1 bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-        >
-          Aceptar
-        </Link>
-        <Link
-          href="/home"
-          className="flex-1 bg-red hover:bg-red/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-        >
-          Cancelar
-        </Link>
+      <div className="flex gap-4 w-full mt-6 justify-center">
+        <div className="flex items-center space-x-10 text-center">
+          <Link
+            href={`/join/${code}/role`}
+            className="flex-1 bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem]"
+          >
+            Aceptar
+          </Link>
+          <Link
+            href="/home"
+            className="flex-1 bg-red hover:bg-red/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 w-[10rem]"
+          >
+            Cancelar
+          </Link>
+        </div>
       </div>
     </div>
   );

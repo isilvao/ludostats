@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { AiOutlineLoading } from 'react-icons/ai';
+import { FaCheckCircle } from 'react-icons/fa';
 
 const parentPageSchema = () => {
   return z.object({
@@ -79,7 +81,6 @@ const ParentPage = () => {
   const onSubmit = async (values: z.infer<typeof schema>) => {
     setIsLoading(true);
     try {
-      console.log('Form submitted:', values);
       if (user && invitacion) {
         const hijoDatos = {
           nombre: values.firstname,
@@ -102,71 +103,86 @@ const ParentPage = () => {
       setIsLoading(false);
     }
   };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center mt-7">
+        <AiOutlineLoading
+          style={{ color: 'green', fontSize: '200px' }}
+          className="animate-spin"
+        />
+      </div>
+    );
+  }
 
   return isAccepted ? (
-    <div>
-      <p>Has aceptado la invitación</p>
+    <div className="flex items-center justify-center mt-7">
+      <FaCheckCircle style={{ color: 'green', fontSize: '200px' }} />
     </div>
   ) : (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="max-w-2xl mx-auto mt-8"
+        className="max-w-2xl mx-auto mt-5 md:mt-0 md:px-10 md:py-8"
       >
-        <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="firstname"
-            render={({ field }) => (
-              <FormItem>
-                <div className="shad-form-item">
-                  <FormLabel className="shad-form-label">
-                    Nombre de tu hijo/a *
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={`ex: AS Fresnes`}
-                      className="shad-input"
-                      {...field}
-                    />
-                  </FormControl>
-                </div>
-                <FormMessage className="shad-form-message" />
-              </FormItem>
-            )}
-          />
+        <div>
+          <h2 className="text-xl font-semibold text-[#4D4D4D] mb-3 ml-2">
+            Datos de tu hijo/a
+          </h2>
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="firstname"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="shad-form-item">
+                    <FormLabel className="shad-form-label">
+                      Nombre de tu hijo/a *
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={`Nombres`}
+                        className="shad-input"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="shad-form-message" />
+                </FormItem>
+              )}
+            />
 
-          {/* Sport */}
-          <FormField
-            control={form.control}
-            name="lastname"
-            render={({ field }) => (
-              <FormItem>
-                <div className="shad-form-item">
-                  <FormLabel className="shad-form-label">
-                    Apellido de tu hijo/a *
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={`ex: AS Fresnes`}
-                      className="shad-input"
-                      {...field}
-                    />
-                  </FormControl>
-                </div>
-                <FormMessage className="shad-form-message" />
-              </FormItem>
-            )}
-          />
+            {/* Sport */}
+            <FormField
+              control={form.control}
+              name="lastname"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="shad-form-item">
+                    <FormLabel className="shad-form-label">
+                      Apellido de tu hijo/a *
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={`Apellidos`}
+                        className="shad-input"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="shad-form-message" />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
-        <div className="md:col-span-2 flex justify-center border-t border-gray-200 pt-6">
-          <Button
+        <div className="md:col-span-2 flex justify-center pt-6 mt-4">
+          <button
             type="submit"
-            className="w-full md:w-auto bg-brand hover:bg-brand/90 text-white font-bold py-4 px-8 rounded"
+            className="w-full md:max-w-[180px] bg-brand hover:bg-brand/90 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
             disabled={isLoading}
           >
             {isLoading ? 'Enviando...' : `Unirse`}
-          </Button>
+          </button>
         </div>
       </form>
     </Form>
