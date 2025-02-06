@@ -95,7 +95,7 @@ const ParentPage = () => {
         setIsAccepted(true);
         setTimeout(() => {
           router.push('/home');
-        }, 2000); // Redirige después de 2 segundos
+        }, 1000); // Redirige después de 1 segundo
       }
     } catch (error) {
       console.error('Error al agregar usuario al equipo:', error);

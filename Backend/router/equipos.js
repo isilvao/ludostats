@@ -8,11 +8,7 @@ const md_user = require("../middleware/userValidation");
 
 const api = express.Router();
 
-
-
-const multer = require('multer');
-
-
+const multer = require("multer");
 
 // 📌 Configuración de Multer para recibir imágenes
 const storage = multer.diskStorage({});
@@ -51,6 +47,10 @@ api.get("/misequipos", [md_auth.asureAuth], equipoController.obtenerMisEquipos);
 
 api.get("/misequiposv2", equipoController.obtenerMisEquipos);
 
-api.patch('/equipo_logo/:id', upload.single('logo'), actualizarLogoEquipo);
+api.patch(
+  "/equipo_logo/:id",
+  upload.single("logo"),
+  equipoController.actualizarLogoEquipo
+);
 
 module.exports = api;
