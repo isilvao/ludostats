@@ -119,6 +119,6 @@ export const navItems = [
   {
     name: 'Others',
     icon: '/assets/icons/others.svg',
-    url: '/',
+    url: '#',
   },
 ];

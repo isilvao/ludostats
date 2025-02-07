@@ -5,6 +5,10 @@ import { getClubLogo } from '@/lib/utils';
 import Link from 'next/link';
 import { UsuariosEquipos } from '@/api/usuariosEquipos';
 import { useAuth } from '@/hooks';
+import { useEquipoClub } from '@/hooks/useEquipoClub';
+import { TeamsAPI } from '@/api/teams';
+import LoadingScreen from '@/components/LoadingScreen';
+import { useRouter } from 'next/navigation';
 
 interface EquipoCardProps {
   equipo: {
@@ -24,10 +28,13 @@ const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const usuariosEquipos = new UsuariosEquipos();
   const { user } = useAuth();
+  const { setEquipoSeleccionado } = useEquipoClub();
+  const teamApi = new TeamsAPI(); // Usar el contexto
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleLeaveTeam = () => {
     setShowConfirmation(false);
-    console.log(user.id, equipo.id);
     try {
       usuariosEquipos.eliminarUsuarioEquipo(user.id, equipo.id);
       onRemoveTeam(equipo.id);
@@ -35,6 +42,30 @@ const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
       console.error(error);
     }
   };
+
+  const handleSelectTeam = async () => {
+    setIsLoading(true);
+    try {
+      const result = await teamApi.obtenerEquipoConRol(equipo.id, user.id);
+
+      // 📌 Aquí SÍ podemos usar hooks porque estamos dentro de un componente
+      setEquipoSeleccionado(result.equipo, result.rol, result.club);
+
+      console.log('📌 Datos del equipo obtenidos:', result);
+      router.push(`/${equipo.nombre.replace(/\s+/g, '')}`);
+    } catch (error) {
+      console.error('❌ Error obteniendo equipo:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // const handleSelectTeam = () => {
+  //   setEquipoSeleccionado(equipo, null, equipo.club); // Actualizar el contexto con la información del equipo
+  // };
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center align-middle h-full relative">
@@ -109,7 +140,7 @@ const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
       )}
 
       {/* Contenido principal */}
-      <Link href={`/${equipo.nombre.replace(/\s+/g, '')}`} className="w-full">
+      <button className="w-full" onClick={handleSelectTeam}>
         <div className="flex items-center space-x-12">
           <img
             src={getClubLogo(equipo)}
@@ -122,7 +153,7 @@ const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
             <p>Deporte: {equipo.club.deporte}</p>
           </div>
         </div>
-      </Link>
+      </button>
     </div>
   );
 };
