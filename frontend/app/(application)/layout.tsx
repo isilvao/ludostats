@@ -5,6 +5,9 @@ import { redirect, usePathname } from 'next/navigation';
 import { useAuth } from '../../hooks';
 import LoadingScreen from '@/components/LoadingScreen';
 
+// 📌 Importamos el contexto de equipo y club
+import { EquipoClubProvider } from '@/contexts/equipoClubContext';
+
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -20,9 +23,11 @@ export default function Layout({
   }
 
   return (
-    <main className="bg-[#F4F5F5] min-h-screen">
-      <Header />
-      {children}
-    </main>
+    <EquipoClubProvider> {/* 📌 Envolvemos la app con el contexto */}
+      <main className="bg-[#F4F5F5] min-h-screen">
+        <Header />
+        {children}
+      </main>
+    </EquipoClubProvider>
   );
 }

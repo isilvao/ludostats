@@ -19,7 +19,7 @@ const ClubCard: React.FC<ClubCardProps> = ({ club }) => {
           <img
             src={getClubLogo(club)}
             alt={`${club.nombre} logo`}
-            className="w-20 h-20 object-contain rounded-full border-4 border-gray-100 shadow-md"
+            className="w-20 h-20 object-cover rounded-full border-4 border-gray-100 shadow-md"
           />
           <div>
             <h3 className="text-lg font-semibold">{club.nombre}</h3>

@@ -15,7 +15,7 @@ const JoinClubPage: React.FC = () => {
   return (
     <div className="py-6 px-6 items-center max-w-7xl mx-auto flex flex-col justify-center sm:px-6 lg:px-8">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+        <h1 className="text-3xl font-bold text-[#4D4D4D] mb-4">
           Unirse a un club
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto">

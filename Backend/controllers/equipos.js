@@ -3,6 +3,7 @@ const Usuario = require("../models/Usuario");
 const Club = require("../models/Club");
 const UsuariosEquipos = require("../models/UsuariosEquipos");
 const { Op } = require("sequelize"); // 📌 Importamos operadores de Sequelize
+const cloudinary = require('../utils/cloudinary');
 
 const crearEquipo = async (req, res) => {
   const { nombre, club_id, entrenador_id, nivelPractica, descripcion } =
@@ -215,6 +216,41 @@ const obtenerMisEquipos = async (req, res) => {
 
 
 
+const actualizarLogoEquipo = async (req, res) => {
+  const { id } = req.params;
+
+  if (!req.file) {
+      return res.status(400).json({ msg: "No se subió ninguna imagen" });
+  }
+
+  try {
+      // 📌 Subir imagen a Cloudinary
+      const resultado = await cloudinary.uploader.upload(req.file.path, {
+          folder: "equipos_logos",
+          resource_type: "image"
+      });
+
+      // 📌 Actualizar el equipo con la URL de la imagen
+      const equipo = await Equipo.findByPk(id);
+      if (!equipo) {
+          return res.status(404).json({ msg: "Equipo no encontrado" });
+      }
+
+      equipo.logo = resultado.secure_url;
+      await equipo.save();
+
+      res.status(200).json({ msg: "Logo del equipo actualizado", logo: resultado.secure_url });
+  } catch (error) {
+      console.error("❌ Error al actualizar el logo del equipo:", error);
+      res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
+
+
+
+
+
+
 
 
 
@@ -230,5 +266,6 @@ module.exports = {
   modificarEquipo,
   borrarEquipo,
   obtenerEquipoPorId,
-  obtenerMisEquipos
+  obtenerMisEquipos,
+  actualizarLogoEquipo
 };

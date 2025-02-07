@@ -14,14 +14,14 @@ import CardTeam from '@/components/CardTeam';
 
 // Interfaces para cada tipo (puedes modificarlas según tu API)
 interface Equipo {
-  id: number;
+  id: string;
   //Equipo: {
+  nombre: string;
+  logo?: string;
+  club: {
     nombre: string;
-    logo?: string;
-    club: {
-      nombre: string;
-      deporte: string;
-    };
+    deporte: string;
+  };
   //};
 }
 
@@ -101,6 +101,12 @@ const Page: React.FC = () => {
       fetchData();
     }
   }, [user, accessToken]);
+
+  const handleRemoveTeam = (equipoId: string) => {
+    setEquipos((prevEquipos) =>
+      prevEquipos.filter((equipo) => equipo.id !== equipoId)
+    );
+  };
 
   if (loading) {
     return <LoadingScreen />;
@@ -188,7 +194,11 @@ const Page: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {equipos.map((equipo) => (
-                  <CardTeam key={equipo.id} equipo={equipo} />
+                  <CardTeam
+                    key={equipo.id}
+                    equipo={equipo}
+                    onRemoveTeam={handleRemoveTeam}
+                  />
                 ))}
               </div>
             )}
@@ -225,7 +235,11 @@ const Page: React.FC = () => {
                       {hijo.nombre}
                     </h2>
                     {equipos.map((equipo) => (
-                      <CardTeam key={equipo.id} equipo={equipo} />
+                      <CardTeam
+                        key={equipo.id}
+                        equipo={equipo}
+                        onRemoveTeam={handleRemoveTeam}
+                      />
                     ))}
                     {clubes.map((club) => (
                       <CardClub key={club.id} club={club} />

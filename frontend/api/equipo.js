@@ -9,7 +9,8 @@ export class EquipoAPI {
       const response = await fetch(url);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error('Equipo no encontrado.');
+      if (response.status !== 200)
+        throw new Error('Equipo no encontrado. jeje');
 
       return result;
     } catch (error) {
@@ -113,6 +114,28 @@ export class EquipoAPI {
       return result;
     } catch (error) {
       console.error('Error al obtener mis equipos:', error);
+      throw error;
+    }
+  }
+
+  async actualizarLogoEquipo(equipoId, file) {
+    try {
+      const url = `${this.baseApi}/equipo_logo/${equipoId}`;
+      const formData = new FormData();
+      formData.append('logo', file);
+
+      const params = {
+        method: 'PATCH',
+        body: formData,
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
       throw error;
     }
   }
