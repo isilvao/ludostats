@@ -1,3 +1,4 @@
+<script src="http://localhost:8097"></script>
 'use client';
 
 import React, { useState, useEffect } from "react";
@@ -5,7 +6,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { tipoEstadisticasAPI } from "@/api/tipoEstadisticas";
-import { useAuth } from "@/hooks";
+import { useAuth } from "@/hooks/useAuth";
+
 
 interface TipoEstadistica {
   tipoEstadistica_id: number;
@@ -14,7 +16,7 @@ interface TipoEstadistica {
 }
 
 const Statistics: React.FC = () => {
-  const { usuario } = useAuth();
+  const { user, accessToken } = useAuth();
   const [tipoEstadisticaData, setTipoEstadisticaData] = useState<TipoEstadistica[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,14 +27,14 @@ const Statistics: React.FC = () => {
   useEffect(() => {
     const fetchTipoEstadisticas = async () => {
       try {
-        if (!usuario?.accessToken || !usuario?.id_club) {
+        if (!user?.accessToken || !user?.id_club) {
           console.error("Faltan datos de usuario para la petición");
           setError("No se pudieron obtener los tipos de estadísticas");
           setIsLoading(false);
           return;
         }
         const api = new tipoEstadisticasAPI();
-        const data: TipoEstadistica[] = await api.getTipoEstadistica(usuario.id_club, usuario.accessToken);
+        const data: TipoEstadistica[] = await api.getTipoEstadistica(user.id_club, user.accessToken);
         setTipoEstadisticaData(data);
       } catch (error) {
         console.error("Error al obtener los tipos de estadísticas:", error);
@@ -43,7 +45,7 @@ const Statistics: React.FC = () => {
     };
 
     fetchTipoEstadisticas();
-  }, [usuario]);
+  }, [user]);
 
   const handleEdit = (tipoEstadistica: TipoEstadistica) => {
     setEditing(tipoEstadistica.tipoEstadistica_id);
@@ -54,7 +56,7 @@ const Statistics: React.FC = () => {
     if (!editedData) return;
     try {
       const api = new tipoEstadisticasAPI();
-      await api.updateTipoEstadistica(editedData, usuario.accessToken, usuario.id_club);
+      await api.updateTipoEstadistica(editedData, user.accessToken, user.id_club);
       setTipoEstadisticaData(prevData => prevData.map(item => 
         item.tipoEstadistica_id === editedData.tipoEstadistica_id ? editedData : item));
       setEditing(null);
@@ -69,7 +71,7 @@ const Statistics: React.FC = () => {
     if (!confirmDelete) return;
     try {
       const api = new tipoEstadisticasAPI();
-      await api.deleteTipoEstadistica({ id }, usuario.accessToken, usuario.id_club);
+      await api.deleteTipoEstadistica({ id }, user.accessToken, user.id_club);
       setTipoEstadisticaData(prevData => prevData.filter(item => item.tipoEstadistica_id !== id));
     } catch (error) {
       console.error("Error al eliminar la estadística:", error);
@@ -85,7 +87,7 @@ const Statistics: React.FC = () => {
     if (!editedData) return;
     try {
       const api = new tipoEstadisticasAPI();
-      const newEntry = await api.createTipoEstadistica(editedData, usuario.accessToken, usuario.id_club);
+      const newEntry = await api.createTipoEstadistica(editedData, user.accessToken, user.id_club);
       setTipoEstadisticaData([...tipoEstadisticaData, newEntry]);
       setCreating(false);
       setEditedData(null);
@@ -96,9 +98,10 @@ const Statistics: React.FC = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Tipos de Estadísticas</h1>
-
+        <h1>Aqui entra</h1>
+        <p className="text-sm text-gray-500">AccessToken: {user?.accessToken}</p>
+        <p className="text-sm text-gray-500">ID Club: {user?.id_club}</p>
         {isLoading ? (
           <p className="text-center text-gray-600">Cargando tipos de estadísticas...</p>
         ) : error ? (
@@ -120,7 +123,7 @@ const Statistics: React.FC = () => {
           </div>
         )}
         <button className="bg-[rgb(76,175,79)] text-white px-4 py-2 rounded mt-4" onClick={handleCreate}>Agregar Tarjeta</button>
-      </section>
+      
     </div>
   );
 };
