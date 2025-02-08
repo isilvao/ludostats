@@ -16,20 +16,7 @@ export class UsuariosEquipos {
     try {
       const url = `${this.baseApi}/usuarios-equipos`;
 
-      let nuevoRol = '';
-
-      switch (rol) {
-        case 1:
-          nuevoRol = 'deportista'; // Deportista
-        case 2:
-          nuevoRol = 'acudiente'; //Acudiente
-        case 3:
-          nuevoRol = 'entrenador'; //Entrenador
-        case 4:
-          nuevoRol = 'administrador'; //Administrador
-        case 5:
-          nuevoRol = 'miembro'; //Dependiente/Hijo
-      }
+      let nuevoRol = rol;
 
       const body = {
         usuario_id: usuarioId,
