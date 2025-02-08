@@ -48,8 +48,6 @@ async function createClub(req, res) {
   //   imagePath = image.getFilePath(req.files.logo);
   // }
 
-  console.log(req.user)
-  console.log(req.body)
 
   Club.create({
     nombre,
