@@ -19,8 +19,6 @@ function register(req, res) {
     apellido,
     correo: correo.toLowerCase(),
     contrasena: hashPassword,
-    activo: true,
-    rol: "gerente",
   })
     .then((userStored) => {
       // userStored es la instancia creada

@@ -15,6 +15,7 @@ const estadisticaRoutes = require('./router/estadistica');
 const equiposRoutes = require('./router/equipos'); // Rutas para Equipos
 const usuariosEquiposRoutes = require('./router/usuariosEquipos'); // Rutas para UsuariosEquipos
 const eventosRoutes = require('./router/evento'); // Rutas para Eventos
+const invitacionRoutes = require('./router/invitaciones'); // Rutas para Invitaciones
 
 // Configure body parser
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -35,6 +36,7 @@ app.use(`/api/${API_VERSION}`, estadisticaRoutes);
 app.use(`/api/${API_VERSION}`, equiposRoutes); // Agregar rutas de equipos
 app.use(`/api/${API_VERSION}`, usuariosEquiposRoutes); // Agregar rutas de usuariosEquipos
 app.use(`/api/${API_VERSION}`, eventosRoutes); // Agregar rutas de eventos
+app.use(`/api/${API_VERSION}`, invitacionRoutes); // Agregar rutas de invitaciones
 
 // Initialize models and sync with db
 initModels();

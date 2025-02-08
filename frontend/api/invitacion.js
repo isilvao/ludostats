@@ -122,15 +122,15 @@ export class InvitacionesAPI {
   getRolNumber(rol) {
     switch (rol.toLowerCase()) {
         case 'deportista':
-            return 1;
+            return 1; // Deportista
         case 'acudiente':
-            return 2;
+            return 2; //Acudiente
         case 'profesor':
-            return 3;
+            return 3; //Entrenador
         case 'administrador':
-            return 4;
+            return 4; //Administrador
         case 'hijo':
-            return 5;
+            return 5; //Dependiente/Hijo
         default:
             throw new Error('Rol no válido');
     }

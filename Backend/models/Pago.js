@@ -1,30 +1,28 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-const Club = sequelize.define('Club', {
+const Pago = sequelize.define('Pago', {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
-    nombre: {
+    usuario_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
+    concepto: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    deporte: {
-        type: DataTypes.STRING,
+    monto: {
+        type: DataTypes.DECIMAL,
         allowNull: false,
     },
-    telefono: {
-        type: DataTypes.STRING,
-        allowNull: true
+    fecha: {
+        type: DataTypes.DATE,
+        allowNull: false,
     },
-    logo: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-});
+})
 
-
-
-module.exports = Club;
+module.exports = Pago;

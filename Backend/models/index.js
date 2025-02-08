@@ -3,9 +3,9 @@ const Club = require('./Club');
 const Equipo = require('./Equipo');
 const Estadistica = require('./Estadistica');
 const TipoEstadistica = require('./TipoEstadistica');
-const Torneo = require('./Torneo');
 const UsuarioClub = require('./UsuarioClub');
 const Evento = require('./Evento');
+const Pago = require('./Pago');
 
 const sequelize = require('../db');
 const Invitacion = require('./invitacion');
@@ -24,211 +24,154 @@ const initModels = async () => {
 };
 
 //Asociaciones:
-/**               USUARIO                 */
 // Relación: un Usuario (acudiente) puede tener varios usuarios dependientes
 Usuario.hasMany(Usuario, {
   foreignKey: 'acudiente_id',
   as: 'dependientes'
 });
-
 // Relación: un Usuario depende de un acudiente (que también es Usuario)
 Usuario.belongsTo(Usuario, {
   foreignKey: 'acudiente_id',
   as: 'acudiente'
 });
-// usuario.getAcudiente() o usuario.getDependientes()
 
-Usuario.hasMany(Club, { foreignKey: 'gerente_id' });
-
+// Relación: un Usuario puede pertenecer a varios clubes con diferente rol en cada uno
 Usuario.hasMany(UsuarioClub, {
   foreignKey: 'usuario_id',
   as: 'clubes',
+  onDelete: 'CASCADE'
 })
-
-Usuario.belongsTo(Equipo, {
-  foreignKey: 'equipo_id',
-  targetKey: 'id',
-  as: 'equipo',
-});
-
-Usuario.hasMany(Equipo, {
-  foreignKey: 'entrenador_id',
-  as: 'equiposEntrenados',
-});
-
-Usuario.hasMany(Estadistica, {
-  foreignKey: 'usuario_id',
-  as: 'estadisticas'
-})
-
-Usuario.hasMany(UsuariosEquipos, {
-  foreignKey: 'usuario_id',
-  as: 'usuariosEquipos'
-})
-
-/**               CLUB                 */
-// Relación: un Club pertenece a un Usuario (gerente)
-// foreignKey = la columna de Club que contiene la FK
-// targetKey  = la columna de Usuario a la que apunta (por defecto "id")
-Club.belongsTo(Usuario, {
-  foreignKey: 'gerente_id',
-  targetKey: 'id',
-  as: 'gerente', // alias opcional para "gerente" en el código
-});
-
-Club.hasMany(Equipo, {
-  foreignKey: 'club_id',
-  as: 'equipos'
-});
-// club.getEquipos()
-
-Club.hasMany(Torneo, {
-  foreignKey: 'club_id',
-  as: 'torneos'
-});
-
-Club.hasMany(TipoEstadistica, {
-  foreignKey: 'club_id',
-  as: 'tiposEstadistica'
-});
-
-Club.hasMany(Evento, {
-  foreignKey: 'club_id',
-  as: 'eventos'
-})
-
-Club.hasMany(UsuarioClub, {
-  foreignKey: 'club_id',
-  as: 'usuarios',
-})
-
-/**               EQUIPO                 */
-Equipo.belongsTo(Usuario, {
-  foreignKey: 'entrenador_id',
-  targetKey: 'id',
-  as: 'entrenador',
-});
-Equipo.hasMany(Usuario, {
-  foreignKey: 'equipo_id',
-  as: 'integrantes',
-});
-
-Equipo.belongsTo(Club, {
-  foreignKey: 'club_id',
-  targetKey: 'id',
-  as: 'club',
-});
-
-Equipo.hasMany(UsuariosEquipos,{
-  foreignKey: 'equipo_id',
-  as: 'usuariosEquipos'
-})
-
-/**               ESTADISTICA                 */
-Estadistica.belongsTo(TipoEstadistica, {
-  foreignKey: 'tipoEstadistica_id',
-  targetKey: 'id',
-  as: 'tipoEstadistica',
-})
-
-Estadistica.belongsTo(Usuario, {
-  foreignKey: 'usuario_id',
-  targetKey: 'id',
-  as: 'usuario',
-})
-
-/**               TIPO ESTADISTICA                 */
-TipoEstadistica.hasMany(Estadistica, {
-  foreignKey: 'tipoEstadistica_id',
-  as: 'estadisticas'
-})
-TipoEstadistica.belongsTo(Club, {
-  foreignKey: 'club_id',
-  targetKey: 'id',
-  as: 'club',
-})
-
-
-/**               TORNEO                 */
-Torneo.belongsTo(Club, {
-  foreignKey: 'club_id',
-  targetKey: 'id',
-  as: 'club',
-})
-
-/**               USUARIOCLUB                 */
 UsuarioClub.belongsTo(Usuario, {
   foreignKey: 'usuario_id',
-  targetKey: 'id',
-  as: 'usuario',
+  as: 'usuario'
 })
 
-UsuarioClub.belongsTo(Club, {
-  foreignKey: 'club_id',
-  targetKey: 'id',
-  as: 'club',
+// Relacion: un Usuario puede pertenecer a varios equipos con diferente rol en cada uno
+Usuario.hasMany(UsuariosEquipos, {
+  foreignKey: 'usuario_id',
+  as: 'equipos',
+  onDelete: 'CASCADE'
 })
-
 UsuariosEquipos.belongsTo(Usuario, {
   foreignKey: 'usuario_id',
-  targetKey: 'id',
+  as: 'usuario'
+})
+
+// Relacion un Usuario puede tener realizar varios pagos de mensualidad
+Usuario.hasMany(Pago, {
+  foreignKey: 'usuario_id',
+  as: 'pagos'
+})
+Pago.belongsTo(Usuario, {
+  foreignKey: 'usuario_id',
+  as: 'usuario'
+})
+
+// Relación: un Usuario puede tener varias estadísticas
+Usuario.hasMany(Estadistica, {
+  foreignKey: 'usuario_id',
+  as: 'estadisticas',
+  onDelete: 'CASCADE'
+})
+Estadistica.belongsTo(Usuario, {
+  foreignKey: 'usuario_id',
   as: 'usuario',
 })
 
-UsuariosEquipos.belongsTo(Equipo, {
-  foreignKey: 'equipo_id',
-  targetKey: 'id',
-})
-
-
-
-/**               INVITACION              */
 // Relación: una invitación pertenece a un usuario (creador)
+Usuario.hasMany(Invitacion, {
+  foreignKey: 'creator_id',
+  as: 'invitaciones'
+})
 Invitacion.belongsTo(Usuario, {
   foreignKey: 'creator_id',
   targetKey: 'id',
   as: 'creador'
 });
 
-// Relación: una invitación puede tener un usuario adicional (extra_id)
+// Relación: una invitación puede tener un usuario extra
+Usuario.hasMany(Invitacion, {
+  foreignKey: 'extra_id',
+  as: 'invitacionesExtra'
+});
 Invitacion.belongsTo(Usuario, {
   foreignKey: 'extra_id',
   targetKey: 'id',
   as: 'extraUsuario'
 });
 
-// Relación: una invitación pertenece a un club
+// Relación: una invitación pertenece a un equipo
 Invitacion.belongsTo(Equipo, {
   foreignKey: 'equipo_id',
   targetKey: 'id',
   as: 'equipo'
 });
-
-
-///// penis
-
-// Un usuario puede pertenecer a varios equipos
-Usuario.belongsToMany(Equipo, {
-  through: UsuariosEquipos,
-  foreignKey: 'usuario_id',
-  otherKey: 'equipo_id',
-  as: 'equipos'
-});
-
-// Un equipo puede tener varios usuarios
-Equipo.belongsToMany(Usuario, {
-  through: UsuariosEquipos,
+Equipo.hasMany(Invitacion, {
   foreignKey: 'equipo_id',
-  otherKey: 'usuario_id',
-  as: 'integrantes1'
-});
+  as: 'invitaciones'
+})
 
-// Eventos
-Evento.belongsTo(Club, {
+// Relacion: un equipo tiene varios usuarios con diferente rol
+Equipo.hasMany(UsuariosEquipos, {
+  foreignKey: 'equipo_id',
+  as: 'usuariosEquipos'
+})
+UsuariosEquipos.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  as: 'equipo'
+})
+
+// Relacion: un club tiene varios equipos
+Equipo.belongsTo(Club, {
   foreignKey: 'club_id',
-  targetKey: 'id',
+  as: 'club'
+})
+Club.hasMany(Equipo, {
+  foreignKey: 'club_id',
+  as: 'equipos'
+})
+
+// Relacion: un club tiene varios usuarios con diferente rol
+Club.hasMany(UsuarioClub, {
+  foreignKey: 'club_id',
+  as: 'usuarios'
+})
+UsuarioClub.belongsTo(Club, {
+  foreignKey: 'club_id',
   as: 'club'
 })
 
+// Relacion: un club tiene varios tipos eventos
+Club.hasMany(Evento, {
+  foreignKey: 'club_id',
+  as: 'eventos'
+})
+Evento.belongsTo(Club, {
+  foreignKey: 'club_id',
+  as: 'club'
+})
 
-module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, Torneo, initModels };
+// Relacion: un club tiene varios tipos de estadisticas
+Club.hasMany(TipoEstadistica, {
+  foreignKey: 'club_id',
+  as: 'tiposEstadistica'
+})
+TipoEstadistica.belongsTo(Club, {
+  foreignKey: 'club_id',
+  as: 'club'
+})
+
+// Relacion: un tipo de estadisticas tiene varias estadisticas
+TipoEstadistica.hasMany(Estadistica, {
+  foreignKey: 'tipoEstadistica_id',
+  as: 'estadisticas',
+  onDelete: 'CASCADE'
+})
+Estadistica.belongsTo(TipoEstadistica, {
+  foreignKey: 'tipoEstadistica_id',
+  as: 'tipoEstadistica'
+})
+
+
+
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, initModels };

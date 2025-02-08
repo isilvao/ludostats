@@ -64,8 +64,6 @@ const registrarHijo = async (nombre, apellido, acudiente_id) => {
         apellido,
         correo: correoGenerado,
         contrasena: hashPassword,
-        activo: true,
-        rol: "otro",  // En `Usuarios` se registra como "otro"
         acudiente_id
     });
 

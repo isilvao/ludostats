@@ -3,42 +3,30 @@ const Club = require("../models/Club");
 const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
 
-async function getClubs(req, res) {
-  const user = req.completeData;
-  let response = null;
-
-  if (user.rol === "administrador") {
-    response = await UsuarioClub.findAll({
-      where: { usuario_id: user.id },
-      include: [{ model: Club, as: "club" }],
-    });
-    response = response.map((club) => club.club);
-  } else {
-    response = await Club.findAll({ where: { gerente_id: user.id } });
-  }
-
-  if (!response) {
-    res.status(404).send({ msg: "No se han encontrado los clubes" });
-  } else {
-    res.status(200).send(response);
-  }
-}
-
-async function createClub(req, res) {
-  /**
-   * req.body
-   * - Nombre
-   * - Deporte
-   * - Telefono (opcional)
-   * - Logo (opcional)
-   */
-
+const buscarMisClubes = async (req, res) => {
   const { user_id } = req.user;
 
+  try {
+    const clubes = await UsuarioClub.findAll({
+      where: { usuario_id: user_id },
+      include: [{ model: Club, as: "club" }],
+    });
+    const clubesResponse = clubes.map((club) => club.club);
+
+    res.status(200).json(clubesResponse);
+  } catch (error) {
+    console.error("Error al buscar los clubes del usuario:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
+
+async function createClub(req, res) {
+  const { user_id } = req.user;
   const {nombre, deporte} = req.body;
 
   let imagePath = null;
 
+  //TODO: No funciona la subida de logo del club
   // if (req.files.logo) {
   //   imagePath = image.getFilePath(req.files.logo);
   // }
@@ -161,25 +149,7 @@ const encontrarClubPorEquipoId = async (req, res) => {
   }
 };
 
-const buscarMisClubes = async (req, res) => {
-  const { user_id } = req.user;
-
-  try {
-    const clubes = await UsuarioClub.findAll({
-      where: { usuario_id: user_id },
-      include: [{ model: Club, as: "club" }],
-    });
-    const clubesResponse = clubes.map((club) => club.club);
-
-    res.status(200).json(clubesResponse);
-  } catch (error) {
-    console.error("Error al buscar los clubes del usuario:", error);
-    res.status(500).json({ msg: "Error interno del servidor" });
-  }
-};
-
 module.exports = {
-  getClubs,
   createClub,
   updateClub,
   deleteClub,

@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const image = require("../utils/image");
 const User = require("../models/Usuario");
 const UsuarioClub = require("../models/UsuarioClub");
-const Invitacion = require("../models/invitacion");
 const Equipo = require("../models/Equipo");
 const Club = require("../models/Club");
 const UsuariosEquipos = require("../models/UsuariosEquipos");
@@ -35,8 +34,6 @@ async function updateMe(req, res) {
 
   const userData = req.body;
 
-  delete userData.rol;
-  delete userData.equipo_id;
   delete userData.acudiente_id;
 
   if (userData.contrasena) {
@@ -63,19 +60,57 @@ async function updateMe(req, res) {
     });
 }
 
-//*********************     GENERAL ROUTES     *********************
+async function deleteMe(req, res){
+  const { user_id } = req.user;
 
-async function getUsers(req, res) {
-  const { activo, rol } = req.query;
-  let response = null;
+  User.destroy({ where: { id: user_id } })
+  .then((response) => {
+    if (!response) {
+      return res.status(404).send({ msg: "No se ha encontrado el usuario" });
+    } else {
+      return res.status(200).send({ msg: "Usuario eliminado correctamente" });
+    }
+  })
+  .catch((err) => {
+    return res.status(500).send({ msg: "Error al eliminar el usuario" });
+  });
+}
 
-  if (activo === undefined || rol === undefined) {
-    response = await User.findAll();
+async function updatePassword(req, res) {
+  const { id } = req.params;
+  const userData = req.body;
+
+  if (userData.contrasena) {
+    const salt = bcrypt.genSaltSync(10);
+    userData.contrasena = bcrypt.hashSync(userData.contrasena, salt);
   } else {
-    response = await User.findAll({ where: { activo, rol } });
+    delete userData.contrasena;
   }
 
-  res.status(200).send(response);
+  User.update(userData, { where: { id } })
+    .then((response) => {
+      if (!response[0]) {
+        res.status(404).send({ msg: "No se ha encontrado el usuario" });
+      } else {
+        res.status(200).send({ msg: "Usuario actualizado correctamente" });
+        console.log("usuario actualizada correctamente");
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ msg: "Error al actualizar el usuario" });
+    });
+}
+
+//*********************     GENERAL ROUTES     *********************
+async function getUsers(req, res) {
+
+  try {
+    const response = await User.findAll();
+
+    return res.status(200).send(response);
+  } catch (error) {
+    return res.status(500).send({ msg: "Error al obtener los usuarios" });
+  }
 }
 
 async function createUser(req, res) {
@@ -118,16 +153,6 @@ async function updateUser(req, res) {
   const { id } = req.params;
   const userData = req.body;
 
-  const updaterUser = req.user;
-
-  const user = await User.findByPk(updaterUser.user_id);
-
-  if (user.rol !== "administrador" && user.rol !== "gerente") {
-    delete userData.rol;
-    delete userData.equipo_id;
-    delete userData.acudiente_id;
-  }
-
   if (userData.contrasena) {
     const salt = bcrypt.genSaltSync(10);
     userData.contrasena = bcrypt.hashSync(userData.contrasena, salt);
@@ -145,7 +170,7 @@ async function updateUser(req, res) {
         res.status(404).send({ msg: "No se ha encontrado el usuario" });
       } else {
         res.status(200).send({ msg: "Usuario actualizado correctamente" });
-        console.log("usuario actualizada correctamente");
+        console.log("usuario actualizado correctamente");
       }
     })
     .catch((err) => {
@@ -153,42 +178,9 @@ async function updateUser(req, res) {
     });
 }
 
-async function updatePassword(req, res) {
-  const { id } = req.params;
-  const userData = req.body;
-
-  if (userData.contrasena) {
-    const salt = bcrypt.genSaltSync(10);
-    userData.contrasena = bcrypt.hashSync(userData.contrasena, salt);
-  } else {
-    delete userData.contrasena;
-  }
-
-  User.update(userData, { where: { id } })
-    .then((response) => {
-      if (!response[0]) {
-        res.status(404).send({ msg: "No se ha encontrado el usuario" });
-      } else {
-        res.status(200).send({ msg: "Usuario actualizado correctamente" });
-        console.log("usuario actualizada correctamente");
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({ msg: "Error al actualizar el usuario" });
-    });
-}
 
 async function deleteUser(req, res) {
   const { id } = req.params;
-  const { user_id } = req.user;
-
-  const user = await User.findByPk(user_id);
-
-  if (user.rol !== "administrador" && user.rol !== "gerente") {
-    return res
-      .status(400)
-      .send({ msg: "No tienes permisos para eliminar un usuario" });
-  }
 
   User.destroy({ where: { id } })
     .then((response) => {
@@ -204,6 +196,29 @@ async function deleteUser(req, res) {
       res.status(500).send({ msg: "Error al eliminar el usuario" });
     });
 }
+
+async function getUserByEmail(req, res) {
+  const { correo } = req.query; // Obtenemos "correo" desde los parámetros de consulta
+
+  if (!correo) {
+    return res.status(400).send({ msg: "El correo electrónico es requerido" });
+  }
+
+  try {
+    const user = await User.findOne({ where: { correo } }); // Busca el usuario por correo
+
+    if (!user) {
+      console.log("el usuario no existe");
+      return res.status(404).send({ msg: "Usuario no encontrado" });
+    }
+
+    res.status(200).send(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ msg: "Error en el servidor" });
+  }
+}
+
 //*********************     ACUDIENTE ROUTES     *********************
 
 async function getMyChildren(req, res) {
@@ -262,24 +277,43 @@ async function getOneChild(req, res) {
   }
 }
 
-//*********************     CLUB ROUTES     *********************
+//*********************     EQUIPOS ROUTES     *********************
+const buscarEquiposUsuario = async (req, res) => {
+  const { usuario_id } = req.params;
 
+  try {
+    const registros = await UsuariosEquipos.findAll({ where: { usuario_id } });
+
+    if (!registros.length) {
+      return res
+        .status(404)
+        .json({ msg: "El usuario no pertenece a ningún equipo" });
+    }
+
+    const idsEquipos = registros.map((registro) => registro.equipo_id);
+
+    const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
+
+    res.status(200).json(equipos);
+  } catch (error) {
+    console.error("Error al buscar equipos del usuario:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
+
+//*********************     CLUB ROUTES     *********************
 async function userJoinsClub(req, res) {
   const { id_club } = req.params;
   const { user_id } = req.user;
-
-  const user = await User.findByPk(user_id);
 
   const response = await UsuarioClub.findOne({
     where: { club_id: id_club, usuario_id: user_id },
   });
 
-  if (user.rol === "gerente") {
-    res.status(400).send({ msg: "No puedes unirte a un club si eres gerente" });
-  } else if (response) {
+  if (response) {
     res.status(400).send({ msg: "Ya te encuentras unido a este club" });
   } else {
-    UsuarioClub.create({ club_id: id_club, usuario_id: user_id })
+    UsuarioClub.create({ club_id: id_club, usuario_id: user_id, rol: "miembro" })
       .then((response) => {
         res
           .status(200)
@@ -310,59 +344,17 @@ async function getUsersByClub(req, res) {
   }
 }
 
-async function getUserByEmail(req, res) {
-  const { correo } = req.query; // Obtenemos "correo" desde los parámetros de consulta
-
-  if (!correo) {
-    return res.status(400).send({ msg: "El correo electrónico es requerido" });
-  }
-
-  try {
-    const user = await User.findOne({ where: { correo } }); // Busca el usuario por correo
-
-    if (!user) {
-      console.log("el usuario no existe");
-      return res.status(404).send({ msg: "Usuario no encontrado" });
-    }
-
-    res.status(200).send(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ msg: "Error en el servidor" });
-  }
-}
-
-const buscarEquiposUsuario = async (req, res) => {
-  const { usuario_id } = req.params;
-
-  try {
-    const registros = await UsuariosEquipos.findAll({ where: { usuario_id } });
-
-    if (!registros.length) {
-      return res
-        .status(404)
-        .json({ msg: "El usuario no pertenece a ningún equipo" });
-    }
-
-    const idsEquipos = registros.map((registro) => registro.equipo_id);
-
-    const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
-
-    res.status(200).json(equipos);
-  } catch (error) {
-    console.error("Error al buscar equipos del usuario:", error);
-    res.status(500).json({ msg: "Error interno del servidor" });
-  }
-};
-
 const buscarClubesUsuario = async (req, res) => {
     const { usuario_id } = req.params;
+    
+    // Cambie para usar el id del usuario que viene en el token
+    const { user_id } = req.user;
   
     try {
       // 📌 Obtener los equipos del usuario, excluyendo los donde su rol sea `2` (padre)
       const registros = await UsuariosEquipos.findAll({
         where: {
-          usuario_id,
+          user_id,
           rol: { [Op.ne]: 2 }, // 📌 Excluir equipos donde el usuario sea solo "padre"
         },
       });
@@ -401,16 +393,6 @@ const userLeavesClub = async (req, res) => {
   const { id_club } = req.params;
 
   try {
-    const user = await User.findOne({ where: { id: user_id } });
-
-    console.log(user);
-
-    if (user.rol === "gerente") {
-      return res
-        .status(400)
-        .send({ msg: "Un gerente no puede abandonar un club" });
-    }
-
     UsuarioClub.destroy({ where: { usuario_id: user_id, club_id: id_club } })
       .then((response) => {
         if (!response) {
@@ -435,21 +417,9 @@ const eliminarUsuarioClub = async (req, res) => {
   /**
    * Funcion para eliminar un usuario de un club
    */
-
-  const { user_id } = req.user;
   const { id_club, id_user } = req.params;
 
   try {
-    const userGerente = await User.findOne({ where: { id: user_id } });
-
-    if (userGerente.rol !== "gerente" || userGerente.rol !== "administrador") {
-      return res
-        .status(400)
-        .send({
-          msg: "No tienes permisos para eliminar un usuario de un club",
-        });
-    }
-
     UsuarioClub.destroy({ where: { usuario_id: id_user, club_id: id_club } })
       .then((response) => {
         if (!response) {
@@ -487,4 +457,5 @@ module.exports = {
   buscarClubesUsuario,
   eliminarUsuarioClub,
   userLeavesClub,
+  deleteMe
 };
