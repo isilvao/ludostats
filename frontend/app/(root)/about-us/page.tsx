@@ -1,27 +1,37 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { FaLinkedinIn, FaGithub } from 'react-icons/fa';
 
 const AboutUs: React.FC = () => {
   const teamMembers = [
     {
       name: 'Diego Rodríguez',
-      role: 'CEO :v',
+      role: 'Frontend Developer',
       image: '/assets/images/person-1.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
     {
       name: 'Ivan Silva',
-      role: 'CTO y Desarrollador Principal',
+      role: 'Backend Developer',
       image: '/assets/images/person-2.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
     {
       name: 'Luis Marín',
-      role: 'Gerente de Marketing',
+      role: 'Backend Developer',
       image: '/assets/images/person-3.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
     {
       name: 'David Castañeda',
-      role: 'Especialista en Atención al Cliente',
+      role: 'Frontend Developer',
       image: '/assets/images/person-3.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
   ];
 
@@ -76,7 +86,7 @@ const AboutUs: React.FC = () => {
         <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
           Nuestro Equipo
         </h3>
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {teamMembers.map((member, idx) => (
             <div
               key={idx}
@@ -93,6 +103,24 @@ const AboutUs: React.FC = () => {
                 {member.name}
               </h4>
               <p className="text-sm text-gray-600">{member.role}</p>
+              <div className="flex gap-4 mt-4">
+                <Link
+                  href={member.hrefGh}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+                >
+                  <FaGithub className="w-6 h-6" />
+                </Link>
+                <Link
+                  href={member.hrefIn}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+                >
+                  <FaLinkedinIn className="w-6 h-6" />
+                </Link>
+              </div>
             </div>
           ))}
         </div>
