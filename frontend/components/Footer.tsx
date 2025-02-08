@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { footerLinks } from '@/constants';
+import { FaInstagram, FaLinkedinIn } from 'react-icons/fa';
+import { FaXTwitter, FaThreads } from 'react-icons/fa6';
 
 type ColumnProps = {
   title: string;
@@ -42,41 +44,37 @@ const Footer = () => (
             </p>
           </div>
           <div className="flex space-x-4">
-            <Link href="/">
-              <Image
-                src="/assets/icons/ig-white.svg"
-                width={40}
-                height={40}
-                alt="Facebook"
-                className="text-gray-400 hover:text-white transition transform hover:scale-110"
-              />
+            <Link
+              href="https://www.instagram.com/ludostats/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaInstagram className="w-6 h-6" />
             </Link>
-            <Link href="/">
-              <Image
-                src="/assets/icons/x-white.svg"
-                width={40}
-                height={40}
-                alt="Facebook"
-                className="text-gray-400 hover:text-white transition transform hover:scale-110"
-              />
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaXTwitter className="w-6 h-6" />
             </Link>
-            <Link href="/">
-              <Image
-                src="/assets/icons/facebook-white.svg"
-                width={40}
-                height={40}
-                alt="Facebook"
-                className="text-gray-400 hover:text-white transition transform hover:scale-110"
-              />
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaThreads className="w-6 h-6" />
             </Link>
-            <Link href="/">
-              <Image
-                src="/assets/icons/youtube-white.svg"
-                width={40}
-                height={40}
-                alt="Facebook"
-                className="text-gray-400 hover:text-white transition transform hover:scale-110"
-              />
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaLinkedinIn className="w-6 h-6" />
             </Link>
           </div>
         </div>

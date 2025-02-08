@@ -21,7 +21,6 @@ export default function Layout({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const teamApi = new TeamsAPI();
-  const { user } = useAuth();
 
   useEffect(() => {
     const fetchEquipoData = async () => {
