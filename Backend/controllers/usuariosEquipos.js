@@ -139,6 +139,19 @@ const crearUsuarioEquipo = async (req, res) => {
     return res.status(400).json({ msg: "Faltan datos obligatorios" });
   }
 
+  let nuevoRol = ''
+  if (rol == 1){
+    nuevoRol = 'deportista'
+  } else if (rol == 2){
+    nuevoRol = 'acudiente'
+  } else if (rol == 3){
+    nuevoRol = 'entrenador'
+  } else if (rol == 4){
+    nuevoRol = 'administrador'
+  } else if (rol == 5){
+    nuevoRol = 'miembro'
+  }
+
   try {
     // 📌 Verificar si el usuario ya está registrado en el equipo
     if (rol != 2) {
@@ -180,7 +193,7 @@ const crearUsuarioEquipo = async (req, res) => {
     const nuevoRegistro = await UsuariosEquipos.create({
       usuario_id,
       equipo_id,
-      rol,
+      nuevoRol,
     });
 
     console.log(
