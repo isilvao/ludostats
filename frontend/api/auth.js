@@ -14,8 +14,6 @@ export class Auth {
                 apellido: data.apellido,
                 correo: data.correo,
                 contrasena: data.contrasena,
-                rol: "gerente",
-                activo: true,
                 ...(data.foto && { foto: data.foto }) // 📌 Solo añade foto si existe
             };
 

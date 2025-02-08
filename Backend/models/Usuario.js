@@ -54,9 +54,6 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.UUID,
         allowNull: true
     },
-}, {
-    tableName: 'UsuariosEquipos',
-    timestamps: false,  // Evita que Sequelize agregue createdAt y updatedAt
 });
 
 module.exports = Usuario;
