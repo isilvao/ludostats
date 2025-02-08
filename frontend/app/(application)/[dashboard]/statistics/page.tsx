@@ -1,4 +1,3 @@
-<script src="http://localhost:8097"></script>
 'use client';
 
 import React, { useState, useEffect } from "react";
@@ -6,8 +5,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { tipoEstadisticasAPI } from "@/api/tipoEstadisticas";
-import { useAuth } from "@/hooks/useAuth";
-
+import { useAuth } from "@/hooks";
 
 interface TipoEstadistica {
   tipoEstadistica_id: number;
@@ -16,7 +14,11 @@ interface TipoEstadistica {
 }
 
 const Statistics: React.FC = () => {
-  const { user, accessToken } = useAuth();
+  const { user } = useAuth();
+  console.log("Usuario desde useAuth:", user);
+  console.log("Aqui llega");
+
+
   const [tipoEstadisticaData, setTipoEstadisticaData] = useState<TipoEstadistica[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,11 +26,20 @@ const Statistics: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [editedData, setEditedData] = useState<TipoEstadistica | null>(null);
 
+ 
+
+
   useEffect(() => {
+    if (!user || !user.accessToken || !user.id_club) {
+      console.warn("user no disponible, esperando datos...");
+      return;
+    }
+    console.log("AccessToken:", user?.accessToken);
+    console.log("ID Club:", user?.id_club);
     const fetchTipoEstadisticas = async () => {
       try {
         if (!user?.accessToken || !user?.id_club) {
-          console.error("Faltan datos de usuario para la petición");
+          console.error("Faltan datos de user para la petición");
           setError("No se pudieron obtener los tipos de estadísticas");
           setIsLoading(false);
           return;
@@ -97,11 +108,16 @@ const Statistics: React.FC = () => {
   };
 
   return (
+    
     <div className="bg-gray-100 min-h-screen p-6">
+       <div>
+    <p>Componente Statistics montado correctamente</p>
+  </div>
+      <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Tipos de Estadísticas</h1>
-        <h1>Aqui entra</h1>
         <p className="text-sm text-gray-500">AccessToken: {user?.accessToken}</p>
         <p className="text-sm text-gray-500">ID Club: {user?.id_club}</p>
+
         {isLoading ? (
           <p className="text-center text-gray-600">Cargando tipos de estadísticas...</p>
         ) : error ? (
@@ -123,7 +139,7 @@ const Statistics: React.FC = () => {
           </div>
         )}
         <button className="bg-[rgb(76,175,79)] text-white px-4 py-2 rounded mt-4" onClick={handleCreate}>Agregar Tarjeta</button>
-      
+      </section>
     </div>
   );
 };
