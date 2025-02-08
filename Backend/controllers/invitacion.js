@@ -29,9 +29,9 @@ const generarInvitacion = async (req, res) => {
             clave,
         });
 
-        res.status(201).json({ 
+        res.status(201).json({
             msg: "Invitación creada correctamente",
-            clave: nuevaInvitacion.clave 
+            clave: nuevaInvitacion.clave
         });
     } catch (error) {
         console.error("Error al crear la invitación:", error);

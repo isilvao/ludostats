@@ -5,11 +5,11 @@ const md_stats = require('../middleware/statsValidation')
 
 const api = express.Router()
 
-api.get('/misestadisticas', [md_auth.asureAuth, md_stats.validateDeportista], estadisticasController.getMyEstadisticas) // id del usuario
-api.post('/nuevaestadistica/:id_tipoEstadistica/:id_usuario', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.createEstadistica) // id del usuario
-api.patch('/editarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.updateEstadistica) // id del usuario
-api.delete('/eliminarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.deleteEstadistica) // id del usuario
-api.get('/estadisticas/:id_tipoEstadistica', [md_auth.asureAuth, md_stats.validateAuthorizedUser], estadisticasController.getAllEstadisticas) // id del usuario
+api.get('/misestadisticas', [md_auth.asureAuth], estadisticasController.getMyEstadisticas) // id del usuario
+api.post('/nuevaestadistica/:id_tipoestadistica/:id_usuario', [md_auth.asureAuth, md_stats.validateCoachOrGerenteByStatType, md_stats.validateUserInClubFromStatType], estadisticasController.createEstadistica) // id del usuario
+api.patch('/editarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateCoachOrGerenteByStatType], estadisticasController.updateEstadistica) // id del usuario
+api.delete('/eliminarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateCoachOrGerenteByStatType], estadisticasController.deleteEstadistica) // id del usuario
+api.get('/estadisticas/:id_tipoestadistica', [md_auth.asureAuth, md_stats.validateCoachOrGerenteOrAdminByStatType], estadisticasController.getAllEstadisticas) // id del usuario
 
 
 module.exports = api

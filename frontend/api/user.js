@@ -86,7 +86,7 @@ export class User {
 
   async deteleMe(accessToken, id) {
     try {
-      const url = `${this.baseApi}/user/${id}`;
+      const url = `${this.baseApi}/user/deleteAccount`;
 
       const params = {
         method: 'DELETE',

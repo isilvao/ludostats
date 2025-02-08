@@ -7,7 +7,7 @@ const Evento = sequelize.define('Evento', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
-    nombre: {
+    titulo: {
         type: DataTypes.STRING,
         allowNull: false,
     },

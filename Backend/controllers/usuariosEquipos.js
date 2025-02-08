@@ -59,15 +59,13 @@ const registrarHijo = async (nombre, apellido, acudiente_id) => {
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(PASSWORD_HIJOS, salt);
 
-  const nuevoHijo = await Usuario.create({
-    nombre,
-    apellido,
-    correo: correoGenerado,
-    contrasena: hashPassword,
-    activo: true,
-    rol: "otro", // En `Usuarios` se registra como "otro"
-    acudiente_id,
-  });
+    const nuevoHijo = await Usuario.create({
+        nombre,
+        apellido,
+        correo: correoGenerado,
+        contrasena: hashPassword,
+        acudiente_id
+    });
 
   console.log(
     `📌 Hijo registrado en Usuarios: ${nuevoHijo.id} - Correo: ${correoGenerado}`
