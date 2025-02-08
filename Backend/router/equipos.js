@@ -29,8 +29,6 @@ api.get("/equipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdminOrGerenteI
 // Obtener los equipos de un gerente
 api.get("/misequipos", [md_auth.asureAuth], equipoController.obtenerMisEquipos);
 
-api.get("/misequiposv2", equipoController.obtenerMisEquipos);
-
 api.patch(
   "/equipo_logo/:id",
   upload.single("logo"),

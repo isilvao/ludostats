@@ -122,7 +122,7 @@ const obtenerEquipoPorId = async (req, res) => {
 
 
 const obtenerMisEquipos = async (req, res) => {
-    const { user_id } = req.user;
+    const { user_id } = req.query;
 
     if (!user_id) {
         return res.status(400).json({ msg: "Falta el parámetro user_id" });
