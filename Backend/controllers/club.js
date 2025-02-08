@@ -39,7 +39,7 @@ const actualizarClub = async (req, res) => {
 
 async function createClub(req, res) {
   const { user_id } = req.user;
-  const {nombre, deporte} = req.body;
+  const { nombre, deporte } = req.body;
 
   let imagePath = null;
 
@@ -48,21 +48,28 @@ async function createClub(req, res) {
   //   imagePath = image.getFilePath(req.files.logo);
   // }
 
+  console.log(req.user)
+  console.log(req.body)
+
   Club.create({
     nombre,
     deporte,
-    gerente_id: user_id,
     logo: imagePath,
   })
     .then((clubStored) => {
       if (!clubStored) {
         return res.status(400).send({ msg: "Error al crear el club" });
       } else {
-        return res.status(200).send({
-          msg: "Club creado correctamente",
-          club: clubStored,
-          success: true,
-        });
+
+        UsuarioClub.create({
+          usuario_id: user_id,
+          club_id: clubStored.id,
+          rol: "gerente",
+        }).then((response => {
+          return res.status(200).send({ msg: "Club creado correctamente", club: clubStored, success: true });
+        })).catch((err) => {
+          return res.status(500).send({ msg: "Error al crear el club" });
+        })
       }
     })
     .catch((err) => {

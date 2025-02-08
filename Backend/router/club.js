@@ -11,7 +11,7 @@ const md_upload = multiparty({uploadDir: './uploads/clubLogo'})
 
 api.get('/misclubes', [md_auth.asureAuth], clubController.buscarMisClubes) // id de cualquier usuario
 
-api.post('/newclub', [md_auth.asureAuth], clubController.createClub) // id del gerente
+api.post('/newclub', [md_auth.asureAuth], clubController.createClub)
 api.patch('/updateclub/:id_club', [md_auth.asureAuth, md_upload, md_club.validateGerenteInClub], clubController.updateClub) // id del club
 api.delete('/deleteclub/:id_club', [md_auth.asureAuth, md_club.validateGerenteInClub], clubController.deleteClub) // id del club y del gerente
 
@@ -24,5 +24,3 @@ api.get('/club/equipo/:id', clubController.encontrarClubPorEquipoId);
 api.patch("/club_logo/:id", upload.single("logo"), clubController.actualizarClub);
 
 module.exports = api;
-
-module.exports = api
