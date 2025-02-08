@@ -123,6 +123,9 @@ const asignarHijoAlEquipo = async (
     usuario_id: extra_id,
     equipo_id,
     rol: 'miembro', // 5 = Hijo en equipo
+  }).catch((error) => {
+    console.error("❌ Error al asignar al hijo:", error);
+    throw new Error("Error al asignar al hijo");
   });
 
   return extra_id;
@@ -153,6 +156,7 @@ const crearUsuarioEquipo = async (req, res) => {
     // 📌 Si el usuario es acudiente (2) y se recibe nombre/apellido, solo creamos al hijo
     if (rol === 2 && nombre && apellido) {
       try {
+
         const extra_id = await asignarHijoAlEquipo(
           usuario_id,
           equipo_id,
