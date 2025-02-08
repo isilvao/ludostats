@@ -24,7 +24,7 @@ api.patch("/patchequipo/:id_equipo",[md_auth.asureAuth, md_upload, md_team.valid
 api.delete("/eliminarequipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam],equipoController.borrarEquipo);
 
 // Obtener información completa de un equipo por su ID
-api.get("/equipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam],equipoController.obtenerEquipoPorId);
+api.get("/equipo/:id_equipo",[md_auth.asureAuth],equipoController.obtenerEquipoPorId);
 
 // Obtener los equipos de un gerente
 api.get("/misequipos", equipoController.obtenerMisEquipos);
