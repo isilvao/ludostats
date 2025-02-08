@@ -9,7 +9,7 @@ const api = express.Router()
 const md_upload = multiparty({uploadDir: './uploads/clubLogo'})
 
 
-api.get('/misclubes', clubController.buscarMisClubes) // id de cualquier usuario
+api.get('/misclubes/:user_id', clubController.buscarMisClubes) // id de cualquier usuario
 
 api.post('/newclub', [md_auth.asureAuth, md_upload], clubController.createClub)
 api.patch('/updateclub/:id_club', [md_auth.asureAuth, md_upload, md_club.validateGerenteInClub], clubController.updateClub) // id del club
