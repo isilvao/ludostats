@@ -39,7 +39,7 @@ const actualizarClub = async (req, res) => {
 
 async function createClub(req, res) {
   const { user_id } = req.user;
-  const {nombre, deporte} = req.body;
+  const { nombre, deporte } = req.body;
 
   let imagePath = null;
 
@@ -48,10 +48,12 @@ async function createClub(req, res) {
   //   imagePath = image.getFilePath(req.files.logo);
   // }
 
+  console.log(req.user)
+  console.log(req.body)
+
   Club.create({
     nombre,
     deporte,
-    gerente_id: user_id,
     logo: imagePath,
   })
     .then((clubStored) => {
