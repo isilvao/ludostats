@@ -5,7 +5,6 @@ const UsuariosEquipos = require("../models/UsuariosEquipos");
 const { Op } = require("sequelize"); // 📌 Importamos operadores de Sequelize
 const cloudinary = require('../utils/cloudinary');
 const { UsuarioClub } = require("../models");
-const { response } = require("../app");
 
 const crearEquipo = async (req, res) => {
     const { nombre, club_id, entrenador_id = null, nivelPractica, descripcion } =

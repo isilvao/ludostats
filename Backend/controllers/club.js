@@ -2,7 +2,6 @@ const image = require("../utils/image");
 const Club = require("../models/Club");
 const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
-const { response } = require("../app");
 
 const buscarMisClubes = async (req, res) => {
   const { user_id } = req.user;
