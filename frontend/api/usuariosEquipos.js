@@ -11,13 +11,30 @@ export class UsuariosEquipos {
    * @param {Object} hijoDatos - Si el usuario es acudiente, contiene `{ nombre, apellido }` del hijo.
    * @returns {Promise} - Respuesta del backend.
    */
+
   async agregarUsuarioEquipo(usuarioId, equipoId, rol, hijoDatos = null) {
     try {
       const url = `${this.baseApi}/usuarios-equipos`;
+
+      let nuevoRol = '';
+
+      switch (rol) {
+        case 1:
+          nuevoRol = 'deportista'; // Deportista
+        case 2:
+          nuevoRol = 'acudiente'; //Acudiente
+        case 3:
+          nuevoRol = 'entrenador'; //Entrenador
+        case 4:
+          nuevoRol = 'administrador'; //Administrador
+        case 5:
+          nuevoRol = 'miembro'; //Dependiente/Hijo
+      }
+
       const body = {
         usuario_id: usuarioId,
         equipo_id: equipoId,
-        rol,
+        rol: nuevoRol,
       };
 
       // 📌 Si el usuario es padre (2), incluir datos del hijo

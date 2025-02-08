@@ -134,28 +134,25 @@ export class ClubAPI {
           throw error;
         }
       }
-
-      
-      
-        async actualizarLogoClub(clubId, file) {
-          try {
-            const url = `${this.baseApi}/club_logo/${clubId}`;
-            const formData = new FormData();
-            formData.append("logo", file);
-      
-            const params = {
-              method: "PATCH",
-              body: formData,
-            };
-      
-            const response = await fetch(url, params);
-            const result = await response.json();
-      
-            if (response.status !== 200) throw result;
-      
-            return result;
-          } catch (error) {
-            throw error;
-          }
+      async actualizarLogoClub(clubId, file) {
+        try {
+          const url = `${this.baseApi}/club_logo/${clubId}`;
+          const formData = new FormData();
+          formData.append("logo", file);
+    
+          const params = {
+            method: "PATCH",
+            body: formData,
+          };
+    
+          const response = await fetch(url, params);
+          const result = await response.json();
+    
+          if (response.status !== 200) throw result;
+    
+          return result;
+        } catch (error) {
+          throw error;
         }
+      }
   }
