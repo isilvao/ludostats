@@ -104,7 +104,7 @@ const borrarEquipo = async (req, res) => {
 
 
 const obtenerEquipoPorId = async (req, res) => {
-    const { id } = req.params;
+    const { id_equipo } = req.params;
 
     try {
         const equipo = await Equipo.findByPk(id);
