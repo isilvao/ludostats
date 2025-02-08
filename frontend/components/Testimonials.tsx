@@ -1,12 +1,12 @@
 import React from 'react';
-import { testimonials } from '../constants';
-import Image from 'next/image';
+// import { testimonials } from '../constants';
+// import Image from 'next/image';
 import Link from 'next/link';
 
 const Testimonials = () => {
   return (
     <>
-      <section className="py-12 6 max-w-7xl mx-auto">
+      {/* <section className="py-12 6 max-w-7xl mx-auto">
         <div className="container mx-auto">
           <div className="text-center mb-10 px-0 sm:px-6 lg:px-10 max-w-xl mx-auto">
             <h2 className="subtitle-2 sm:subtitle-1 text-[#4D4D4D]">
@@ -30,7 +30,6 @@ const Testimonials = () => {
                       : ''
                   }`}
                 >
-                  {/* Imagen de fondo */}
                   <div className="relative group overflow-hidden rounded-xl shadow-lg">
                     <Image
                       src={testimonial.avatar}
@@ -40,7 +39,7 @@ const Testimonials = () => {
                       height={300}
                     />
                   </div>
-                  {/* Comentario */}
+
                   <div className="relative -mt-20 z-10 bg-white w-10/12 mx-auto p-4 rounded-xl shadow-lg flex flex-col justify-between sm:min-h-[335px]">
                     <p className="text-[#717171] h4 sm:h3 text-center mb-2">
                       {testimonial.quote}
@@ -57,7 +56,7 @@ const Testimonials = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       <section className="py-12 bg-[#F7F7F7]">
         <div className="text-center mb-10 max-w-2xl mx-auto mt-10">
           <h2 className="h1 md:text-hero text-[#4D4D4D]">
