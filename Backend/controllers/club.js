@@ -4,7 +4,9 @@ const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
 
 const buscarMisClubes = async (req, res) => {
-  const { user_id } = req.params;
+  const { user_id } = req.query;
+
+  console.log(req.query)
 
   try {
     const clubes = await UsuarioClub.findAll({
