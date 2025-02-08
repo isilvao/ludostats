@@ -2,6 +2,7 @@ const UsuariosEquipos = require("../models/UsuariosEquipos");
 const Equipo = require("../models/Equipo");
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcryptjs");
+const { UsuarioClub } = require("../models");
 
 const borrarUsuarioEquipo = async (req, res) => {
   const { usuarioId, equipoId } = req.params;
@@ -84,6 +85,14 @@ const asignarEntrenadorAEquipo = async (equipoId, usuario_id) => {
       equipo_id: equipoId,
       rol: 'entrenador'
     })
+
+    const equipo = await Equipo.findByPk(equipoId);
+
+    await UsuarioClub.create({
+      usuario_id,
+      club_id: equipo.club_id,
+      rol: 'entrenador'
+    })
   }
 
   if (equipo.rol !== 'entrenador') {
@@ -127,6 +136,17 @@ const asignarHijoAlEquipo = async (
     console.error("❌ Error al asignar al hijo:", error);
     throw new Error("Error al asignar al hijo");
   });
+
+  const equipo = await Equipo.findByPk(equipo_id);
+
+  await UsuarioClub.create({
+    usuario_id: extra_id,
+    club_id: equipo.club_id,
+    rol: 'miembro'
+  }).catch((error) => {
+    console.error("❌ Error al asignar al hijo:", error);
+    throw new Error("Error al asignar al hijo");
+  })
 
   return extra_id;
 };
@@ -195,6 +215,14 @@ const crearUsuarioEquipo = async (req, res) => {
       equipo_id,
       nuevoRol,
     });
+
+    const equipo = await Equipo.findByPk(equipo_id);
+
+    await UsuarioClub.create({
+      usuario_id,
+      club_id: equipo.club_id,
+      rol: nuevoRol
+    })
 
     console.log(
       `📌 Usuario ${usuario_id} asignado al equipo ${equipo_id} con rol ${rol}`
