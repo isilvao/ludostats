@@ -59,7 +59,7 @@ const Pricing: React.FC = () => {
   const plans = [
     {
       name: 'Básico',
-      price: '$39,900',
+      price: '$0,00',
       features: [
         { name: 'Gestión de miembros', included: true },
         { name: 'Control de pagos', included: true },
@@ -108,7 +108,7 @@ const Pricing: React.FC = () => {
   return (
     <div className="pt-10 pb-32">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-5">
+        <h2 className="text-4xl font-bold text-center text-[#4D4D4D] mb-5">
           Planes y precios
         </h2>
         <p className="text-center text-gray-600 mb-12">

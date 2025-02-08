@@ -39,7 +39,7 @@ const AboutUs: React.FC = () => {
     <div className="pt-10 pb-32">
       <div className="max-w-7xl mx-auto px-6">
         {/* Título */}
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-8">
+        <h2 className="text-4xl font-bold text-center text-[#4D4D4D] mb-8">
           Sobre Nosotros
         </h2>
         <p className="text-center text-gray-600 mb-12">
@@ -51,7 +51,7 @@ const AboutUs: React.FC = () => {
         {/* Sección de Misión, Visión y Valores */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           <div className="text-center">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold text-[#4D4D4D] mb-4">
               Nuestra Misión
             </h3>
             <p className="text-gray-600">
@@ -62,7 +62,7 @@ const AboutUs: React.FC = () => {
             </p>
           </div>
           <div className="text-center">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold text-[#4D4D4D] mb-4">
               Nuestra Visión
             </h3>
             <p className="text-gray-600">
@@ -72,7 +72,7 @@ const AboutUs: React.FC = () => {
             </p>
           </div>
           <div className="text-center">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold text-[#4D4D4D] mb-4">
               Nuestros Valores
             </h3>
             <p className="text-gray-600">
@@ -83,7 +83,7 @@ const AboutUs: React.FC = () => {
         </div>
 
         {/* Equipo */}
-        <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
+        <h3 className="text-3xl font-bold text-center text-[#4D4D4D] mb-8">
           Nuestro Equipo
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

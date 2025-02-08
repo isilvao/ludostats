@@ -1,40 +1,15 @@
-'use client';
-import React, { useState } from 'react';
+import React from 'react';
 
 interface FAQItemProps {
   question: string;
   answer: string;
 }
-
-const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border-b border-gray-200">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-left flex justify-between items-center py-4 focus:outline-none"
-      >
-        <span className="text-lg font-medium text-gray-800">{question}</span>
-        <svg
-          className={`w-6 h-6 transform ${isOpen ? 'rotate-180' : 'rotate-0'}`}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </button>
-      {isOpen && <p className="text-gray-600 mt-2">{answer}</p>}
-    </div>
-  );
-};
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 const FAQSection: React.FC = () => {
   const faqs = [
@@ -78,7 +53,7 @@ const FAQSection: React.FC = () => {
   return (
     <div className="pt-10 pb-32">
       <div className="max-w-5xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-5">
+        <h2 className="text-4xl font-bold text-center text-[#4D4D4D] mb-5">
           Preguntas Frecuentes
         </h2>
         <p className="text-center text-gray-600 mb-12">
@@ -86,9 +61,18 @@ const FAQSection: React.FC = () => {
           LudoStats.
         </p>
         <div className="space-y-6">
-          {faqs.map((faq, idx) => (
-            <FAQItem key={idx} {...faq} />
-          ))}
+          <Accordion type="single" collapsible>
+            {faqs.map((faq, idx) => (
+              <AccordionItem key={idx} value={`item ${idx}`}>
+                <AccordionTrigger className="text-lg font-medium text-gray-800">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <p className="text-base text-gray-600">{faq.answer}</p>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
     </div>
