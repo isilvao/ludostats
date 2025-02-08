@@ -114,7 +114,8 @@ Equipo.hasMany(Invitacion, {
 // Relacion: un equipo tiene varios usuarios con diferente rol
 Equipo.hasMany(UsuariosEquipos, {
   foreignKey: 'equipo_id',
-  as: 'usuariosEquipos'
+  as: 'usuariosEquipos',
+  onDelete: 'CASCADE'
 })
 UsuariosEquipos.belongsTo(Equipo, {
   foreignKey: 'equipo_id',

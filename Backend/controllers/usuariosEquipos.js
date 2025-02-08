@@ -75,11 +75,23 @@ const registrarHijo = async (nombre, apellido, acudiente_id) => {
 
 // 📌 Asigna el entrenador al equipo
 const asignarEntrenadorAEquipo = async (equipoId, usuario_id) => {
-  const equipo = await Equipo.findByPk(equipoId);
+  const equipo = await UsuariosEquipos.findOne({
+    where: { equipo_id: equipoId, usuario_id},
+  });
   if (!equipo) {
-    throw new Error("Equipo no encontrado");
+    UsuariosEquipos.create({
+      usuario_id,
+      equipo_id: equipoId,
+      rol: 'entrenador'
+    })
   }
-  await equipo.update({ entrenador_id: usuario_id });
+
+  if (equipo.rol !== 'entrenador') {
+    await equipo.update({ rol: 'entrenador' });
+  } else {
+    throw new Error("El usuario ya es entrenador de este equipo");
+  }
+
   await equipo.reload();
   console.log(`📌 Entrenador asignado correctamente: ${usuario_id}`);
 };
@@ -110,7 +122,7 @@ const asignarHijoAlEquipo = async (
   await UsuariosEquipos.create({
     usuario_id: extra_id,
     equipo_id,
-    rol: 5, // 5 = Hijo en equipo
+    rol: 'miembro', // 5 = Hijo en equipo
   });
 
   return extra_id;

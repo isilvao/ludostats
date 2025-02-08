@@ -17,7 +17,6 @@ const UsuariosEquipos = sequelize.define('UsuariosEquipos', {
     },
     rol: {
         type: DataTypes.ENUM('gerente', 'entrenador', 'deportista', 'acudiente', 'miembro'),
-        type: DataTypes.SMALLINT,
         allowNull: false,
     },
 }, {

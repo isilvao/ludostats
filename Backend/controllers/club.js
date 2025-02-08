@@ -2,6 +2,7 @@ const image = require("../utils/image");
 const Club = require("../models/Club");
 const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
+const { response } = require("../app");
 
 const buscarMisClubes = async (req, res) => {
   const { user_id } = req.user;
@@ -58,11 +59,16 @@ async function createClub(req, res) {
       if (!clubStored) {
         return res.status(400).send({ msg: "Error al crear el club" });
       } else {
-        return res.status(200).send({
-          msg: "Club creado correctamente",
-          club: clubStored,
-          success: true,
-        });
+
+        UsuarioClub.create({
+          usuario_id: user_id,
+          club_id: clubStored.id,
+          rol: "gerente",
+        }).then((response => {
+          return res.status(200).send({ msg: "Club creado correctamente", club: clubStored, success: true });
+        })).catch((err) => {
+          return res.status(500).send({ msg: "Error al crear el club" });
+        })
       }
     })
     .catch((err) => {
