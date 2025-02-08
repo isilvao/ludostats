@@ -14,15 +14,12 @@ function register(req, res){
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(contrasena, salt);
 
-    Usuario.create({
-        nombre,
-        apellido,
-        correo: correo.toLowerCase(),
-        contrasena: hashPassword,
-        activo: true,
-        rol: "gerente",
-        foto: foto || null // 📌 Si no se envía la foto, guardamos `null`
-    })
+  Usuario.create({
+    nombre,
+    apellido,
+    correo: correo.toLowerCase(),
+    contrasena: hashPassword,
+  })
     .then((userStored) => {
         if (!userStored) {
             return res.status(400).send({ msg: "Error al crear el usuario" });

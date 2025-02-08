@@ -33,10 +33,6 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    rol: {
-        type: DataTypes.ENUM('gerente', 'entrenador', 'deportista', 'acudiente', 'administrador', 'otro'),
-        allowNull: false,
-    },
     activo: {
         type: DataTypes.BOOLEAN,
         defaultValue : true,
@@ -54,18 +50,13 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.STRING,
         allowNull: true
     },
-    genero: {
-        type: DataTypes.ENUM('masculino', 'femenino', 'otro'),
-        allowNull: true
-    },
     acudiente_id: {
         type: DataTypes.UUID,
         allowNull: true
     },
-    equipo_id: {
-        type: DataTypes.UUID,
-        allowNull: true
-    }
+}, {
+    tableName: 'UsuariosEquipos',
+    timestamps: false,  // Evita que Sequelize agregue createdAt y updatedAt
 });
 
 module.exports = Usuario;

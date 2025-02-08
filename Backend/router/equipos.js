@@ -4,7 +4,7 @@ const multipart = require("connect-multiparty");
 
 const md_auth = require("../middleware/authenticate");
 const md_upload = multipart({ uploadDir: "./uploads/equipos" });
-const md_user = require("../middleware/userValidation");
+const md_team = require("../middleware/teamValidations");
 
 const api = express.Router();
 
@@ -15,28 +15,16 @@ const storage = multer.diskStorage({});
 const upload = multer({ storage });
 
 // Crear un equipo
-api.post(
-  "/nuevoequipo",
-  [md_auth.asureAuth, md_upload, md_user.validateAdmin],
-  equipoController.crearEquipo
-);
+api.post("/nuevoequipo",[md_auth.asureAuth, md_upload],equipoController.crearEquipo);
 
 // Modificar un equipo por su ID
-api.patch(
-  "/patchequipo/:id",
-  [md_auth.asureAuth, md_upload, md_user.validateAdmin],
-  equipoController.modificarEquipo
-);
+api.patch("/patchequipo/:id_equipo",[md_auth.asureAuth, md_upload, md_team.validateAdminOrGerenteInTeam],equipoController.modificarEquipo);
 
 // Eliminar un equipo por su ID
-api.delete(
-  "/eliminarequipo/:id",
-  [md_auth.asureAuth, md_user.validateAdmin],
-  equipoController.borrarEquipo
-);
+api.delete("/eliminarequipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam],equipoController.borrarEquipo);
 
 // Obtener información completa de un equipo por su ID
-api.get("/equipo/:id", equipoController.obtenerEquipoPorId);
+api.get("/equipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam],equipoController.obtenerEquipoPorId);
 
 // Obtener los equipos de un gerente
 api.get("/misequipos", [md_auth.asureAuth], equipoController.obtenerMisEquipos);

@@ -7,7 +7,7 @@ export class UsuariosEquipos {
    * 📌 Agregar usuario a un equipo (incluye lógica de padres e hijos).
    * @param {string} usuarioId - ID del usuario.
    * @param {string} equipoId - ID del equipo.
-   * @param {number} rol - Rol del usuario en el equipo (1=Deportista, 2=Acudiente, 3=Profesor, 5=Hijo).
+   * @param {number} rol - Rol del usuario en el equipo (1=Deportista, 2=Acudiente, 3=Profesor, 4=Administrador, 5=Hijo).
    * @param {Object} hijoDatos - Si el usuario es acudiente, contiene `{ nombre, apellido }` del hijo.
    * @returns {Promise} - Respuesta del backend.
    */
