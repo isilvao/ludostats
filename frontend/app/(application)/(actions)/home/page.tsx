@@ -198,6 +198,7 @@ const Page: React.FC = () => {
                     key={equipo.id}
                     equipo={equipo}
                     onRemoveTeam={handleRemoveTeam}
+                    userId={user.id}
                   />
                 ))}
               </div>
@@ -214,7 +215,7 @@ const Page: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {clubes.map((club) => (
-                  <CardClub key={club.id} club={club} />
+                  <CardClub key={club.id} club={club} userId={user.id} />
                 ))}
               </div>
             )}
@@ -239,10 +240,11 @@ const Page: React.FC = () => {
                         key={equipo.id}
                         equipo={equipo}
                         onRemoveTeam={handleRemoveTeam}
+                        userId={hijo.id}
                       />
                     ))}
                     {clubes.map((club) => (
-                      <CardClub key={club.id} club={club} />
+                      <CardClub key={club.id} club={club} userId={hijo.id} />
                     ))}
                   </React.Fragment>
                 ))}

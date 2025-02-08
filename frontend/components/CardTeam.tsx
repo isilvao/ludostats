@@ -2,12 +2,7 @@
 'use client';
 import React, { use, useState } from 'react';
 import { getClubLogo } from '@/lib/utils';
-import Link from 'next/link';
 import { UsuariosEquipos } from '@/api/usuariosEquipos';
-import { useAuth } from '@/hooks';
-import { useEquipoClub } from '@/hooks/useEquipoClub';
-import { TeamsAPI } from '@/api/teams';
-import LoadingScreen from '@/components/LoadingScreen';
 import { useRouter } from 'next/navigation';
 
 interface EquipoCardProps {
@@ -21,22 +16,23 @@ interface EquipoCardProps {
     };
   };
   onRemoveTeam: (teamId: string) => void;
+  userId: string;
 }
 
-const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
+const EquipoCard: React.FC<EquipoCardProps> = ({
+  equipo,
+  onRemoveTeam,
+  userId,
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const usuariosEquipos = new UsuariosEquipos();
-  const { user } = useAuth();
-  const { setEquipoSeleccionado } = useEquipoClub();
-  const teamApi = new TeamsAPI(); // Usar el contexto
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleLeaveTeam = () => {
     setShowConfirmation(false);
     try {
-      usuariosEquipos.eliminarUsuarioEquipo(user.id, equipo.id);
+      usuariosEquipos.eliminarUsuarioEquipo(userId, equipo.id);
       onRemoveTeam(equipo.id);
     } catch (error) {
       console.error(error);
@@ -44,28 +40,24 @@ const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
   };
 
   const handleSelectTeam = async () => {
-    setIsLoading(true);
     try {
-      const result = await teamApi.obtenerEquipoConRol(equipo.id, user.id);
-
-      // 📌 Aquí SÍ podemos usar hooks porque estamos dentro de un componente
-      setEquipoSeleccionado(result.equipo, result.rol, result.club);
-
-      console.log('📌 Datos del equipo obtenidos:', result);
+      localStorage.setItem('selectedTeamId', equipo.id); // Almacena el ID del equipo en localStorage
+      localStorage.setItem(
+        'selectedTeamName',
+        equipo.nombre.replace(/\s+/g, '')
+      ); // Almacena el nombre del equipo en localStorage
+      localStorage.setItem('userId', userId); // Almacena el ID del usuario en localStorage
+      localStorage.setItem('selectionType', 'equipo'); // Almacena el tipo de selección en localStorage
       router.push(`/${equipo.nombre.replace(/\s+/g, '')}`);
     } catch (error) {
-      console.error('❌ Error obteniendo equipo:', error);
+      console.error('❌ Error al seleccionar el equipo:', error);
     } finally {
-      setIsLoading(false);
     }
   };
 
   // const handleSelectTeam = () => {
   //   setEquipoSeleccionado(equipo, null, equipo.club); // Actualizar el contexto con la información del equipo
   // };
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center align-middle h-full relative">

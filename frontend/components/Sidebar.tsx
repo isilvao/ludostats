@@ -7,17 +7,29 @@ import { usePathname, useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEquipoClub } from '@/hooks/useEquipoClub'; // Importar el hook del contexto
 import { getClubLogo } from '@/lib/utils';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const Sidebar = () => {
   const pathname = usePathname();
   const params = useParams();
-  const { equipoData } = useEquipoClub(); // Usar el contexto
-  console.log(equipoData);
+  const { equipoData, clubData } = useEquipoClub(); // Usar el contexto
+  const selectionType = localStorage.getItem('selectionType');
   const nameTeam = params
     ? Array.isArray(params.dashboard)
       ? params.dashboard[0]
       : params.dashboard
     : null;
+
+  const logo =
+    selectionType === 'equipo'
+      ? getClubLogo(equipoData)
+      : getClubLogo(clubData);
+  const name =
+    selectionType === 'equipo' ? equipoData?.nombre : clubData?.nombre;
+
+  if (!logo || !name) {
+    return <LoadingScreen />;
+  }
 
   return (
     <aside className="sidebar bg-white">
@@ -31,16 +43,13 @@ const Sidebar = () => {
               )}
             >
               <Image
-                src={getClubLogo(equipoData?.equipo || {})}
-                alt={equipoData?.equipo?.nombre}
-                width={24}
-                height={24}
-                className={cn(
-                  'nav-icon',
-                  pathname === `/${nameTeam}/inicio` && 'nav-icon-active'
-                )}
+                src={logo}
+                alt={name}
+                width={40}
+                height={40}
+                className={cn(pathname === `/${nameTeam}/inicio`)}
               />
-              <p className="hidden lg:block">{equipoData?.equipo?.nombre}</p>
+              <p className="hidden lg:block">{name}</p>
             </li>
           </Link>
           {navItems.map(({ url, name, icon }) => (

@@ -1,19 +1,37 @@
+'use client';
 // frontend/components/ClubCard.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { getClubLogo } from '@/lib/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ClubCardProps {
   club: {
+    id: string;
     nombre: string;
     deporte: string;
     logo?: string;
   };
+  userId: string;
 }
 
-const ClubCard: React.FC<ClubCardProps> = ({ club }) => {
+const ClubCard: React.FC<ClubCardProps> = ({ club, userId }) => {
+  const router = useRouter();
+
+  const handleSelectClub = async () => {
+    try {
+      localStorage.setItem('selectedTeamId', club.id);
+      localStorage.setItem('selectedTeamName', club.nombre.replace(/\s+/g, ''));
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('selectionType', 'club');
+      router.push(`/${club.nombre.replace(/\s+/g, '')}`);
+    } catch (error) {
+      console.error('❌ Error al seleccionar el club:', error);
+    }
+  };
+
   return (
-    <Link href={`/${club.nombre.replace(/\s+/g, '')}`}>
+    <button onClick={handleSelectClub}>
       <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center align-middle h-full">
         <div className="flex items-center space-x-12">
           <img
@@ -27,7 +45,7 @@ const ClubCard: React.FC<ClubCardProps> = ({ club }) => {
           </div>
         </div>
       </div>
-    </Link>
+    </button>
   );
 };
 
