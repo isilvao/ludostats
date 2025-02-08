@@ -19,9 +19,6 @@ const UsuarioClub = sequelize.define('UsuarioClub', {
         type: DataTypes.ENUM('gerente', 'entrenador', 'deportista', 'acudiente', 'miembro'),
         allowNull: false,
     },
-}, {
-    tableName: 'UsuariosEquipos',
-    timestamps: false,  // Evita que Sequelize agregue createdAt y updatedAt
 });
 
 module.exports = UsuarioClub;
