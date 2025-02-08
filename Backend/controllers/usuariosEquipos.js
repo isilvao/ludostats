@@ -160,15 +160,15 @@ const crearUsuarioEquipo = async (req, res) => {
   }
 
   let nuevoRol = ''
-  if (rol == 1){
+  if (rol === 1){
     nuevoRol = 'deportista'
-  } else if (rol == 2){
+  } else if (rol === 2){
     nuevoRol = 'acudiente'
-  } else if (rol == 3){
+  } else if (rol === 3){
     nuevoRol = 'entrenador'
-  } else if (rol == 4){
+  } else if (rol === 4){
     nuevoRol = 'administrador'
-  } else if (rol == 5){
+  } else if (rol === 5){
     nuevoRol = 'miembro'
   }
 
@@ -209,11 +209,14 @@ const crearUsuarioEquipo = async (req, res) => {
       }
     }
 
+    console.log(nuevoRol)
+
+
     // 📌 Si no es acudiente, registrar normalmente en `UsuariosEquipos`
     const nuevoRegistro = await UsuariosEquipos.create({
       usuario_id,
       equipo_id,
-      nuevoRol,
+      rol: nuevoRol,
     });
 
     const equipo = await Equipo.findByPk(equipo_id);
