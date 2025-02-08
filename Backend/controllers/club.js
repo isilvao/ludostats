@@ -20,6 +20,23 @@ const buscarMisClubes = async (req, res) => {
   }
 };
 
+const actualizarClub = async (req, res) => {
+  const { id } = req.params;
+  let logo = req.file ? req.file.path : null; // 📌 URL de Cloudinary
+
+  try {
+      const club = await Club.findByPk(id);
+      if (!club) return res.status(404).json({ msg: "Club no encontrado" });
+
+      await club.update({ logo });
+
+      res.status(200).json({ msg: "Club actualizado", club });
+  } catch (error) {
+      console.error("Error al actualizar club:", error);
+      res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
+
 async function createClub(req, res) {
   const { user_id } = req.user;
   const {nombre, deporte} = req.body;
@@ -156,4 +173,5 @@ module.exports = {
   encontrarClubPorId,
   encontrarClubPorEquipoId,
   buscarMisClubes,
+  actualizarClub,
 };
