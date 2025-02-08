@@ -108,7 +108,7 @@ const obtenerEquipoPorId = async (req, res) => {
 
     try {
         const equipo = await Equipo.findByPk(id_equipo);
-        console.log(id)
+        console.log(id_equipo)
         if (!equipo) {
             return res.status(404).json({ msg: "Equipo no encontrado" });
         }
