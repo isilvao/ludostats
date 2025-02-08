@@ -27,7 +27,7 @@ api.delete("/eliminarequipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdmi
 api.get("/equipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam],equipoController.obtenerEquipoPorId);
 
 // Obtener los equipos de un gerente
-api.get("/misequipos", [md_auth.asureAuth], equipoController.obtenerMisEquipos);
+api.get("/misequipos", equipoController.obtenerMisEquipos);
 
 api.patch(
   "/equipo_logo/:id",
