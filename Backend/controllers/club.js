@@ -156,5 +156,4 @@ module.exports = {
   encontrarClubPorId,
   encontrarClubPorEquipoId,
   buscarMisClubes,
-  actualizarClub,
 };
