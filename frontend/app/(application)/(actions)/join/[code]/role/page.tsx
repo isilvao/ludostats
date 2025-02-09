@@ -44,7 +44,7 @@ const RolePage = () => {
         await usuariosEquiposAPI.agregarUsuarioEquipo(
           user.id,
           invitacion.equipo_id,
-          1
+          invitacion.rol_invitado
         );
         setIsAccepted(true);
         setTimeout(() => {
