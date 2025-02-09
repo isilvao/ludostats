@@ -157,4 +157,19 @@ export class ClubAPI {
       throw error;
     }
   }
+
+  async getUsersByClub(clubId) {
+    try {
+      const url = `${this.baseApi}/club/users/${clubId}`;
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error('No se encontraron usuarios.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener los usuarios del club:', error);
+      throw error;
+    }
+  }
 }

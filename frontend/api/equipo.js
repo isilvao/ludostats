@@ -146,4 +146,20 @@ export class EquipoAPI {
       throw error;
     }
   }
+
+  async getUsersByTeam(equipoId) {
+    try {
+      const url = `${this.baseApi}/equipo/users/${equipoId}`;
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener los usuarios del equipo:', error);
+      throw error;
+    }
+  }
 }
