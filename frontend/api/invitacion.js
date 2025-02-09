@@ -5,9 +5,10 @@ export class InvitacionesAPI {
 
   // Función para generar una clave aleatoria de 6 caracteres
   generarClaveAleatoria() {
-    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    const caracteres =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
     let clave = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) {
       clave += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
     }
     return clave;
@@ -48,8 +49,8 @@ export class InvitacionesAPI {
       if (response.status !== 201) throw result;
 
       // Retornar la URL con la clave generada
-      console.log(`https://www.ludostats.com/unirse/${claveGenerada}`)
-      return `https://www.ludostats.com/unirse/${claveGenerada}`;
+      console.log(claveGenerada);
+      return claveGenerada;
     } catch (error) {
       throw new Error('Error al crear la invitación.');
     }
@@ -121,18 +122,18 @@ export class InvitacionesAPI {
   // Convertir rol de string a número
   getRolNumber(rol) {
     switch (rol.toLowerCase()) {
-        case 'deportista':
-            return 'deportista'; // Deportista
-        case 'acudiente':
-            return 'acudiente'; //Acudiente
-        case 'profesor':
-            return 'entrenador'; //Entrenador
-        case 'administrador':
-            return 'administrador'; //Administrador
-        case 'hijo':
-            return 'miembro'; //Dependiente/Hijo
-        default:
-            throw new Error('Rol no válido');
+      case 'deportista':
+        return 'deportista'; // Deportista
+      case 'acudiente':
+        return 'acudiente'; //Acudiente
+      case 'profesor':
+        return 'entrenador'; //Entrenador
+      case 'administrador':
+        return 'administrador'; //Administrador
+      case 'hijo':
+        return 'miembro'; //Dependiente/Hijo
+      default:
+        throw new Error('Rol no válido');
     }
-}
+  }
 }

@@ -150,7 +150,12 @@ export class EquipoAPI {
   async getUsersByTeam(equipoId) {
     try {
       const url = `${this.baseApi}/equipo/users/${equipoId}`;
-
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
       const response = await fetch(url, params);
       const result = await response.json();
 
