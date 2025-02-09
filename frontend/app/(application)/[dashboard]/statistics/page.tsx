@@ -12,16 +12,16 @@ interface TipoEstadistica {
 }
 
 const Statistics: React.FC = () => {
-  const { accessToken } = useAuth(); // ✅ Obtiene el token directamente
+  const { accessToken } = useAuth();
   const [idClub, setIdClub] = useState<string | null>(null);
   const [tipoEstadisticaData, setTipoEstadisticaData] = useState<TipoEstadistica[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editing, setEditing] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
-  const [editedData, setEditedData] = useState<TipoEstadistica | null>(null);
+  const [editing, setEditing] = useState<number | null>(null);
+  const [formData, setFormData] = useState<TipoEstadistica>({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
 
-  // 🔹 1. Obtener `id_club` al montar el componente
+  // 🔹 Obtener `id_club` al montar el componente
   useEffect(() => {
     const fetchClub = async () => {
       if (!accessToken) return;
@@ -31,7 +31,7 @@ const Statistics: React.FC = () => {
         const clubes = await api.buscarMisClubes(accessToken);
 
         if (clubes.length > 0) {
-          setIdClub(clubes[0].id); // 🔹 Tomamos el primer club del usuario
+          setIdClub(clubes[0].id);
         } else {
           console.warn("El usuario no tiene clubes asociados.");
         }
@@ -43,7 +43,7 @@ const Statistics: React.FC = () => {
     fetchClub();
   }, [accessToken]);
 
-  // 🔹 2. Obtener estadísticas cuando `idClub` esté disponible
+  // 🔹 Obtener estadísticas cuando `idClub` esté disponible
   useEffect(() => {
     const fetchTipoEstadisticas = async () => {
       if (!idClub || !accessToken) return;
@@ -63,59 +63,61 @@ const Statistics: React.FC = () => {
     fetchTipoEstadisticas();
   }, [idClub, accessToken]);
 
-  // 🔹 3. Función para editar
-  const handleEdit = (tipoEstadistica: TipoEstadistica) => {
-    setEditing(tipoEstadistica.tipoEstadistica_id);
-    setEditedData({ ...tipoEstadistica });
+  // 🔹 Mostrar formulario para agregar tarjeta
+  const handleCreate = () => {
+    setCreating(true);
+    setFormData({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
   };
 
-  const handleSaveEdit = async () => {
-    if (!editedData || !accessToken || !idClub) return;
+  // 🔹 Guardar nueva tarjeta
+  const handleSaveCreate = async () => {
+    if (!formData || !accessToken || !idClub) return;
+
     try {
       const api = new tipoEstadisticasAPI();
-      await api.updateTipoEstadistica(editedData, accessToken, idClub);
+      const newEntry = await api.createTipoEstadistica(formData, accessToken, idClub);
+      setTipoEstadisticaData([...tipoEstadisticaData, newEntry]); // 🔹 Agregar a la lista
+      setCreating(false);
+      setFormData({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
+    } catch (error) {
+      console.error("Error al crear la estadística:", error);
+    }
+  };
+
+  // 🔹 Editar tarjeta existente
+  const handleEdit = (tipoEstadistica: TipoEstadistica) => {
+    setEditing(tipoEstadistica.tipoEstadistica_id);
+    setFormData({ ...tipoEstadistica });
+  };
+
+  // 🔹 Guardar cambios en una tarjeta editada
+  const handleSaveEdit = async () => {
+    if (!formData || !accessToken || !idClub) return;
+
+    try {
+      const api = new tipoEstadisticasAPI();
+      await api.updateTipoEstadistica(formData, accessToken, idClub);
       setTipoEstadisticaData(prevData =>
-        prevData.map(item =>
-          item.tipoEstadistica_id === editedData.tipoEstadistica_id ? editedData : item
-        )
+        prevData.map(item => (item.tipoEstadistica_id === formData.tipoEstadistica_id ? formData : item))
       );
       setEditing(null);
-      setEditedData(null);
+      setFormData({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
     } catch (error) {
       console.error("Error al actualizar la estadística:", error);
     }
   };
 
-  // 🔹 4. Función para eliminar
+  // 🔹 Eliminar tarjeta
   const handleDelete = async (id: number) => {
-    if (!accessToken || !idClub) return;
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar esta estadística?");
-    if (!confirmDelete) return;
+    if (!confirmDelete || !accessToken || !idClub) return;
+
     try {
       const api = new tipoEstadisticasAPI();
       await api.deleteTipoEstadistica({ id }, accessToken, idClub);
       setTipoEstadisticaData(prevData => prevData.filter(item => item.tipoEstadistica_id !== id));
     } catch (error) {
       console.error("Error al eliminar la estadística:", error);
-    }
-  };
-
-  // 🔹 5. Función para crear
-  const handleCreate = () => {
-    setCreating(true);
-    setEditedData({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
-  };
-
-  const handleSaveCreate = async () => {
-    if (!editedData || !accessToken || !idClub) return;
-    try {
-      const api = new tipoEstadisticasAPI();
-      const newEntry = await api.createTipoEstadistica(editedData, accessToken, idClub);
-      setTipoEstadisticaData([...tipoEstadisticaData, newEntry]);
-      setCreating(false);
-      setEditedData(null);
-    } catch (error) {
-      console.error("Error al crear la estadística:", error);
     }
   };
 
@@ -147,9 +149,30 @@ const Statistics: React.FC = () => {
             )}
           </div>
         )}
-
-        <button className="bg-[rgb(76,175,79)] text-white px-4 py-2 rounded mt-4" onClick={handleCreate}>Agregar Tarjeta</button>
+        {/* Botón de "Agregar Tarjeta" con estilos corregidos */}
+        <button   className="px-4 py-2 rounded mt-4 block mx-auto"  style={{    color: "rgb(255 255 255)",    backgroundColor: "rgb(76 175 79)",  }}  onClick={handleCreate}>  Agregar Tarjeta</button>
       </section>
+      {/* 🔹 Formulario Modal para Agregar o Editar Tarjeta */}
+      {(creating || editing !== null) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h2 className="text-xl font-bold mb-4">{editing !== null ? "Editar Estadística" : "Agregar Nueva Estadística"}</h2>
+
+            <label className="block text-sm font-medium">Nombre</label>
+            <input type="text" className="border w-full p-2 mb-3" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} />
+
+            <label className="block text-sm font-medium">Descripción</label>
+            <input type="text" className="border w-full p-2 mb-3" value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} />
+
+            <div className="flex justify-end space-x-2">
+              {/* Botón de "Guardar" dentro del modal */}
+              <button className="px-4 py-2 rounded" style={{color: "rgb(255 255 255)",  backgroundColor: "rgb(76 175 79)",}}  onClick={handleSaveCreate}>  Guardar</button>
+              {/* Botón de "Cancelar" dentro del modal */} 
+              <button className="px-4 py-2 rounded ml-2"style={{color: "rgb(255 255 255)",backgroundColor: "rgb(255, 99, 71)", }}  onClick={() => setCreating(false)}>  Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
