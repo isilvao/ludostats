@@ -169,7 +169,7 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export function DataTableDemo() {
+const DataTableDemo: React.FC = () => {
   const params = useParams();
   const nameTeam = params
     ? Array.isArray(params.dashboard)
@@ -326,6 +326,6 @@ export function DataTableDemo() {
       </div>
     </div>
   );
-}
+};
 
 export default DataTableDemo;
