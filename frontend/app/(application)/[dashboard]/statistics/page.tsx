@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { tipoEstadisticasAPI } from '@/api/tipoEstadisticas';
+import { estadisticaAPI } from '@/api/estadistica';
 import { useAuth } from '@/hooks';
 
 interface TipoEstadistica {
@@ -39,7 +39,7 @@ const Statistics: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        const api = new tipoEstadisticasAPI();
+        const api = new estadisticaAPI();
         const data: TipoEstadistica[] = await api.getTipoEstadistica(
           user.id_club,
           user.accessToken
@@ -64,7 +64,7 @@ const Statistics: React.FC = () => {
   const handleSaveEdit = async () => {
     if (!editedData) return;
     try {
-      const api = new tipoEstadisticasAPI();
+      const api = new estadisticaAPI();
       await api.updateTipoEstadistica(
         editedData,
         user.accessToken,
@@ -90,7 +90,7 @@ const Statistics: React.FC = () => {
     );
     if (!confirmDelete) return;
     try {
-      const api = new tipoEstadisticasAPI();
+      const api = new estadisticaAPI();
       await api.deleteTipoEstadistica({ id }, user.accessToken, user.id_club);
       setTipoEstadisticaData((prevData) =>
         prevData.filter((item) => item.tipoEstadistica_id !== id)
@@ -108,7 +108,7 @@ const Statistics: React.FC = () => {
   const handleSaveCreate = async () => {
     if (!editedData) return;
     try {
-      const api = new tipoEstadisticasAPI();
+      const api = new estadisticaAPI();
       const newEntry = await api.createTipoEstadistica(
         editedData,
         user.accessToken,

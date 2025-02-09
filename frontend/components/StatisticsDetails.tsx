@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { tipoEstadisticasAPI } from '@/api/tipoEstadisticas';
+import { estadisticaAPI } from '@/api/estadistica';
 import { useAuth } from '@/hooks';
 
 const StatisticsDetails: React.FC = () => {
@@ -23,7 +23,7 @@ const StatisticsDetails: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        const api = new tipoEstadisticasAPI();
+        const api = new estadisticaAPI();
         const data = await api.getTipoEstadistica(
           'ID_CLUB',
           usuario.accessToken
