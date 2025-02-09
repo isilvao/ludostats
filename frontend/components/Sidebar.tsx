@@ -9,6 +9,9 @@ import { useEquipoClub } from '@/hooks/useEquipoClub'; // Importar el hook del c
 import { getClubLogo } from '@/lib/utils';
 import LoadingScreen from '@/components/LoadingScreen';
 import { FaCalendarAlt, FaUsers, FaChartBar } from 'react-icons/fa';
+import { GiLaurelsTrophy } from 'react-icons/gi';
+import { IoMdSettings } from 'react-icons/io';
+import { MdPayments } from 'react-icons/md';
 
 const navItems = [
   {
@@ -26,16 +29,21 @@ const navItems = [
     icon: FaChartBar,
     url: '/[dashboard]/statistics',
   },
-  // {
-  //   name: 'Suscripción',
-  //   icon: <FaVideo />,
-  //   url: '/[dashboard]/subscription',
-  // },
-  // {
-  //   name: 'Others',
-  //   icon: <FaEllipsisH />,
-  //   url: '#',
-  // },
+  {
+    name: 'Torneos',
+    icon: GiLaurelsTrophy,
+    url: '/[dashboard]/inicio',
+  },
+  {
+    name: 'Suscripción',
+    icon: MdPayments,
+    url: '/[dashboard]/subscription',
+  },
+  {
+    name: 'Ajustes',
+    icon: IoMdSettings,
+    url: '/[dashboard]/settings',
+  },
 ];
 
 const Sidebar = () => {
@@ -67,7 +75,7 @@ const Sidebar = () => {
           <Link href={`/${nameTeam}`} className="lg:w-full">
             <li
               className={cn(
-                'sidebar-nav-item',
+                'sidebar-nav-item hover:bg-gray-100',
                 pathname === `/${nameTeam}` && 'shad-active'
               )}
             >
@@ -92,16 +100,18 @@ const Sidebar = () => {
             >
               <li
                 className={cn(
-                  'sidebar-nav-item',
-                  pathname === url.replace('[dashboard]', nameTeam ?? '') &&
-                    'shad-active'
+                  'sidebar-nav-item hover:bg-gray-100',
+                  pathname.startsWith(
+                    url.replace('[dashboard]', nameTeam ?? '')
+                  ) && 'shad-active'
                 )}
               >
                 <span
                   className={cn(
                     'nav-icon',
-                    pathname === url.replace('[dashboard]', nameTeam ?? '') &&
-                      'nav-icon-active'
+                    pathname.startsWith(
+                      url.replace('[dashboard]', nameTeam ?? '')
+                    ) && 'nav-icon-active'
                   )}
                 >
                   {icon({ size: 24 })}
