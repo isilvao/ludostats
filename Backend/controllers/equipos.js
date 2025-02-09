@@ -201,6 +201,21 @@ const actualizarLogoEquipo = async (req, res) => {
     }
 };
 
+const getUsersByTeam = async (req, res) => {
+    const { id_equipo } = req.params;
+
+    try {
+        const users = await UsuariosEquipos.findAll({
+            where: { equipo_id: id_equipo },
+            include: [{ model: Usuario, as: "usuario" }],
+        });
+
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("❌ Error al obtener los usuarios del equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+}
 
 module.exports = {
     crearEquipo,
@@ -208,5 +223,6 @@ module.exports = {
     borrarEquipo,
     obtenerEquipoPorId,
     obtenerMisEquipos,
-    actualizarLogoEquipo
+    actualizarLogoEquipo,
+    getUsersByTeam,
 };

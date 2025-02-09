@@ -35,4 +35,7 @@ api.patch(
   equipoController.actualizarLogoEquipo
 );
 
+// Obtener todos los usuarios de un equipo pasado por params
+api.get('/equipo/users/:id_equipo', equipoController.getUsersByTeam);
+
 module.exports = api;
