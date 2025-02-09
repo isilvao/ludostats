@@ -1,4 +1,5 @@
 const TipoEstadistica = require('../models/TipoEstadistica');
+const Equipo = require('../models/Equipo');
 
 async function getTipoEstadisticas(req, res){
 
@@ -67,10 +68,35 @@ async function deleteTipoEstadistica(req, res){
     });
 }
 
+async function getTypeStadisticByTeam(req, res){
+    const { id_equipo } = req.params;
+
+    try {
+        const equipo = await Equipo.findByPk(id_equipo);
+
+        if (!equipo){
+            return res.status(404).send({msg: "No se ha encontrado el equipo"})
+        }
+
+        const tipoEstadistica = await TipoEstadistica.findAll({where: {club_id: equipo.club_id}});
+
+        if (!tipoEstadistica){
+            return res.status(404).send({msg: "No se ha encontrado el tipo de estadistica"})
+        } else {
+            return res.status(200).send(tipoEstadistica)
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({msg: "Error al buscar el tipo de estadistica"})
+    }
+}
+
 
 module.exports = {
     getTipoEstadisticas,
     createTipoEstadistica,
     updateTipoEstadistica,
-    deleteTipoEstadistica
+    deleteTipoEstadistica,
+    getTypeStadisticByTeam
 }
