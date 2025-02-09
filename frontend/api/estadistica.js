@@ -221,4 +221,25 @@ export class estadisticaAPI {
         }
     }
 
+    async getTipoEstadisticaByTeam(id_team, accessToken){
+        try {
+            const url = `${this.baseApi}/tipoestadistica/${id_team}`;
+
+            const params = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            };
+
+            const response = await fetch(url, params);
+            const result = await response.json();
+
+            if (response.status !== 200) throw new Error('Tipo de estadistica no encontrado.');
+
+            return result;
+        } catch (error) {
+            console.error('Error al obtener el tipo de estadistica por equipo:', error);
+        }
+        throw error;
+    }
 }
