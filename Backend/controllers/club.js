@@ -4,7 +4,9 @@ const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
 
 const buscarMisClubes = async (req, res) => {
-  const { user_id } = req.user;
+  const { user_id } = req.query;
+
+  console.log(req.query)
 
   try {
     const clubes = await UsuarioClub.findAll({
@@ -39,7 +41,7 @@ const actualizarClub = async (req, res) => {
 
 async function createClub(req, res) {
   const { user_id } = req.user;
-  const {nombre, deporte} = req.body;
+  const { nombre, deporte } = req.body;
 
   let imagePath = null;
 
@@ -48,10 +50,10 @@ async function createClub(req, res) {
   //   imagePath = image.getFilePath(req.files.logo);
   // }
 
+
   Club.create({
     nombre,
     deporte,
-    gerente_id: user_id,
     logo: imagePath,
   })
     .then((clubStored) => {
@@ -171,6 +173,21 @@ const encontrarClubPorEquipoId = async (req, res) => {
   }
 };
 
+const getUsersByClub = async (req, res) => {
+  const { id_club } = req.params;
+
+  try {
+    const usuarios = await UsuarioClub.findAll({
+      where: { club_id: id_club },
+    });
+
+    res.status(200).json(usuarios);
+  } catch (error) {
+    console.error("Error al buscar los usuarios del club:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+}
+
 module.exports = {
   createClub,
   updateClub,
@@ -179,4 +196,5 @@ module.exports = {
   encontrarClubPorEquipoId,
   buscarMisClubes,
   actualizarClub,
+  getUsersByClub
 };

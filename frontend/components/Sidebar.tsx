@@ -2,12 +2,49 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { navItems } from '@/constants';
+// import { navItems } from '@/constants';
 import { usePathname, useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEquipoClub } from '@/hooks/useEquipoClub'; // Importar el hook del contexto
 import { getClubLogo } from '@/lib/utils';
 import LoadingScreen from '@/components/LoadingScreen';
+import { FaCalendarAlt, FaUsers, FaChartBar } from 'react-icons/fa';
+import { GiLaurelsTrophy } from 'react-icons/gi';
+import { IoMdSettings } from 'react-icons/io';
+import { MdPayments } from 'react-icons/md';
+
+const navItems = [
+  {
+    name: 'Calendario',
+    icon: FaCalendarAlt,
+    url: '/[dashboard]/calendar',
+  },
+  {
+    name: 'Miembros',
+    icon: FaUsers,
+    url: '/[dashboard]/members',
+  },
+  {
+    name: 'Estadísticas',
+    icon: FaChartBar,
+    url: '/[dashboard]/statistics',
+  },
+  {
+    name: 'Torneos',
+    icon: GiLaurelsTrophy,
+    url: '/[dashboard]/inicio',
+  },
+  {
+    name: 'Suscripción',
+    icon: MdPayments,
+    url: '/[dashboard]/subscription',
+  },
+  {
+    name: 'Ajustes',
+    icon: IoMdSettings,
+    url: '/[dashboard]/settings',
+  },
+];
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -35,19 +72,22 @@ const Sidebar = () => {
     <aside className="sidebar bg-white">
       <nav className="sidebar-nav">
         <ul className="flex flex-1 flex-col gap-6">
-          <Link href={`/${nameTeam}/inicio`} className="lg:w-full">
+          <Link href={`/${nameTeam}`} className="lg:w-full">
             <li
               className={cn(
-                'sidebar-nav-item',
-                pathname === `/${nameTeam}/inicio` && 'shad-active'
+                'sidebar-nav-item hover:bg-gray-100',
+                pathname === `/${nameTeam}` && 'shad-active'
               )}
             >
               <Image
                 src={logo}
                 alt={name}
-                width={40}
-                height={40}
-                className={cn(pathname === `/${nameTeam}/inicio`)}
+                width={48} // Aumentar el tamaño del logo
+                height={48} // Aumentar el tamaño del logo
+                className={cn(
+                  'w-12 h-12 rounded-full', // Ajustar el tamaño del logo
+                  pathname === `/${nameTeam}`
+                )}
               />
               <p className="hidden lg:block">{name}</p>
             </li>
@@ -60,22 +100,22 @@ const Sidebar = () => {
             >
               <li
                 className={cn(
-                  'sidebar-nav-item',
-                  pathname === url.replace('[dashboard]', nameTeam ?? '') &&
-                    'shad-active'
+                  'sidebar-nav-item hover:bg-gray-100',
+                  pathname.startsWith(
+                    url.replace('[dashboard]', nameTeam ?? '')
+                  ) && 'shad-active'
                 )}
               >
-                <Image
-                  src={icon}
-                  alt={name}
-                  width={24}
-                  height={24}
+                <span
                   className={cn(
                     'nav-icon',
-                    pathname === url.replace('[dashboard]', nameTeam ?? '') &&
-                      'nav-icon-active'
+                    pathname.startsWith(
+                      url.replace('[dashboard]', nameTeam ?? '')
+                    ) && 'nav-icon-active'
                   )}
-                />
+                >
+                  {icon({ size: 24 })}
+                </span>
                 <p className="hidden lg:block">{name}</p>
               </li>
             </Link>

@@ -7,7 +7,6 @@ import { EquipoAPI } from '@/api/equipo';
 import { ClubAPI } from '@/api/club';
 import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
-import { UsuariosEquipos } from '@/api/usuariosEquipos';
 import { User } from '@/api/user';
 import CardClub from '@/components/CardClub';
 import CardTeam from '@/components/CardTeam';
@@ -59,13 +58,11 @@ const Page: React.FC = () => {
     const fetchData = async () => {
       try {
         const equipoAPI = new EquipoAPI();
-        const usuariosEquiposAPI = new UsuariosEquipos();
+        const clubAPI = new ClubAPI();
         const userhijo = new User();
         const equiposData = await equipoAPI.obtenerMisEquipos(user.id);
         setEquipos(equiposData);
-        const clubesData = await usuariosEquiposAPI.obtenerClubesDeUsuario(
-          user.id
-        );
+        const clubesData = await clubAPI.buscarMisClubes(user.id);
         setClubes(clubesData);
 
         const hijos = await userhijo.obtenerMisHijos(accessToken);
@@ -77,9 +74,7 @@ const Page: React.FC = () => {
         );
         const clubeshijoData = await Promise.all(
           hijos.map(async (hijo: Hijo) => {
-            const clubes = await usuariosEquiposAPI.obtenerClubesDeUsuario(
-              hijo.id
-            );
+            const clubes = await clubAPI.buscarMisClubes(hijo.id);
             return { hijo, clubes };
           })
         );

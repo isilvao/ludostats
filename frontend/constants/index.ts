@@ -1,3 +1,5 @@
+import { FaCalendarAlt, FaUsers, FaChartBar } from 'react-icons/fa';
+
 export const NavLinks = [
   { href: '/about-us', key: 'Nosotros', text: 'Nosotros' },
   { href: '/features', key: 'Funcionalidades', text: 'Funcionalidades' },
@@ -97,28 +99,28 @@ export const footerLinks = [
 
 export const navItems = [
   {
-    name: 'Home',
-    icon: '/assets/icons/dashboard.svg',
-    url: '/home',
-  },
-  {
     name: 'Calendario',
-    icon: '/assets/icons/documents.svg',
+    icon: FaCalendarAlt,
     url: '/[dashboard]/calendar',
   },
   {
+    name: 'Miembros',
+    icon: FaUsers,
+    url: '/[dashboard]/members',
+  },
+  {
     name: 'Estadísticas',
-    icon: '/assets/icons/images.svg',
+    icon: FaChartBar,
     url: '/[dashboard]/statistics',
   },
-  {
-    name: 'Suscripción',
-    icon: '/assets/icons/video.svg',
-    url: '/[dashboard]/subscription',
-  },
-  {
-    name: 'Others',
-    icon: '/assets/icons/others.svg',
-    url: '#',
-  },
+  // {
+  //   name: 'Suscripción',
+  //   icon: <FaVideo />,
+  //   url: '/[dashboard]/subscription',
+  // },
+  // {
+  //   name: 'Others',
+  //   icon: <FaEllipsisH />,
+  //   url: '#',
+  // },
 ];

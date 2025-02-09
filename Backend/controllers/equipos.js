@@ -104,11 +104,11 @@ const borrarEquipo = async (req, res) => {
 
 
 const obtenerEquipoPorId = async (req, res) => {
-    const { id } = req.params;
+    const { id_equipo } = req.params;
 
     try {
-        const equipo = await Equipo.findByPk(id);
-        console.log(id)
+        const equipo = await Equipo.findByPk(id_equipo);
+        console.log(id_equipo)
         if (!equipo) {
             return res.status(404).json({ msg: "Equipo no encontrado" });
         }
@@ -130,100 +130,41 @@ const obtenerMisEquipos = async (req, res) => {
 
     try {
         // 📌 1️⃣ Equipos donde el usuario está registrado en UsuariosEquipos
-        const equiposRegistrados = await UsuariosEquipos.findAll({
+        const equipos = await UsuariosEquipos.findAll({
             where: { usuario_id: user_id },
-            include: [
-                {
-                    model: Equipo,
-                    as: "equipo",
-                    include: [
-                        {
-                            model: Club,
-                            as: "club",
-                        }
-                    ]
-                }
-            ]
+            include: [{ model: Equipo, as: "equipo", include: [{ model: Club, as: "club" }] }],
         });
 
-        console.log("📌 Equipos encontrados en UsuariosEquipos:", equiposRegistrados);
+        console.log(equipos)
 
-        // 📌 Extraer correctamente los equipos del usuario
-        const equiposUsuario = equiposRegistrados
-            .filter(er => er.Equipo) // 🔹 Aseguramos que `Equipo` no sea undefined
-            .map(er => {
-                const equipo = er.Equipo;
-                const club = equipo.club || null;
+        respuesta = equipos.map((team) => {
 
-                return {
-                    id: equipo.id,
-                    nombre: equipo.nombre,
-                    descripcion: equipo.descripcion,
-                    nivelPractica: equipo.nivelPractica,
-                    logo: equipo.logo,
-                    club_id: equipo.club_id,
-                    createdAt: equipo.createdAt,
-                    updatedAt: equipo.updatedAt,
-                    club: club ? {  // 📌 Asegurar estructura del club
-                        id: club.id,
-                        nombre: club.nombre,
-                        deporte: club.deporte,
-                        telefono: club.telefono,
-                        logo: club.logo,
-                        createdAt: club.createdAt,
-                        updatedAt: club.updatedAt
-                    } : null
-                };
-            });
+            const response = UsuariosEquipos.findOne({where: {equipo_id: team.equipo.id, rol: 'entrenador'}})
 
-        // 📌 2️⃣ Equipos donde el usuario es gerente del club
-        const clubesComoGerente = await UsuarioClub.findAll({
-            where: { usuario_id: user_id, rol: 'gerente'},
-            include: [
-                {
-                    model: Equipo,
-                    as: "equipos",
-                    include: [
-                        {
-                            model: Club,
-                            as: "club"
-                        }
-                    ]
-                }
-            ]
+            return {
+                id: team.equipo.id,
+                nombre: team.equipo.nombre,
+                descripcion: team.equipo.descripcion,
+                nivelPractica: team.equipo.nivelPractica,
+                logo: team.equipo.logo,
+                entrenador_id: response.usuario_id || null,
+                club_id: team.equipo.club.id,
+                createdAt: team.equipo.createdAt,
+                updatedAt: team.equipo.updatedAt,
+                club: {
+                    id: team.equipo.club.id,
+                    nombre: team.equipo.club.nombre,
+                    deporte: team.equipo.club.deporte,
+                    telefono: team.equipo.club.telefono,
+                    logo: team.equipo.club.logo,
+                    createdAt: team.equipo.club.createdAt,
+                    updatedAt: team.equipo.club.updatedAt,
+                },
+            };
         })
 
-        console.log("📌 Equipos encontrados como gerente:", clubesComoGerente);
 
-        // 📌 Extraer los equipos del gerente
-        const equiposComoGerente = clubesComoGerente.flatMap(club =>
-            club.equipos.map(equipo => ({
-                id: equipo.id,
-                nombre: equipo.nombre,
-                descripcion: equipo.descripcion,
-                nivelPractica: equipo.nivelPractica,
-                logo: equipo.logo,
-                club_id: equipo.club_id,
-                createdAt: equipo.createdAt,
-                updatedAt: equipo.updatedAt,
-                club: equipo.club ? {  // 📌 Asegurar estructura del club
-                    id: equipo.club.id,
-                    nombre: equipo.club.nombre,
-                    deporte: equipo.club.deporte,
-                    telefono: equipo.club.telefono,
-                    logo: equipo.club.logo,
-                    createdAt: equipo.club.createdAt,
-                    updatedAt: equipo.club.updatedAt
-                } : null
-            }))
-        );
-
-        // 📌 3️⃣ Unir ambos resultados y eliminar duplicados
-        const equiposUnicos = [...new Map(
-            [...equiposUsuario, ...equiposComoGerente].map(e => [e.id, e])
-        ).values()];
-
-        res.status(200).json(equiposUnicos);
+        res.status(200).json(respuesta);
     } catch (error) {
         console.error("❌ Error al obtener los equipos:", error);
         res.status(500).json({ msg: "Error interno del servidor" });
@@ -260,6 +201,21 @@ const actualizarLogoEquipo = async (req, res) => {
     }
 };
 
+const getUsersByTeam = async (req, res) => {
+    const { id_equipo } = req.params;
+
+    try {
+        const users = await UsuariosEquipos.findAll({
+            where: { equipo_id: id_equipo },
+            include: [{ model: Usuario, as: "usuario" }],
+        });
+
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("❌ Error al obtener los usuarios del equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+}
 
 module.exports = {
     crearEquipo,
@@ -267,5 +223,6 @@ module.exports = {
     borrarEquipo,
     obtenerEquipoPorId,
     obtenerMisEquipos,
-    actualizarLogoEquipo
+    actualizarLogoEquipo,
+    getUsersByTeam,
 };

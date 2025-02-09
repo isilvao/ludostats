@@ -221,7 +221,7 @@ body {
 
       /* Sidebar & MobileNavigation */
   .nav-icon {
-    @apply w-6 filter invert opacity-25 !important;
+    @apply w-6 filter invert opacity-95 !important;
   }
   .nav-icon-active {
     @apply invert-0 opacity-100 !important;
@@ -232,6 +232,11 @@ body {
 
   .shad-active {
     @apply bg-brand text-white shadow-drop-2 !important;
+  }
+
+  .sx-react-calendar-wrapper {
+    height: 700px;
+    width: 100%;
   }
 
 }
