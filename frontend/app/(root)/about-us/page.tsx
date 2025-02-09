@@ -1,27 +1,37 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { FaLinkedinIn, FaGithub } from 'react-icons/fa';
 
 const AboutUs: React.FC = () => {
   const teamMembers = [
     {
       name: 'Diego Rodríguez',
-      role: 'CEO :v',
+      role: 'Frontend Developer',
       image: '/assets/images/person-1.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
     {
       name: 'Ivan Silva',
-      role: 'CTO y Desarrollador Principal',
+      role: 'Backend Developer',
       image: '/assets/images/person-2.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
     {
       name: 'Luis Marín',
-      role: 'Gerente de Marketing',
+      role: 'Backend Developer',
       image: '/assets/images/person-3.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
     {
       name: 'David Castañeda',
-      role: 'Especialista en Atención al Cliente',
+      role: 'Frontend Developer',
       image: '/assets/images/person-3.png',
+      hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
+      hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
   ];
 
@@ -29,7 +39,7 @@ const AboutUs: React.FC = () => {
     <div className="pt-10 pb-32">
       <div className="max-w-7xl mx-auto px-6">
         {/* Título */}
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-8">
+        <h2 className="text-4xl font-bold text-center text-[#4D4D4D] mb-8">
           Sobre Nosotros
         </h2>
         <p className="text-center text-gray-600 mb-12">
@@ -41,7 +51,7 @@ const AboutUs: React.FC = () => {
         {/* Sección de Misión, Visión y Valores */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           <div className="text-center">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold text-[#4D4D4D] mb-4">
               Nuestra Misión
             </h3>
             <p className="text-gray-600">
@@ -52,7 +62,7 @@ const AboutUs: React.FC = () => {
             </p>
           </div>
           <div className="text-center">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold text-[#4D4D4D] mb-4">
               Nuestra Visión
             </h3>
             <p className="text-gray-600">
@@ -62,7 +72,7 @@ const AboutUs: React.FC = () => {
             </p>
           </div>
           <div className="text-center">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold text-[#4D4D4D] mb-4">
               Nuestros Valores
             </h3>
             <p className="text-gray-600">
@@ -73,10 +83,10 @@ const AboutUs: React.FC = () => {
         </div>
 
         {/* Equipo */}
-        <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
+        <h3 className="text-3xl font-bold text-center text-[#4D4D4D] mb-8">
           Nuestro Equipo
         </h3>
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {teamMembers.map((member, idx) => (
             <div
               key={idx}
@@ -93,6 +103,24 @@ const AboutUs: React.FC = () => {
                 {member.name}
               </h4>
               <p className="text-sm text-gray-600">{member.role}</p>
+              <div className="flex gap-4 mt-4">
+                <Link
+                  href={member.hrefGh}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+                >
+                  <FaGithub className="w-6 h-6" />
+                </Link>
+                <Link
+                  href={member.hrefIn}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+                >
+                  <FaLinkedinIn className="w-6 h-6" />
+                </Link>
+              </div>
             </div>
           ))}
         </div>

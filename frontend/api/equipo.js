@@ -3,12 +3,19 @@ import jwtDecode from 'jwt-decode';
 export class EquipoAPI {
   baseApi = `${basePath}/${apiVersion}`;
 
-  async obtenerEquipoPorId(equipoId) {
+  async obtenerEquipoPorId(equipoId, accessToken) {
     try {
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
       const url = `${this.baseApi}/equipo/${equipoId}`;
-      const response = await fetch(url);
+      const response = await fetch(url, params);
       const result = await response.json();
-
+      console.log('📌 Equipo encontrado:', result);
       if (response.status !== 200)
         throw new Error('Equipo no encontrado. jeje');
 
@@ -97,7 +104,7 @@ export class EquipoAPI {
   async obtenerMisEquipos(userId) {
     try {
       // 📌 Pasamos `userId` como query param en la URL
-      const url = `${this.baseApi}/misequiposv2?user_id=${userId}`;
+      const url = `${this.baseApi}/misequipos?user_id=${userId}`;
 
       const params = {
         method: 'GET',

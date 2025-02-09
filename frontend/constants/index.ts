@@ -2,7 +2,7 @@ export const NavLinks = [
   { href: '/about-us', key: 'Nosotros', text: 'Nosotros' },
   { href: '/features', key: 'Funcionalidades', text: 'Funcionalidades' },
   { href: '/plans', key: 'Planes', text: 'Planes' },
-  { href: '/', key: 'Testimonios', text: 'Testimonios' },
+  // { href: '/', key: 'Testimonios', text: 'Testimonios' },
   { href: '/faq', key: 'FAQ', text: 'FAQ' },
 ];
 
@@ -31,21 +31,21 @@ export const characteristics = [
     description:
       'Olvídate de manejar pagos manualmente o perder tiempo en hojas de cálculo. Con nuestra pasarela de pagos integrada, los estudiantes, deportistas y acudientes pueden realizar sus pagos de forma segura y automática. Además, podrás consultar un historial detallado para un control total de las finanzas.',
     image: '/assets/images/creditCard.svg',
-    href: '/',
+    href: '/features',
   },
   {
     title: 'Organización de Torneos y Eventos',
     description:
       'Planea cada evento de tu club sin estrés. Crea calendarios de entrenamientos, partidos y reuniones con notificaciones automáticas para todos los interesados. Organiza torneos con fases de grupos, llaves de eliminación directa y tablas de posiciones que se actualizan en tiempo real.',
     image: '/assets/images/calendar.svg',
-    href: '/',
+    href: '/features',
   },
   {
     title: 'Estadísticas de Rendimiento Deportivo',
     description:
       'Lleva un control detallado del rendimiento de cada jugador y del equipo completo. Desde métricas individuales como velocidad, resistencia y altura de salto, hasta estadísticas en tiempo real por partido, como puntos, bloqueos y saques. Identifica áreas de mejora y celebra el progreso de tus deportistas.',
     image: '/assets/images/stats.svg',
-    href: '/',
+    href: '/features',
   },
 ];
 
@@ -81,7 +81,7 @@ export const footerLinks = [
       { name: 'Funcionalidades', href: '/features' },
       { name: 'Contáctanos', href: '/contact' },
       { name: 'Planes', href: '/plans' },
-      { name: 'Testimonios', href: '/' },
+      // { name: 'Testimonios', href: '/' },
     ],
   },
   {
@@ -119,6 +119,6 @@ export const navItems = [
   {
     name: 'Others',
     icon: '/assets/icons/others.svg',
-    url: '/',
+    url: '#',
   },
 ];

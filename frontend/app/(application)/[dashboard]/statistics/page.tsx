@@ -1,234 +1,190 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks'; // Importar el hook de autenticación
+import { tipoEstadisticasAPI } from '@/api/tipoEstadisticas';
+import { useAuth } from '@/hooks';
+
+interface TipoEstadistica {
+  tipoEstadistica_id: number;
+  nombre: string;
+  descripcion: string;
+}
 
 const Statistics: React.FC = () => {
-  const { usuario } = useAuth();
+  const { user } = useAuth();
+  console.log('Usuario desde useAuth:', user);
+  console.log('Aqui llega');
+
   const [tipoEstadisticaData, setTipoEstadisticaData] = useState<
-    { tipoEstadistica_id: number; nombre: string; descripcion: string }[]
+    TipoEstadistica[]
   >([]);
-  const [estadisticaData, setEstadisticaData] = useState<
-    {
-      estadistica_id: number;
-      usuario_id: number;
-      tipoEstadistica_id: number;
-      fecha: string;
-      valor: number;
-    }[]
-  >([]);
-
-  // Estado para formularios
-  const [tipoEstadisticaId, setTipoEstadisticaId] = useState('');
-  const [valor, setValor] = useState('');
-  const [fecha, setFecha] = useState('');
-  const [editingEstadistica, setEditingEstadistica] = useState<number | null>(
-    null
-  );
-
-  // Simulación de una API para datos iniciales (reemplazar con fetch hacia el backend)
-  const fetchTipoEstadistica = async () => {
-    const data = [
-      {
-        tipoEstadistica_id: 1,
-        nombre: 'Puntos',
-        descripcion: 'Estadísticas de puntos',
-      },
-      {
-        tipoEstadistica_id: 2,
-        nombre: 'Rebotes',
-        descripcion: 'Estadísticas de rebotes',
-      },
-    ];
-    setTipoEstadisticaData(data);
-  };
-
-  const fetchEstadistica = async () => {
-    const data = [
-      {
-        estadistica_id: 1,
-        usuario_id: 1,
-        tipoEstadistica_id: 1,
-        fecha: '2025-01-01',
-        valor: 20,
-      },
-      {
-        estadistica_id: 2,
-        usuario_id: 2,
-        tipoEstadistica_id: 2,
-        fecha: '2025-01-02',
-        valor: 15,
-      },
-    ];
-    setEstadisticaData(data);
-  };
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [editedData, setEditedData] = useState<TipoEstadistica | null>(null);
 
   useEffect(() => {
-    fetchTipoEstadistica();
-    fetchEstadistica();
-  }, []);
+    if (!user || !user.accessToken || !user.id_club) {
+      console.warn('user no disponible, esperando datos...');
+      return;
+    }
+    console.log('AccessToken:', user?.accessToken);
+    console.log('ID Club:', user?.id_club);
+    const fetchTipoEstadisticas = async () => {
+      try {
+        if (!user?.accessToken || !user?.id_club) {
+          console.error('Faltan datos de user para la petición');
+          setError('No se pudieron obtener los tipos de estadísticas');
+          setIsLoading(false);
+          return;
+        }
+        const api = new tipoEstadisticasAPI();
+        const data: TipoEstadistica[] = await api.getTipoEstadistica(
+          user.id_club,
+          user.accessToken
+        );
+        setTipoEstadisticaData(data);
+      } catch (error) {
+        console.error('Error al obtener los tipos de estadísticas:', error);
+        setError('Error al obtener los datos de tipos de estadísticas');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // CRUD para Estadística
-  const handleEstadisticaSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    fetchTipoEstadisticas();
+  }, [user]);
 
-    if (editingEstadistica) {
-      // Actualizar estadística existente
-      setEstadisticaData((prev) =>
-        prev.map((estadistica) =>
-          estadistica.estadistica_id === editingEstadistica
-            ? {
-                ...estadistica,
-                tipoEstadistica_id: parseInt(tipoEstadisticaId),
-                valor: parseInt(valor),
-                fecha,
-              }
-            : estadistica
+  const handleEdit = (tipoEstadistica: TipoEstadistica) => {
+    setEditing(tipoEstadistica.tipoEstadistica_id);
+    setEditedData({ ...tipoEstadistica });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editedData) return;
+    try {
+      const api = new tipoEstadisticasAPI();
+      await api.updateTipoEstadistica(
+        editedData,
+        user.accessToken,
+        user.id_club
+      );
+      setTipoEstadisticaData((prevData) =>
+        prevData.map((item) =>
+          item.tipoEstadistica_id === editedData.tipoEstadistica_id
+            ? editedData
+            : item
         )
       );
-      setEditingEstadistica(null);
-    } else {
-      // Agregar nueva estadística
-      const newEstadistica = {
-        estadistica_id: Date.now(),
-        tipoEstadistica_id: parseInt(tipoEstadisticaId),
-        usuario_id: 1, // Simular usuario actual (esto debería venir del contexto o auth)
-        fecha,
-        valor: parseInt(valor),
-      };
-      setEstadisticaData((prev) => [...prev, newEstadistica]);
+      setEditing(null);
+      setEditedData(null);
+    } catch (error) {
+      console.error('Error al actualizar la estadística:', error);
     }
-
-    // Limpiar formulario
-    setTipoEstadisticaId('');
-    setValor('');
-    setFecha('');
   };
 
-  const handleDeleteEstadistica = async (id: number) => {
-    setEstadisticaData((prev) =>
-      prev.filter((estadistica) => estadistica.estadistica_id !== id)
+  const handleDelete = async (id: number) => {
+    const confirmDelete = window.confirm(
+      '¿Estás seguro de que deseas eliminar esta estadística?'
     );
+    if (!confirmDelete) return;
+    try {
+      const api = new tipoEstadisticasAPI();
+      await api.deleteTipoEstadistica({ id }, user.accessToken, user.id_club);
+      setTipoEstadisticaData((prevData) =>
+        prevData.filter((item) => item.tipoEstadistica_id !== id)
+      );
+    } catch (error) {
+      console.error('Error al eliminar la estadística:', error);
+    }
   };
 
-  interface Estadistica {
-    estadistica_id: number;
-    usuario_id: number;
-    tipoEstadistica_id: number;
-    fecha: string;
-    valor: number;
-  }
-
-  interface TipoEstadistica {
-    tipoEstadistica_id: number;
-    nombre: string;
-    descripcion: string;
-  }
-
-  const handleEditEstadistica = (estadistica: Estadistica) => {
-    setEditingEstadistica(estadistica.estadistica_id);
-    setTipoEstadisticaId(estadistica.tipoEstadistica_id.toString());
-    setValor(estadistica.valor.toString());
-    setFecha(estadistica.fecha);
+  const handleCreate = () => {
+    setCreating(true);
+    setEditedData({ tipoEstadistica_id: 0, nombre: '', descripcion: '' });
   };
 
-  // if (usuario?.rol !== 'admin') {
-  //   return <div>No tienes permiso para acceder a esta página</div>;
-  // }
+  const handleSaveCreate = async () => {
+    if (!editedData) return;
+    try {
+      const api = new tipoEstadisticasAPI();
+      const newEntry = await api.createTipoEstadistica(
+        editedData,
+        user.accessToken,
+        user.id_club
+      );
+      setTipoEstadisticaData([...tipoEstadisticaData, newEntry]);
+      setCreating(false);
+      setEditedData(null);
+    } catch (error) {
+      console.error('Error al crear la estadística:', error);
+    }
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
+      <div>
+        <p>Componente Statistics montado correctamente</p>
+      </div>
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Gestión de Estadísticas
+          Tipos de Estadísticas
         </h1>
+        <p className="text-sm text-gray-500">
+          AccessToken: {user?.accessToken}
+        </p>
+        <p className="text-sm text-gray-500">ID Club: {user?.id_club}</p>
 
-        {/* Formulario para Estadística */}
-        <form onSubmit={handleEstadisticaSubmit} className="mb-4">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Formulario Estadística
-          </h2>
-          <div className="flex gap-4 mb-2">
-            <select
-              value={tipoEstadisticaId}
-              onChange={(e) => setTipoEstadisticaId(e.target.value)}
-              className="border p-2 rounded w-full"
-            >
-              <option value="">Seleccionar Tipo de Estadística</option>
-              {tipoEstadisticaData.map((tipo) => (
-                <option
-                  key={tipo.tipoEstadistica_id}
-                  value={tipo.tipoEstadistica_id}
+        {isLoading ? (
+          <p className="text-center text-gray-600">
+            Cargando tipos de estadísticas...
+          </p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {tipoEstadisticaData.length > 0 ? (
+              tipoEstadisticaData.map((tipoEstadistica) => (
+                <div
+                  key={tipoEstadistica.tipoEstadistica_id}
+                  className="p-4 border rounded shadow-lg bg-gray-50"
                 >
-                  {tipo.nombre}
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              placeholder="Valor"
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              className="border p-2 rounded w-full"
-            />
-            <input
-              type="date"
-              value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
-              className="border p-2 rounded w-full"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-green text-white px-4 py-2 rounded"
-          >
-            {editingEstadistica ? 'Actualizar' : 'Agregar'}
-          </button>
-        </form>
-
-        {/* Tabla Estadística */}
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr>
-              <th className="border-b p-2">ID</th>
-              <th className="border-b p-2">Tipo</th>
-              <th className="border-b p-2">Fecha</th>
-              <th className="border-b p-2">Valor</th>
-              <th className="border-b p-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {estadisticaData.map((estadistica) => (
-              <tr key={estadistica.estadistica_id}>
-                <td className="border-b p-2">{estadistica.estadistica_id}</td>
-                <td className="border-b p-2">
-                  {tipoEstadisticaData.find(
-                    (tipo) =>
-                      tipo.tipoEstadistica_id === estadistica.tipoEstadistica_id
-                  )?.nombre || 'Desconocido'}
-                </td>
-                <td className="border-b p-2">{estadistica.fecha}</td>
-                <td className="border-b p-2">{estadistica.valor}</td>
-                <td className="border-b p-2">
+                  <h2 className="text-xl font-semibold mb-2">
+                    {tipoEstadistica.nombre}
+                  </h2>
+                  <p className="text-gray-600 mb-4">
+                    {tipoEstadistica.descripcion}
+                  </p>
                   <button
-                    onClick={() => handleEditEstadistica(estadistica)}
                     className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
+                    onClick={() => handleEdit(tipoEstadistica)}
                   >
                     Editar
                   </button>
                   <button
+                    className="bg-red-500 text-white px-2 py-1 rounded"
                     onClick={() =>
-                      handleDeleteEstadistica(estadistica.estadistica_id)
+                      handleDelete(tipoEstadistica.tipoEstadistica_id)
                     }
-                    className="bg-red text-white px-2 py-1 rounded"
                   >
                     Eliminar
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">
+                No hay tipos de estadísticas disponibles.
+              </p>
+            )}
+          </div>
+        )}
+        <button
+          className="bg-[rgb(76,175,79)] text-white px-4 py-2 rounded mt-4"
+          onClick={handleCreate}
+        >
+          Agregar Tarjeta
+        </button>
       </section>
     </div>
   );

@@ -7,6 +7,7 @@ import { EquipoAPI } from '@/api/equipo';
 import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
 import { IoMdAlert } from 'react-icons/io';
+import { useAuth } from '@/hooks';
 
 export default function Layout({
   children,
@@ -23,15 +24,20 @@ export default function Layout({
   const invitacionesAPI = new InvitacionesAPI();
   const clubAPI = new ClubAPI();
   const equipoAPI = new EquipoAPI();
+  const { accessToken } = useAuth();
 
   useEffect(() => {
     const verificarInvitacion = async (clave: string) => {
       try {
         const invitacion = await invitacionesAPI.verificarInvitacion(clave);
-        const club = await clubAPI.obtenerClubPorEquipoId(invitacion.equipo_id);
-        const equipo = await equipoAPI.obtenerEquipoPorId(invitacion.equipo_id);
-        console.log('club', club);
         console.log('invitacion', invitacion);
+        const club = await clubAPI.obtenerClubPorEquipoId(invitacion.equipo_id);
+        const equipo = await equipoAPI.obtenerEquipoPorId(
+          invitacion.equipo_id,
+          accessToken
+        );
+        console.log('club', club);
+
         setClubInfo({
           club: { ...club },
           equipo: { ...equipo },

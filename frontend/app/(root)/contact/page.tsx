@@ -1,5 +1,14 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { FaInstagram, FaLinkedinIn } from 'react-icons/fa';
+import {
+  FaThreads,
+  FaXTwitter,
+  FaPhoneFlip,
+  FaLocationDot,
+} from 'react-icons/fa6';
+import { IoIosMail } from 'react-icons/io';
 
 const ContactUs = () => {
   return (
@@ -103,12 +112,7 @@ const ContactUs = () => {
             </div>
             <div className="space-y-4">
               <div className="flex items-center">
-                <Image
-                  src="/icons/email.svg"
-                  alt="Email"
-                  width={24}
-                  height={24}
-                />
+                <IoIosMail className="w-6 h-6 text-[#4D4D4D]" />
                 <p className="ml-3 text-[#4D4D4D]">
                   <a
                     href="mailto:soporte@ludostats.com"
@@ -119,12 +123,7 @@ const ContactUs = () => {
                 </p>
               </div>
               <div className="flex items-center">
-                <Image
-                  src="/icons/phone.svg"
-                  alt="Teléfono"
-                  width={24}
-                  height={24}
-                />
+                <FaPhoneFlip className="w-6 h-6 text-[#4D4D4D]" />
                 <p className="ml-3 text-[#4D4D4D]">
                   <a href="tel:+1234567890" className="hover:underline">
                     +123 456 7890
@@ -132,12 +131,7 @@ const ContactUs = () => {
                 </p>
               </div>
               <div className="flex items-center">
-                <Image
-                  src="/icons/location.svg"
-                  alt="Ubicación"
-                  width={24}
-                  height={24}
-                />
+                <FaLocationDot className="w-6 h-6 text-[#4D4D4D]" />
                 <p className="ml-3 text-[#4D4D4D]">
                   Avenida Principal 123, Ciudad Deportiva
                 </p>
@@ -152,30 +146,38 @@ const ContactUs = () => {
             Síguenos en Redes Sociales
           </h3>
           <div className="flex justify-center mt-4 space-x-6">
-            <a href="#" aria-label="Facebook">
-              <Image
-                src="/icons/facebook.svg"
-                alt="Facebook"
-                width={32}
-                height={32}
-              />
-            </a>
-            <a href="#" aria-label="Twitter">
-              <Image
-                src="/icons/twitter.svg"
-                alt="Twitter"
-                width={32}
-                height={32}
-              />
-            </a>
-            <a href="#" aria-label="Instagram">
-              <Image
-                src="/icons/instagram.svg"
-                alt="Instagram"
-                width={32}
-                height={32}
-              />
-            </a>
+            <Link
+              href="https://www.instagram.com/ludostats/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-zinc-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaInstagram className="w-6 h-6" />
+            </Link>
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaXTwitter className="w-6 h-6" />
+            </Link>
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaThreads className="w-6 h-6" />
+            </Link>
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white w-10 h-10  bg-gray-800 transition transform hover:scale-110 text-center flex items-center justify-center rounded-full"
+            >
+              <FaLinkedinIn className="w-6 h-6" />
+            </Link>
           </div>
         </div>
 

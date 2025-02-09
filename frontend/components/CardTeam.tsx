@@ -2,9 +2,8 @@
 'use client';
 import React, { use, useState } from 'react';
 import { getClubLogo } from '@/lib/utils';
-import Link from 'next/link';
 import { UsuariosEquipos } from '@/api/usuariosEquipos';
-import { useAuth } from '@/hooks';
+import { useRouter } from 'next/navigation';
 
 interface EquipoCardProps {
   equipo: {
@@ -17,24 +16,48 @@ interface EquipoCardProps {
     };
   };
   onRemoveTeam: (teamId: string) => void;
+  userId: string;
 }
 
-const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
+const EquipoCard: React.FC<EquipoCardProps> = ({
+  equipo,
+  onRemoveTeam,
+  userId,
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const usuariosEquipos = new UsuariosEquipos();
-  const { user } = useAuth();
+  const router = useRouter();
 
   const handleLeaveTeam = () => {
     setShowConfirmation(false);
-    console.log(user.id, equipo.id);
     try {
-      usuariosEquipos.eliminarUsuarioEquipo(user.id, equipo.id);
+      usuariosEquipos.eliminarUsuarioEquipo(userId, equipo.id);
       onRemoveTeam(equipo.id);
     } catch (error) {
       console.error(error);
     }
   };
+
+  const handleSelectTeam = async () => {
+    try {
+      localStorage.setItem('selectedTeamId', equipo.id); // Almacena el ID del equipo en localStorage
+      localStorage.setItem(
+        'selectedTeamName',
+        equipo.nombre.replace(/\s+/g, '')
+      ); // Almacena el nombre del equipo en localStorage
+      localStorage.setItem('userId', userId); // Almacena el ID del usuario en localStorage
+      localStorage.setItem('selectionType', 'equipo'); // Almacena el tipo de selección en localStorage
+      router.push(`/${equipo.nombre.replace(/\s+/g, '')}`);
+    } catch (error) {
+      console.error('❌ Error al seleccionar el equipo:', error);
+    } finally {
+    }
+  };
+
+  // const handleSelectTeam = () => {
+  //   setEquipoSeleccionado(equipo, null, equipo.club); // Actualizar el contexto con la información del equipo
+  // };
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center align-middle h-full relative">
@@ -109,7 +132,7 @@ const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
       )}
 
       {/* Contenido principal */}
-      <Link href={`/${equipo.nombre.replace(/\s+/g, '')}`} className="w-full">
+      <button className="w-full" onClick={handleSelectTeam}>
         <div className="flex items-center space-x-12">
           <img
             src={getClubLogo(equipo)}
@@ -122,7 +145,7 @@ const EquipoCard: React.FC<EquipoCardProps> = ({ equipo, onRemoveTeam }) => {
             <p>Deporte: {equipo.club.deporte}</p>
           </div>
         </div>
-      </Link>
+      </button>
     </div>
   );
 };

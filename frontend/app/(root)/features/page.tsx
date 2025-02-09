@@ -53,7 +53,7 @@ const Functionalities: React.FC = () => {
     <div className="pt-12 pb-32">
       <div className="max-w-7xl mx-auto px-6">
         {/* Título */}
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-5">
+        <h2 className="text-4xl font-bold text-center text-[#4D4D4D] mb-5">
           Funcionalidades
         </h2>
         <p className="text-center text-gray-600 mb-12">
