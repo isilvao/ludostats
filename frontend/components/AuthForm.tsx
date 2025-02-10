@@ -36,22 +36,25 @@ type FormType = 'sign-in' | 'sign-up';
 const authFormSchema = (formType: FormType) => {
   return z.object({
     email: z.string().email('Correo electrónico inválido'),
-    password: z
-      .string()
-      .min(8, 'La contraseña debe tener al menos 8 caracteres')
-      .regex(
-        /[a-z]/,
-        'La contraseña debe contener al menos una letra minúscula'
-      )
-      .regex(
-        /[A-Z]/,
-        'La contraseña debe contener al menos una letra mayúscula'
-      )
-      .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
-      .regex(
-        /[^a-zA-Z0-9]/,
-        'La contraseña debe contener al menos un carácter especial'
-      ),
+    password:
+      formType === 'sign-in'
+        ? z.string().min(6, 'La contraseña es requerida')
+        : z
+            .string()
+            .min(8, 'La contraseña debe tener al menos 8 caracteres')
+            .regex(
+              /[a-z]/,
+              'La contraseña debe contener al menos una letra minúscula'
+            )
+            .regex(
+              /[A-Z]/,
+              'La contraseña debe contener al menos una letra mayúscula'
+            )
+            .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
+            .regex(
+              /[^a-zA-Z0-9]/,
+              'La contraseña debe contener al menos un carácter especial'
+            ),
     firstName:
       formType === 'sign-up'
         ? z
