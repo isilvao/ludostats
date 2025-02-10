@@ -18,13 +18,17 @@ const generateRandomKey = () => {
 
 const Statistics: React.FC = () => {
   const { accessToken, user } = useAuth();
-  const { clubData, equipoData } = useEquipoClub();
+  const { clubData } = useEquipoClub();
   const [tipoEstadisticaData, setTipoEstadisticaData] = useState<TipoEstadistica[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
   const [formData, setFormData] = useState<TipoEstadistica>({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
+
+  const selectionType = localStorage.getItem('selectionType');
+
+
 
   // 🔹 Obtener estadísticas según contexto (club o equipo)
   useEffect(() => {
@@ -33,12 +37,12 @@ const Statistics: React.FC = () => {
 
       try {
         let data;
-        if (clubData?.id) {
+        if (selectionType === 'club') {
           const api = new estadisticaAPI();
           data = await api.getTipoEstadistica(clubData.id, accessToken);
-        } else if (equipoData?.id) {
+        } else if (selectionType === 'equipo') {
           const api = new estadisticaAPI();
-          data = await api.getTipoEstadisticaByTeam(equipoData.id, accessToken);
+          data = await api.getTipoEstadisticaByTeam(clubData.id, accessToken);
         }
 
         setTipoEstadisticaData(data || []);
@@ -51,7 +55,7 @@ const Statistics: React.FC = () => {
     };
 
     fetchTipoEstadisticas();
-  }, [accessToken, clubData, equipoData]);
+  }, [accessToken, clubData]);
 
   // 🔹 Mostrar formulario para agregar tarjeta
   const handleCreate = () => {
@@ -65,12 +69,12 @@ const Statistics: React.FC = () => {
 
     try {
       let newEntry;
-      if (clubData?.id) {
+      if (selectionType === 'club') {
         const api = new estadisticaAPI();
         newEntry = await api.createTipoEstadistica(formData, accessToken, clubData.id);
-      } else if (equipoData?.id) {
+      } else if (selectionType === 'equipo') {
         const api = new estadisticaAPI();
-        newEntry = await api.createTipoEstadistica(formData, accessToken, equipoData.id);
+        newEntry = await api.createTipoEstadistica(formData, accessToken, clubData.id);
       }
 
       if (newEntry?.tipoEstadistica_id) {
@@ -95,12 +99,12 @@ const Statistics: React.FC = () => {
     if (!formData.nombre.trim() || !formData.descripcion.trim() || !accessToken) return;
 
     try {
-      if (clubData?.id) {
+      if (selectionType === 'club') {
         const api = new estadisticaAPI();
         await api.updateTipoEstadistica(formData, accessToken, clubData.id);
-      } else if (equipoData?.id) {
+      } else if (selectionType === 'equipo') {
         const api = new estadisticaAPI();
-        await api.updateTipoEstadistica(formData, accessToken, equipoData.id);
+        await api.updateTipoEstadistica(formData, accessToken, clubData.id);
       }
 
       setTipoEstadisticaData(prevData =>
@@ -120,13 +124,13 @@ const Statistics: React.FC = () => {
 
     try {
       console.log("Eliminando estadística con ID:", id);
-    console.log("Contexto:", clubData?.id ? "Club" : equipoData?.id ? "Equipo" : "Ninguno");
-      if (clubData?.id) {
+    console.log("Contexto:", selectionType === 'club' ? "Club" : selectionType === 'equipo' ? "Equipo" : "Ninguno");
+      if (selectionType === 'club') {
         const api = new estadisticaAPI();
         await api.deleteTipoEstadistica({ id }, accessToken, clubData.id);
-      } else if (equipoData?.id) {
+      } else if (selectionType === 'equipo') {
         const api = new estadisticaAPI();
-        await api.deleteTipoEstadistica({ id }, accessToken, equipoData.id);
+        await api.deleteTipoEstadistica({ id }, accessToken, clubData.id);
       }
 
       setTipoEstadisticaData(prevData => prevData.filter(item => item.tipoEstadistica_id !== id));
@@ -142,7 +146,7 @@ const Statistics: React.FC = () => {
       <section className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Tipos de Estadísticas</h1>
         <p className="text-sm text-gray-500">
-          Contexto: {clubData ? "Club" : equipoData ? "Equipo" : "Ninguno"}
+          Contexto: {selectionType === 'club' ? "Club" : selectionType === 'equipo' ? "Equipo" : "Ninguno"}
         </p>
 
         {isLoading ? (
