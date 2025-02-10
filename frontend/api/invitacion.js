@@ -119,6 +119,29 @@ export class InvitacionesAPI {
     }
   }
 
+  async buscarInvitacionPorEquipo(equipoId) {
+    try {
+      const url = `${this.baseApi}/invitaciones/equipo/${equipoId}`;
+
+      const params = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200)
+        throw new Error('Error al buscar la invitación por equipo.');
+
+      return result;
+    } catch (error) {
+      throw new Error('Error al buscar la invitación por equipo.');
+    }
+  }
+
+
   // Convertir rol de string a número
   getRolNumber(rol) {
     switch (rol.toLowerCase()) {

@@ -31,4 +31,7 @@ api.get(
   userController.buscarClubesUsuario
 );
 
+// 📌 Ruta para modificar el rol de un usuario en un equipo
+api.patch('/usuario_equipo/rol/:usuario_id/:equipo_id', usuariosEquiposController.modificarRolUsuarioEquipo);
+
 module.exports = api;

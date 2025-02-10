@@ -245,9 +245,41 @@ const crearUsuarioEquipo = async (req, res) => {
   }
 };
 
+
+const modificarRolUsuarioEquipo = async (req, res) => {
+    const { usuario_id, equipo_id } = req.params;
+    const { nuevo_rol } = req.body;
+
+    if (!nuevo_rol || typeof nuevo_rol !== "string") {
+        return res.status(400).json({ msg: "El nuevo rol es obligatorio y debe ser un string" });
+    }
+
+    try {
+        const registro = await UsuariosEquipos.findOne({ 
+            where: { usuario_id, equipo_id } 
+        });
+
+        if (!registro) {
+            return res.status(404).json({ msg: "Usuario no encontrado en el equipo" });
+        }
+
+        registro.rol = nuevo_rol; // 📌 Guardar el rol como string
+        await registro.save();
+
+        res.status(200).json({ msg: "Rol actualizado correctamente", registro });
+    } catch (error) {
+        console.error("❌ Error al modificar el rol del usuario en el equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
+
+
 module.exports = {
   crearUsuarioEquipo,
   modificarUsuarioEquipo,
   borrarUsuarioEquipo,
   asignarEntrenadorAEquipo,
+  modificarRolUsuarioEquipo,
 };
