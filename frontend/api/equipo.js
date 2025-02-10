@@ -167,26 +167,4 @@ export class EquipoAPI {
       throw error;
     }
   }
-
-  async getUsersByClub(clubId, accessToken) {
-    try {
-      const url = `${this.baseApi}/club/users/${clubId}`;
-      const params = {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`
-        },
-      };
-      const response = await fetch(url, params);
-      const result = await response.json();
-
-      if (response.status !== 200) throw result;
-
-      return result;
-    } catch (error) {
-      console.error('Error al obtener los usuarios del club:', error);
-      throw error;
-    }
-  }
 }
