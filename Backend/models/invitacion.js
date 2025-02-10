@@ -37,6 +37,11 @@ const Invitacion = sequelize.define('Invitacion', {
         allowNull: false,
         unique: true,
     },
+    active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
+    },
 }, {
     tableName: 'Invitaciones',
     timestamps: false,

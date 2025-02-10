@@ -2,6 +2,8 @@ const UsuariosEquipos = require('../models/UsuariosEquipos');
 const Equipo = require('../models/Equipo');
 const Usuario = require('../models/Usuario');
 const Club = require("../models/Club");
+const UsuarioClub = require('../models/UsuarioClub'); // Importar el modelo
+
 
 
 
@@ -24,16 +26,16 @@ const obtenerInfoEquipoYRol = async (req, res) => {
             return res.status(404).json({ msg: "Equipo no encontrado" });
         }
 
-        // 📌 2️⃣ Buscar si el usuario es gerente del club
-        const esGerente = equipo.club.gerente_id === usuario_id;
+        // // 📌 2️⃣ Buscar si el usuario es gerente del club
+        // const esGerente = equipo.club.gerente_id === usuario_id;
 
-        if (esGerente) {
-            return res.status(200).json({
-                equipo,
-                club: equipo.club,
-                rol: 4 // 📌 Número del rol de gerente
-            });
-        }
+        // if (esGerente) {
+        //     return res.status(200).json({
+        //         equipo,
+        //         club: equipo.club,
+        //         rol: 4 // 📌 Número del rol de gerente
+        //     });
+        // }
 
         // 📌 3️⃣ Si no es gerente, buscar su rol en `UsuariosEquipos`
         const usuarioEquipo = await UsuariosEquipos.findOne({
@@ -70,12 +72,22 @@ const obtenerInfoClubYRol = async (req, res) => {
             return res.status(404).json({ msg: "Club no encontrado" });
         }
 
-        // 📌 2️⃣ Verificar si el usuario es gerente del club
-        const esGerente = club.gerente_id === usuario_id;
+        // 📌 2️⃣ Buscar el rol del usuario en la tabla UsuarioClub
+        const usuarioClub = await UsuarioClub.findOne({
+            where: { club_id, usuario_id }
+        });
+
+        let rol = "miembro"; // 📌 Valor por defecto
+
+        if (usuarioClub) {
+            // 📌 Si el rol es "gerente" o "administrador", mantenerlo
+            const rolesPermitidos = ["gerente", "administrador", "admin"];
+            rol = rolesPermitidos.includes(usuarioClub.rol) ? usuarioClub.rol : "miembro";
+        }
 
         res.status(200).json({
             club,
-            rol: esGerente ? 4 : 99 // 📌 4 = Gerente, 99 = Rol desconocido
+            rol
         });
 
     } catch (error) {

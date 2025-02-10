@@ -152,7 +152,7 @@ export class estadisticaAPI {
 
     async getTipoEstadistica(id_club, accessToken){
         try {
-            const url = `${this.baseApi}/${id_club}/tipoestadisticas`
+            const url = `${this.baseApi}/tipoestadisticas/club/${id_club}`
             const params = {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -223,7 +223,7 @@ export class estadisticaAPI {
 
     async getTipoEstadisticaByTeam(id_team, accessToken){
         try {
-            const url = `${this.baseApi}/tipoestadistica/${id_team}`;
+            const url = `${this.baseApi}/tipoestadistica/equipo/${id_team}`;
 
             const params = {
                 headers: {
