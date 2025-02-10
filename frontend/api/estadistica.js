@@ -152,7 +152,7 @@ export class estadisticaAPI {
 
     async getTipoEstadistica(id_club, accessToken){
         try {
-            const url = `${this.baseApi}/tipoestadisticas/club/${id_club}`
+            const url = `${this.baseApi}/tipoestadistica/club/${id_club}`
             const params = {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
