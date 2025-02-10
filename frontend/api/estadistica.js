@@ -223,7 +223,7 @@ export class estadisticaAPI {
 
     async getTipoEstadisticaByTeam(id_team, accessToken){
         try {
-            const url = `${this.baseApi}/tipoestadistica/${id_team}`;
+            const url = `${this.baseApi}/tipoestadistica/equipo/${id_team}`;
 
             const params = {
                 headers: {
