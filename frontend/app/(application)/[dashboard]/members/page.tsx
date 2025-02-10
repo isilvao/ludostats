@@ -38,6 +38,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEquipoClub } from '@/hooks/useEquipoClub';
 import { EquipoAPI } from '@/api/equipo';
+import { ClubAPI } from '@/api/club';
 import * as XLSX from 'xlsx';
 import { BiExport } from 'react-icons/bi';
 import {
@@ -54,6 +55,7 @@ type Member = {
   apellido: string;
   activo: boolean;
   correo: string;
+  rol: string;
 };
 
 const columns: ColumnDef<Member>[] = [
@@ -125,6 +127,21 @@ const columns: ColumnDef<Member>[] = [
     cell: ({ row }) => <div className="ml-4">{row.getValue('correo')}</div>,
   },
   {
+    accessorKey: 'rol',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Rol
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <div className="ml-4">{row.getValue('rol')}</div>,
+  },
+  {
     accessorKey: 'activo',
     header: 'Activo',
     cell: ({ row }) => <div>{row.getValue('activo') ? 'Sí' : 'No'}</div>,
@@ -175,18 +192,34 @@ const DataTableDemo: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const selectionType = localStorage.getItem('selectionType');
       try {
-        const equipoAPI = new EquipoAPI();
-        const result = await equipoAPI.getUsersByTeam(clubData.id);
-        const members = result.map((item: any) => ({
-          id: item.usuario.id,
-          nombre: item.usuario.nombre,
-          apellido: item.usuario.apellido,
-          activo: item.usuario.activo,
-          correo: item.usuario.correo,
-        }));
-        setData(members);
-        console.log('Data:', members);
+        if (selectionType === 'equipo') {
+          const equipoAPI = new EquipoAPI();
+          const result = await equipoAPI.getUsersByTeam(clubData.id);
+          const members = result.map((item: any) => ({
+            id: item.usuario.id,
+            nombre: item.usuario.nombre,
+            apellido: item.usuario.apellido,
+            activo: item.usuario.activo,
+            correo: item.usuario.correo,
+            rol: item.rol,
+          }));
+          setData(members);
+        } else if (selectionType === 'club') {
+          const clubAPI = new ClubAPI();
+          const result = await clubAPI.getUsersByClub(clubData.id);
+          const members = result.map((item: any) => ({
+            id: item.usuario.id,
+            nombre: item.usuario.nombre,
+            apellido: item.usuario.apellido,
+            activo: item.usuario.activo,
+            correo: item.usuario.correo,
+            rol: item.rol,
+          }));
+          console.log(result);
+          setData(members);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
