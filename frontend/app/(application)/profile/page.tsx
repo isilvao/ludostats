@@ -31,7 +31,6 @@ const Profile = () => {
       genero: '',
     };
 
-    console.log(data);
     //const result = userController.updateMe(accessToken, data)
 
     alert('Función para guardar cambios en desarrollo');

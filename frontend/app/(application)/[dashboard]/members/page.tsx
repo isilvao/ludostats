@@ -103,7 +103,6 @@ const DataTableDemo: React.FC = () => {
             correo: item.usuario.correo,
             rol: item.rol,
           }));
-          console.log(result);
           setData(members);
         }
       } catch (error) {

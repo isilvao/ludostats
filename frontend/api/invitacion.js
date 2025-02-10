@@ -49,7 +49,7 @@ export class InvitacionesAPI {
       if (response.status !== 201) throw result;
 
       // Retornar la URL con la clave generada
-      console.log(claveGenerada);
+      // console.log(claveGenerada);
       return claveGenerada;
     } catch (error) {
       throw new Error('Error al crear la invitación.');

@@ -12,8 +12,8 @@ interface TipoEstadistica {
 
 const Statistics: React.FC = () => {
   const { user } = useAuth();
-  console.log('Usuario desde useAuth:', user);
-  console.log('Aqui llega');
+  // console.log('Usuario desde useAuth:', user);
+  // console.log('Aqui llega');
 
   const [tipoEstadisticaData, setTipoEstadisticaData] = useState<
     TipoEstadistica[]
@@ -29,8 +29,8 @@ const Statistics: React.FC = () => {
       console.warn('user no disponible, esperando datos...');
       return;
     }
-    console.log('AccessToken:', user?.accessToken);
-    console.log('ID Club:', user?.id_club);
+    // console.log('AccessToken:', user?.accessToken);
+    // console.log('ID Club:', user?.id_club);
     const fetchTipoEstadisticas = async () => {
       try {
         if (!user?.accessToken || !user?.id_club) {

@@ -18,7 +18,6 @@ const Header = () => {
   const handleSignOut = async () => {
     try {
       await logout(); // Espera a que logout termine
-      console.log(user); // Imprime user después de que logout finalice
       window.location.href = '/';
     } catch (error) {
       console.log('Error during logout:', error);

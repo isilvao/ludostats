@@ -30,20 +30,12 @@ export default function Layout({
     const verificarInvitacion = async (clave: string) => {
       try {
         const invitacion = await invitacionesAPI.verificarInvitacion(clave);
-        console.log('invitacion', invitacion);
         const club = await clubAPI.obtenerClubPorEquipoId(invitacion.equipo_id);
         const equipo = await equipoAPI.obtenerEquipoPorId(
           invitacion.equipo_id,
           accessToken
         );
-        console.log('club', club);
-
         setClubInfo({
-          club: { ...club },
-          equipo: { ...equipo },
-          rol: invitacion.rol_invitado,
-        });
-        console.log('clubInfo', {
           club: { ...club },
           equipo: { ...equipo },
           rol: invitacion.rol_invitado,

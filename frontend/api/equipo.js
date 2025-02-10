@@ -15,7 +15,7 @@ export class EquipoAPI {
       const url = `${this.baseApi}/equipo/${equipoId}`;
       const response = await fetch(url, params);
       const result = await response.json();
-      console.log('📌 Equipo encontrado:', result);
+      // console.log('📌 Equipo encontrado:', result);
       if (response.status !== 200)
         throw new Error('Equipo no encontrado. jeje');
 

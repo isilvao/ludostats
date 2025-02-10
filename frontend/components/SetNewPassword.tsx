@@ -56,8 +56,6 @@ const SetNewPasswordForm = ({ accountId }: { accountId: string }) => {
         contrasena: values.newPassword,
       };
 
-      //console.log(data)
-
       await userController.updateMePassword(data);
       router.push('/sign-in');
     } catch (err) {
