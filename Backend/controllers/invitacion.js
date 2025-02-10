@@ -21,7 +21,7 @@ const generarInvitacion = async (req, res) => {
 
     try {
 
-        const invitacion = await Invitacion.findOne({ where: { equipo_id } });
+        const invitacion = await Invitacion.findOne({ where: { equipo_id, active: true } });
 
         if (invitacion){
             invitacion.active = false;
@@ -114,18 +114,10 @@ const eliminarInvitacion = async (req, res) => {
 const buscarInvitacionPorEquipo = async (req, res) => {
     const { equipo_id } = req.params;
 
-    try {
-        const invitaciones = await Invitacion.findAll({ where: { equipo_id, active: true } });
 
-        if (invitaciones.length === 0) {
-            return res.status(404).json({ msg: "No se han encontrado invitaciones" });
-        }
+    const invitaciones = await Invitacion.findAll({ where: { equipo_id, active: true } });
 
-        res.status(200).json(invitaciones);
-    } catch (error) {
-        console.error("Error al buscar las invitaciones:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
-    }
+    res.status(200).json(invitaciones);
 }
 
 module.exports = {

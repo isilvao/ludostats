@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-// import { navItems } from '@/constants';
 import { usePathname, useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEquipoClub } from '@/hooks/useEquipoClub'; // Importar el hook del contexto
@@ -18,38 +17,71 @@ const navItems = [
     name: 'Calendario',
     icon: FaCalendarAlt,
     url: '/[dashboard]/calendar',
+    specialVisibility: {
+      equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible para todos en equipo
+      club: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible solo para gerente y admin en club
+    },
   },
   {
     name: 'Miembros',
     icon: FaUsers,
     url: '/[dashboard]/members',
+    specialVisibility: {
+      equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible para todos en equipo
+      club: ['gerente', 'admin'], // Visible solo para gerente y admin en club
+    },
   },
   {
     name: 'Estadísticas',
     icon: FaChartBar,
     url: '/[dashboard]/statistics',
+    specialVisibility: {
+      equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible para todos en equipo
+      club: ['gerente', 'admin'], // Visible solo para gerente y admin en club
+    },
   },
   {
     name: 'Torneos',
     icon: GiLaurelsTrophy,
     url: '/[dashboard]/inicio',
+    specialVisibility: {
+      equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible para todos en equipo
+      club: ['gerente', 'admin'], // Visible solo para gerente y admin en club
+    },
   },
   {
-    name: 'Suscripción',
+    name: 'Pagos',
     icon: MdPayments,
     url: '/[dashboard]/subscription',
+    specialVisibility: {
+      equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible para todos en equipo
+      club: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible solo para gerente y admin en club
+    },
   },
   {
     name: 'Ajustes',
     icon: IoMdSettings,
     url: '/[dashboard]/settings',
+    specialVisibility: {
+      equipo: ['gerente'], // Visible para todos en equipo
+      club: ['gerente'], // Visible solo para gerente y admin en club
+    },
+  },
+  {
+    name: 'Equipos',
+    icon: FaUsers,
+    url: '/[dashboard]/teams',
+    specialVisibility: {
+      equipo: [], // Visible para todos en equipo
+      club: ['gerente', 'admin'], // Visible solo para gerente y admin en club
+    },
   },
 ];
 
 const Sidebar = () => {
   const pathname = usePathname();
   const params = useParams();
-  const { equipoData, clubData } = useEquipoClub(); // Usar el contexto
+  const { clubData, rolClub } = useEquipoClub(); // Usar el contexto
   const selectionType = localStorage.getItem('selectionType');
   const nameTeam = params
     ? Array.isArray(params.dashboard)
@@ -57,13 +89,9 @@ const Sidebar = () => {
       : params.dashboard
     : null;
 
-  const logo =
-    selectionType === 'equipo'
-      ? getClubLogo(equipoData)
-      : getClubLogo(clubData);
-  const name =
-    selectionType === 'equipo' ? equipoData?.nombre : clubData?.nombre;
-
+  const logo = getClubLogo(clubData);
+  const name = clubData?.nombre;
+  console.log('🚀 ~ file: Sidebar.tsx ~ equipoData:', selectionType, rolClub);
   if (!logo || !name) {
     return <LoadingScreen />;
   }
@@ -92,34 +120,43 @@ const Sidebar = () => {
               <p className="hidden lg:block">{name}</p>
             </li>
           </Link>
-          {navItems.map(({ url, name, icon }) => (
-            <Link
-              key={name}
-              href={url.replace('[dashboard]', nameTeam ?? '')}
-              className="lg:w-full"
-            >
-              <li
-                className={cn(
-                  'sidebar-nav-item hover:bg-gray-100',
-                  pathname.startsWith(
-                    url.replace('[dashboard]', nameTeam ?? '')
-                  ) && 'shad-active'
-                )}
+          {navItems
+            .filter(({ specialVisibility }) => {
+              if (specialVisibility && selectionType) {
+                return specialVisibility[
+                  selectionType as 'equipo' | 'club'
+                ]?.includes(rolClub);
+              }
+              return false;
+            })
+            .map(({ url, name, icon }) => (
+              <Link
+                key={name}
+                href={url.replace('[dashboard]', nameTeam ?? '')}
+                className="lg:w-full"
               >
-                <span
+                <li
                   className={cn(
-                    'nav-icon',
+                    'sidebar-nav-item hover:bg-gray-100',
                     pathname.startsWith(
                       url.replace('[dashboard]', nameTeam ?? '')
-                    ) && 'nav-icon-active'
+                    ) && 'shad-active'
                   )}
                 >
-                  {icon({ size: 24 })}
-                </span>
-                <p className="hidden lg:block">{name}</p>
-              </li>
-            </Link>
-          ))}
+                  <span
+                    className={cn(
+                      'nav-icon',
+                      pathname.startsWith(
+                        url.replace('[dashboard]', nameTeam ?? '')
+                      ) && 'nav-icon-active'
+                    )}
+                  >
+                    {icon({ size: 24 })}
+                  </span>
+                  <p className="hidden lg:block">{name}</p>
+                </li>
+              </Link>
+            ))}
         </ul>
       </nav>
     </aside>

@@ -6,9 +6,9 @@ export class InvitacionesAPI {
   // Función para generar una clave aleatoria de 6 caracteres
   generarClaveAleatoria() {
     const caracteres =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let clave = '';
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 6; i++) {
       clave += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
     }
     return clave;
@@ -141,22 +141,21 @@ export class InvitacionesAPI {
     }
   }
 
-
   // Convertir rol de string a número
   getRolNumber(rol) {
     switch (rol.toLowerCase()) {
       case 'deportista':
-        return 'deportista'; // Deportista
+        return 1; // Deportista
       case 'acudiente':
-        return 'acudiente'; //Acudiente
+        return 2; //Acudiente
       case 'profesor':
-        return 'entrenador'; //Entrenador
+        return 3; //Entrenador
       case 'administrador':
-        return 'administrador'; //Administrador
+        return 4; //Administrador
       case 'hijo':
-        return 'miembro'; //Dependiente/Hijo
+        return 5; //Dependiente/Hijo
       default:
-        throw new Error('Rol no válido');
+        return 6;
     }
   }
 }
