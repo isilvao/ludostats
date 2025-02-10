@@ -21,7 +21,7 @@ const generarInvitacion = async (req, res) => {
 
     try {
 
-        const invitacion = await Invitacion.findOne({ where: { equipo_id } });
+        const invitacion = await Invitacion.findOne({ where: { equipo_id, active: true } });
 
         if (invitacion){
             invitacion.active = false;
