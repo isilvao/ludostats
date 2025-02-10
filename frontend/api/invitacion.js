@@ -6,9 +6,9 @@ export class InvitacionesAPI {
   // Función para generar una clave aleatoria de 6 caracteres
   generarClaveAleatoria() {
     const caracteres =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let clave = '';
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 6; i++) {
       clave += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
     }
     return clave;
@@ -140,7 +140,6 @@ export class InvitacionesAPI {
       throw new Error('Error al buscar la invitación por equipo.');
     }
   }
-
 
   // Convertir rol de string a número
   getRolNumber(rol) {
