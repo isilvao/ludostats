@@ -12,6 +12,10 @@ interface TipoEstadistica {
   descripcion: string;
 }
 
+const generateRandomKey = () => {
+  return `key-${Math.random().toString(36).substr(2, 9)}`;
+};
+
 const Statistics: React.FC = () => {
   const { accessToken, user } = useAuth();
   const { clubData, equipoData } = useEquipoClub();
@@ -21,8 +25,6 @@ const Statistics: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
   const [formData, setFormData] = useState<TipoEstadistica>({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
-  console.log("Equipo ID", equipoData.id);
-  console.log("Club ID", clubData.id);
 
   // 🔹 Obtener estadísticas según contexto (club o equipo)
   useEffect(() => {
@@ -62,15 +64,19 @@ const Statistics: React.FC = () => {
     if (!formData.nombre.trim() || !formData.descripcion.trim() || !accessToken) return;
 
     try {
+      let newEntry;
       if (clubData?.id) {
         const api = new estadisticaAPI();
-        const newEntry = await api.createTipoEstadistica(formData, accessToken, clubData.id);
-        setTipoEstadisticaData([...tipoEstadisticaData, newEntry]);
+        newEntry = await api.createTipoEstadistica(formData, accessToken, clubData.id);
       } else if (equipoData?.id) {
         const api = new estadisticaAPI();
-        const newEntry = await api.createTipoEstadistica(formData, accessToken, equipoData.id);
-        setTipoEstadisticaData([...tipoEstadisticaData, newEntry]);
+        newEntry = await api.createTipoEstadistica(formData, accessToken, equipoData.id);
       }
+
+      if (newEntry?.tipoEstadistica_id) {
+        setTipoEstadisticaData([...tipoEstadisticaData, { ...newEntry, randomKey: generateRandomKey() }]);
+      }
+
       setCreating(false);
       setFormData({ tipoEstadistica_id: 0, nombre: "", descripcion: "" });
     } catch (error) {
@@ -113,6 +119,8 @@ const Statistics: React.FC = () => {
     if (!confirmDelete || !accessToken) return;
 
     try {
+      console.log("Eliminando estadística con ID:", id);
+    console.log("Contexto:", clubData?.id ? "Club" : equipoData?.id ? "Equipo" : "Ninguno");
       if (clubData?.id) {
         const api = new estadisticaAPI();
         await api.deleteTipoEstadistica({ id }, accessToken, clubData.id);
@@ -144,31 +152,35 @@ const Statistics: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {tipoEstadisticaData.length > 0 ? (
-              tipoEstadisticaData.map((tipoEstadistica) => (
-                <div key={tipoEstadistica.tipoEstadistica_id} className="p-4 border rounded shadow-lg bg-gray-50">
-                  <h2 className="text-xl font-semibold mb-2">{tipoEstadistica.nombre}</h2>
-                  <p className="text-gray-600 mb-4">{tipoEstadistica.descripcion}</p>
-                  <button
-                    className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
-                    onClick={() => handleEdit(tipoEstadistica)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                    onClick={() => handleDelete(tipoEstadistica.tipoEstadistica_id)}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              ))
+              tipoEstadisticaData
+                .map((tipoEstadistica) => (
+                  <div key={tipoEstadistica.tipoEstadistica_id || generateRandomKey()} className="p-4 border rounded shadow-lg bg-gray-50">
+                    <h2 className="text-xl font-semibold mb-2">{tipoEstadistica.nombre}</h2>
+                    <p className="text-gray-600 mb-4">{tipoEstadistica.descripcion}</p>
+                    <button
+                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-4"
+                      style={{ marginBottom: 10 }}
+                      onClick={() => handleEdit(tipoEstadistica)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className="px-2 py-1 rounded"
+                      style={{ color: "rgb(255 255 255)", backgroundColor: "rgb(255, 99, 71)" }}
+                      onClick={() => handleDelete(tipoEstadistica.tipoEstadistica_id)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                ))
             ) : (
               <p className="text-center text-gray-500">No hay tipos de estadísticas disponibles.</p>
             )}
           </div>
         )}
         <button
-          className="px-4 py-2 rounded mt-4 block mx-auto bg-green-600 text-white"
+          className="px-4 py-2 rounded mt-4 block mx-auto"
+          style={{ color: "rgb(255 255 255)", backgroundColor: "rgb(76 175 79 / var(--tw-bg-opacity, 1)) !important" }}
           onClick={handleCreate}
         >
           Agregar Tarjeta
@@ -199,15 +211,17 @@ const Statistics: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
             />
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end space-x-4">
               <button
-                className="px-4 py-2 rounded bg-green-600 text-white"
+                className="px-4 py-2 rounded"
+                style={{ color: "rgb(255 255 255)", backgroundColor: "rgb(76 175 79 / var(--tw-bg-opacity, 1)) !important" }}
                 onClick={editing !== null ? handleSaveEdit : handleSaveCreate}
               >
                 Guardar
               </button>
               <button
-                className="px-4 py-2 rounded bg-red-500 text-white"
+                className="px-4 py-2 rounded"
+                style={{ color: "rgb(255 255 255)", backgroundColor: "rgb(255, 99, 71)" }}
                 onClick={() => {
                   setCreating(false);
                   setEditing(null);
