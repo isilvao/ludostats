@@ -1,7 +1,7 @@
 'use client';
 import { FaClipboard, FaWhatsapp, FaFacebook, FaCheck } from 'react-icons/fa';
 import { IoIosMail } from 'react-icons/io';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { InvitacionesAPI } from '@/api/invitacion';
 import { useEquipoClub } from '@/hooks';
 import { useAuth } from '@/hooks';
@@ -9,19 +9,55 @@ import { useAuth } from '@/hooks';
 export default function AddMembersPage() {
   const [iconCopied, setIconCopied] = useState(false);
   const [iconCopiedLink, setIconCopiedLink] = useState(false);
-  const [teamCode, setTeamCode] = useState('4BJT1SMP8Q');
-  const [teamLink, setTeamLink] = useState(
-    'https://www.ludostats.com/join/4BJT1SMP8Q/'
-  );
+  const [teamCode, setTeamCode] = useState('');
+  const [teamLink, setTeamLink] = useState('');
   const invitacionesAPI = new InvitacionesAPI();
-  const { equipo } = useEquipoClub();
+  const { clubData, rolClub } = useEquipoClub();
   const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchInvitation = async () => {
+      try {
+        const existingInvitation =
+          await invitacionesAPI.buscarInvitacionPorEquipo(clubData.id);
+        if (
+          Array.isArray(existingInvitation) &&
+          existingInvitation.length > 0
+        ) {
+          const invitation = existingInvitation[0];
+          setTeamCode(invitation.clave);
+          setTeamLink(`https://www.ludostats.com/join/${invitation.clave}/`);
+        } else {
+          await handleGenerateNewCode1();
+        }
+      } catch (error) {
+        console.error('Error al buscar la invitación:', error);
+      }
+    };
+
+    fetchInvitation();
+  }, [clubData.id]);
+
+  const handleGenerateNewCode1 = async () => {
+    try {
+      const newCode = await invitacionesAPI.crearInvitacion(
+        clubData.id,
+        'deportista',
+        user.id
+      );
+      setTeamCode(newCode);
+      setTeamLink(`https://www.ludostats.com/join/${newCode}/`);
+    } catch (error) {
+      console.error('Error al generar una nueva invitación:', error);
+    }
+  };
 
   const handleGenerateNewCode = async () => {
     try {
+      await invitacionesAPI.eliminarInvitacion(teamCode);
       const newCode = await invitacionesAPI.crearInvitacion(
-        equipo.id,
-        'rolStr',
+        clubData.id,
+        rolClub,
         user.id
       );
       setTeamCode(newCode);
