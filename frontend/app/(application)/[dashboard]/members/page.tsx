@@ -165,7 +165,7 @@ const DataTableDemo: React.FC = () => {
       : params.dashboard
     : null;
 
-  const { equipoData } = useEquipoClub();
+  const { clubData } = useEquipoClub();
   const [data, setData] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -177,7 +177,7 @@ const DataTableDemo: React.FC = () => {
     const fetchData = async () => {
       try {
         const equipoAPI = new EquipoAPI();
-        const result = await equipoAPI.getUsersByTeam(equipoData.id);
+        const result = await equipoAPI.getUsersByTeam(clubData.id);
         const members = result.map((item: any) => ({
           id: item.usuario.id,
           nombre: item.usuario.nombre,
@@ -194,10 +194,10 @@ const DataTableDemo: React.FC = () => {
       }
     };
 
-    if (equipoData.id) {
+    if (clubData.id) {
       fetchData();
     }
-  }, [equipoData.id]);
+  }, [clubData.id]);
 
   const handleDelete = async (id: string) => {
     // try {
