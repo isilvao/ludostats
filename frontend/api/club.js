@@ -158,14 +158,13 @@ export class ClubAPI {
     }
   }
 
-  async getUsersByClub(clubId, accessToken) {
+  async getUsersByClub(clubId) {
     try {
       const url = `${this.baseApi}/club/users/${clubId}`;
       const params = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`
         },
       };
       const response = await fetch(url, params);
