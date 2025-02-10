@@ -14,11 +14,13 @@ function register(req, res){
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(contrasena, salt);
 
+  
   Usuario.create({
     nombre,
     apellido,
     correo: correo.toLowerCase(),
     contrasena: hashPassword,
+    foto: foto || null // 📌 Guardar la foto si está disponible
   })
     .then((userStored) => {
         if (!userStored) {
