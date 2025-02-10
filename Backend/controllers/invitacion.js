@@ -117,10 +117,6 @@ const buscarInvitacionPorEquipo = async (req, res) => {
     try {
         const invitaciones = await Invitacion.findAll({ where: { equipo_id, active: true } });
 
-        if (invitaciones.length === 0) {
-            return res.status(404).json({ msg: "No se han encontrado invitaciones" });
-        }
-
         res.status(200).json(invitaciones);
     } catch (error) {
         console.error("Error al buscar las invitaciones:", error);
