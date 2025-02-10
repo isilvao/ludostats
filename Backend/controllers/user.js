@@ -331,7 +331,7 @@ async function getUsersByClub(req, res) {
   try {
     const registros = await UsuarioClub.findAll({
       where: { club_id: id_club },
-      include: [{ model: Usuario, as: "usuario" }]
+      include: [{ model: User, as: "usuario" }]
     });
 
     res.status(200).send(registros);
