@@ -114,14 +114,10 @@ const eliminarInvitacion = async (req, res) => {
 const buscarInvitacionPorEquipo = async (req, res) => {
     const { equipo_id } = req.params;
 
-    try {
-        const invitaciones = await Invitacion.findAll({ where: { equipo_id, active: true } });
 
-        res.status(200).json(invitaciones);
-    } catch (error) {
-        console.error("Error al buscar las invitaciones:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
-    }
+    const invitaciones = await Invitacion.findAll({ where: { equipo_id, active: true } });
+
+    res.status(200).json(invitaciones);
 }
 
 module.exports = {
