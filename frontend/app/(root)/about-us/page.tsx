@@ -22,7 +22,7 @@ const AboutUs: React.FC = () => {
     {
       name: 'Luis Marín',
       role: 'Backend Developer',
-      image: '/assets/images/GabrielImg.jpg',
+      image: '/assets/images/GabrieLImg.jpg',
       hrefIn: 'https://www.linkedin.com/in/diego-rodriguez-1a2b3c4d5e6f',
       hrefGh: 'https://github.com/diego-rodriguez-1a2b3c4d5e6f',
     },
