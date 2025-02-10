@@ -28,7 +28,7 @@ const Hero = () => {
       <div className="flex-1 flex items-center justify-center max-w-xl">
         <div className="relative min-w-[300px] w-full h-64 sm:h-80 md:h-96 lg:h-[500px]">
           <Image
-            src="/assets/images/hero-Img.svg"
+            src="/assets/images/hero-Img.png"
             alt="phone"
             fill
             style={{ objectFit: 'contain' }}
