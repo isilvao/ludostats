@@ -5,7 +5,6 @@ import { useEquipoClub } from '@/hooks/useEquipoClub';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { TeamsAPI } from '@/api/teams';
-import { useAuth } from '@/hooks';
 
 export default function Layout({
   children,
@@ -33,7 +32,7 @@ export default function Layout({
         if (selectionType === 'equipo') {
           if (TeamId && storedTeamName === currentTeamName) {
             const result = await teamApi.obtenerEquipoConRol(TeamId, userId);
-            setEquipoSeleccionado(result.equipo, result.rol, result.club);
+            setClubSeleccionado(result.equipo, result.rol);
           } else {
             throw new Error('Nombre del equipo no coincide con el almacenado');
           }
@@ -55,7 +54,7 @@ export default function Layout({
     fetchEquipoData();
   }, [pathname, searchParams]);
 
-  if (!equipoData && !clubData) {
+  if (!clubData) {
     return <LoadingScreen />;
   }
 
