@@ -158,13 +158,20 @@ export class ClubAPI {
     }
   }
 
-  async getUsersByClub(clubId) {
+  async getUsersByClub(clubId, accessToken) {
     try {
       const url = `${this.baseApi}/club/users/${clubId}`;
-      const response = await fetch(url);
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
+      };
+      const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error('No se encontraron usuarios.');
+      if (response.status !== 200) throw result;
 
       return result;
     } catch (error) {
