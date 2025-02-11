@@ -124,7 +124,6 @@ export class estadisticaAPI {
     }
 
     // TIPO DE ESTADISTICAS
-
     async createTipoEstadistica(tipoEstadistica, accessToken, id_club){
         try {
             const url = `${this.baseApi}/${id_club}/newtipoestadistica` //Se pasa el id del club como parametro a la url
@@ -223,7 +222,7 @@ export class estadisticaAPI {
 
     async getTipoEstadisticaByTeam(id_team, accessToken){
         try {
-            const url = `${this.baseApi}/tipoestadistica/equipo/${id_team}`;
+            const url = `${this.baseApi}/estadisticas/:id_tipoestadistica/${id_team}`;
 
             const params = {
                 headers: {

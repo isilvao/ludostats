@@ -178,4 +178,27 @@ export class ClubAPI {
       throw error;
     }
   }
+
+  async buscarMisClubesGerente(userId){
+    try {
+      const url = `${this.baseApi}/misclubesgerente/:user_id`;
+
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result
+    } catch (error) {
+      console.error('Error al buscar mis clubes:', error);
+      throw error;
+    }
+  }
 }

@@ -6,8 +6,6 @@ const Equipo = require("../models/Equipo");
 const buscarMisClubes = async (req, res) => {
   const { user_id } = req.query;
 
-  console.log(req.query)
-
   try {
     const clubes = await UsuarioClub.findAll({
       where: { usuario_id: user_id },
@@ -21,6 +19,25 @@ const buscarMisClubes = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
+const buscarMisClubesGerente = async (req, res) => {
+  const {user_id} = req.params;
+
+  try {
+    const clubes = await UsuarioClub.findAll({
+      where: { usuario_id: user_id, rol: "gerente" },
+      include: [{ model: Club, as: "club" }],
+    })
+
+    const clubesResponse = clubes.map((club) => club.club);
+
+    res.status(200).json(clubesResponse);
+
+  } catch (error) {
+    return res.status(500).send({msg: "Error al buscar los clubes del gerente"})
+  }
+
+}
 
 const actualizarClub = async (req, res) => {
   const { id } = req.params;
@@ -196,5 +213,6 @@ module.exports = {
   encontrarClubPorEquipoId,
   buscarMisClubes,
   actualizarClub,
-  getUsersByClub
+  getUsersByClub,
+  buscarMisClubesGerente
 };
