@@ -38,7 +38,7 @@ api.delete(":id_club/removeuserfromclub/:id_user",[md_auth.asureAuth, md_clubOwn
 
 api.get("/usuarios/:usuario_id/clubs", [md_auth.asureAuth], userController.buscarClubesUsuario);
 
-api.patch("/user_foto/:id", upload.single("foto"), userController.actualizarUsuario);
+api.patch("/user_foto/:id", upload.single("foto"), userController.actualizarFotoUsuario);
 
 module.exports = api;
 

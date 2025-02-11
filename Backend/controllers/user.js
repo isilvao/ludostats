@@ -6,6 +6,7 @@ const Equipo = require("../models/Equipo");
 const Club = require("../models/Club");
 const UsuariosEquipos = require("../models/UsuariosEquipos");
 const { Op } = require("sequelize");
+const cloudinary = require('../utils/cloudinary');  // 📌 Importa Cloudinary correctamente
 
 //*********************     PERSONAL ROUTES     *********************
 async function getMe(req, res) {
@@ -463,6 +464,41 @@ const actualizarUsuario = async (req, res) => {
     }
 };
 
+const actualizarFotoUsuario = async (req, res) => {
+  const { id } = req.params;
+  console.log("falg")
+
+  try {
+      // 📌 Verificar si el usuario existe
+      const usuarios = await User.findByPk(id);
+      if (!usuarios) {
+          return res.status(404).json({ msg: "Usuario no encontrado" });
+      }
+
+      // 📌 Verificar si se ha subido un archivo
+      if (!req.file) {
+          return res.status(400).json({ msg: "No se ha proporcionado ninguna imagen" });
+      }
+
+      // 📌 Subir la imagen a Cloudinary
+      const resultado = await cloudinary.uploader.upload(req.file.path, {
+          folder: "usuarios", // Carpeta en Cloudinary
+          public_id: `usuario_${id}`,
+          overwrite: true
+      });
+
+      // 📌 Guardar la URL en la base de datos
+      usuarios.foto = resultado.secure_url;
+      await usuarios.save();
+
+      res.status(200).json({ msg: "Foto actualizada correctamente", foto: usuarios.foto });
+
+  } catch (error) {
+      console.error("❌ Error al actualizar la foto del usuario:", error);
+      res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
+
 
 module.exports = {
   getMe,
@@ -482,5 +518,6 @@ module.exports = {
   eliminarUsuarioClub,
   userLeavesClub,
   actualizarUsuario,
-  deleteMe
+  deleteMe,
+  actualizarFotoUsuario
 };
