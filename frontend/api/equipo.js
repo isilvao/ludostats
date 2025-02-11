@@ -42,12 +42,12 @@ export class EquipoAPI {
       const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 200) throw result;
+      // if (response.status !== 200) throw result;
 
       return result;
     } catch (error) {
       console.error('Error al crear el equipo:', error);
-      throw error
+      throw error;
     }
   }
 
