@@ -91,6 +91,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
           nivelPractica: values.level,
           club: values.club,
         });
+        router.push('/home');
       }
     } catch (error) {
       console.error('Error al crear el club:', error);
