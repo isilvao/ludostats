@@ -47,6 +47,7 @@ export class EquipoAPI {
       return result;
     } catch (error) {
       console.error('Error al crear el equipo:', error);
+      throw error
     }
   }
 

@@ -16,16 +16,17 @@ const crearEquipo = async (req, res) => {
     }
 
     try {
-
+        // TODO: Arreglar funcionalidades del logo
+        /**
         let imagePath = null
-
+         *
         if (req.files.logo){
             imagePath = image.getFilePath(req.files.logo)
         }
+        */
 
         const nuevoEquipo = await Equipo.create({
             nombre,
-            logo: imagePath,
             descripcion: descripcion,
             club_id,
             nivelPractica,
@@ -43,8 +44,7 @@ const crearEquipo = async (req, res) => {
             return res.status(201).json({ msg: "Equipo creado correctamente", equipo: nuevoEquipo });
         }
     } catch (error) {
-        console.error("Error al crear el equipo:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
+        return res.status(500).json({ msg: "Error interno del servidor" });
     }
 };
 
