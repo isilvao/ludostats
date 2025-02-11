@@ -61,8 +61,6 @@ type statistic = {
 };
 
 const StatisticDetail: React.FC = () => {
-  const params = useParams();
-  const id_tipoEstadistica = params?.statisticDetail;
   const [data, setData] = useState<statistic[]>([]);
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -71,35 +69,29 @@ const StatisticDetail: React.FC = () => {
   const [rowSelection, setRowSelection] = useState({});
   const { accesToken } = useAuth();
   const selectionType = localStorage.getItem('selectionType');
-  const [estadisticas, setEstadisticas] = useState([]);
+  const { statisticID } = useParams();
 
   useEffect(() => {
     const fetchEstadisticas = async () => {
       try {
         if (selectionType === 'equipo') {
           const api = new estadisticaAPI();
-          const result = await api.getAllEstadisticas(
-            accesToken,
-            id_tipoEstadistica
-          );
+          const result = await api.getAllEstadisticas(accesToken, statisticID);
           const statistics = result.map((item: any) => ({
-            id: item.estadicticas.id,
-            nombre: item.nombre,
-            apellido: item.apellido,
+            id: item.id,
+            nombre: item.usuario.nombre,
+            apellido: item.usuario.apellido,
             valor: item.valor,
             fecha: item.fecha,
           }));
           setData(statistics);
         } else if (selectionType === 'club') {
           const api = new estadisticaAPI();
-          const result = await api.getAllEstadisticas(
-            accesToken,
-            id_tipoEstadistica
-          );
+          const result = await api.getAllEstadisticas(accesToken, statisticID);
           const statistics = result.map((item: any) => ({
-            id: item.estadicticas.id,
-            nombre: item.nombre,
-            apellido: item.apellido,
+            id: item.id,
+            nombre: item.usuario.nombre,
+            apellido: item.usuario.apellido,
             valor: item.valor,
             fecha: item.fecha,
           }));
@@ -112,10 +104,10 @@ const StatisticDetail: React.FC = () => {
       }
     };
 
-    if (id_tipoEstadistica) {
+    if (statisticID) {
       fetchEstadisticas();
     }
-  }, [id_tipoEstadistica, accesToken]);
+  }, [statisticID, accesToken]);
 
   const handleDelete = async (id: string) => {
     // try {
@@ -188,66 +180,61 @@ const StatisticDetail: React.FC = () => {
       cell: ({ row }) => <div className="ml-4">{row.getValue('apellido')}</div>,
     },
     {
-      accessorKey: 'correo',
+      accessorKey: 'valor',
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Correo
+            Valor
             <ArrowUpDown />
           </Button>
         );
       },
-      cell: ({ row }) => <div className="ml-4">{row.getValue('correo')}</div>,
+      cell: ({ row }) => <div className="ml-4">{row.getValue('valor')}</div>,
     },
     {
-      accessorKey: 'rol',
+      accessorKey: 'fecha',
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Rol
+            Fecha
             <ArrowUpDown />
           </Button>
         );
       },
-      cell: ({ row }) => <div className="ml-4">{row.getValue('rol')}</div>,
+      cell: ({ row }) => <div className="ml-4">{row.getValue('fecha')}</div>,
     },
-    {
-      accessorKey: 'activo',
-      header: 'Activo',
-      cell: ({ row }) => <div>{row.getValue('activo') ? 'Sí' : 'No'}</div>,
-    },
-    {
-      id: 'actions',
-      enableHiding: false,
-      header: 'Acciones',
-      cell: ({ row }: { row: any }) => {
-        const member = row.original;
+    // {
+    //   id: 'actions',
+    //   enableHiding: false,
+    //   header: 'Acciones',
+    //   cell: ({ row }: { row: any }) => {
+    //     const member = row.original;
 
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link href={`/${member.id}/edit`}>Editar</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>Borrar</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+    //     return (
+    //       <DropdownMenu>
+    //         <DropdownMenuTrigger asChild>
+    //           <Button variant="outline" className="h-8 w-8 p-0">
+    //             <span className="sr-only">Open menu</span>
+    //             <MoreHorizontal />
+    //           </Button>
+    //         </DropdownMenuTrigger>
+    //         <DropdownMenuContent align="end">
+    //           <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+    //           <DropdownMenuItem asChild>
+    //             <Link href={`/${member.id}/edit`}>Editar</Link>
+    //           </DropdownMenuItem>
+    //           <DropdownMenuItem>Borrar</DropdownMenuItem>
+    //         </DropdownMenuContent>
+    //       </DropdownMenu>
+    //     );
+    //   },
+    // },
   ];
 
   const table = useReactTable({
@@ -286,7 +273,7 @@ const StatisticDetail: React.FC = () => {
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
-        <h1 className="h2">Miembros</h1>
+        <h1 className="h2">Estadística</h1>
         <div className="flex items-center space-x-5 h-10">
           <TooltipProvider delayDuration={200}>
             <Tooltip>

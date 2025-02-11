@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 interface TipoEstadistica {
-  tipoEstadistica_id: number;
+  id: number;
   nombre: string;
   descripcion: string;
 }
@@ -29,7 +29,7 @@ const Statistics: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
   const [formData, setFormData] = useState<TipoEstadistica>({
-    tipoEstadistica_id: 0,
+    id: 0,
     nombre: '',
     descripcion: '',
   });
@@ -52,6 +52,7 @@ const Statistics: React.FC = () => {
         if (selectionType === 'club') {
           const api = new estadisticaAPI();
           data = await api.getTipoEstadistica(clubData.id, accessToken);
+          console.log('Data:', data);
         } else if (selectionType === 'equipo') {
           const api = new estadisticaAPI();
           data = await api.getTipoEstadisticaByTeam(clubData.id, accessToken);
@@ -72,7 +73,7 @@ const Statistics: React.FC = () => {
   // 🔹 Mostrar formulario para agregar tarjeta
   const handleCreate = () => {
     setCreating(true);
-    setFormData({ tipoEstadistica_id: 0, nombre: '', descripcion: '' });
+    setFormData({ id: 0, nombre: '', descripcion: '' });
   };
 
   // 🔹 Guardar nueva tarjeta
@@ -106,7 +107,7 @@ const Statistics: React.FC = () => {
       }
 
       setCreating(false);
-      setFormData({ tipoEstadistica_id: 0, nombre: '', descripcion: '' });
+      setFormData({ id: 0, nombre: '', descripcion: '' });
     } catch (error) {
       console.error('Error al crear la estadística:', error);
     }
@@ -114,7 +115,8 @@ const Statistics: React.FC = () => {
 
   // 🔹 Editar tarjeta existente
   const handleEdit = (tipoEstadistica: TipoEstadistica) => {
-    setEditing(tipoEstadistica.tipoEstadistica_id);
+    console.log('tipoEstadistica_id:', tipoEstadistica.id);
+    setEditing(tipoEstadistica.id);
     setFormData({ ...tipoEstadistica });
   };
 
@@ -133,14 +135,10 @@ const Statistics: React.FC = () => {
       }
 
       setTipoEstadisticaData((prevData) =>
-        prevData.map((item) =>
-          item.tipoEstadistica_id === formData.tipoEstadistica_id
-            ? formData
-            : item
-        )
+        prevData.map((item) => (item.id === formData.id ? formData : item))
       );
       setEditing(null);
-      setFormData({ tipoEstadistica_id: 0, nombre: '', descripcion: '' });
+      setFormData({ id: 0, nombre: '', descripcion: '' });
     } catch (error) {
       console.error('Error al actualizar la estadística:', error);
     }
@@ -172,7 +170,7 @@ const Statistics: React.FC = () => {
       }
 
       setTipoEstadisticaData((prevData) =>
-        prevData.filter((item) => item.tipoEstadistica_id !== id)
+        prevData.filter((item) => item.id !== id)
       );
     } catch (error) {
       console.error('Error al eliminar la estadística:', error);
@@ -207,10 +205,8 @@ const Statistics: React.FC = () => {
             {tipoEstadisticaData.length > 0 ? (
               tipoEstadisticaData.map((tipoEstadistica) => (
                 <Link
-                  href={`/${nameTeam}/statistics/${tipoEstadistica.tipoEstadistica_id}`}
-                  key={
-                    tipoEstadistica.tipoEstadistica_id || generateRandomKey()
-                  }
+                  href={`/${nameTeam}/statistics/${tipoEstadistica.id}`}
+                  key={tipoEstadistica.id || generateRandomKey()}
                   className="p-4 border rounded shadow-lg bg-gray-50"
                 >
                   <h2 className="text-xl font-semibold mb-2">
@@ -233,9 +229,7 @@ const Statistics: React.FC = () => {
                       color: 'rgb(255 255 255)',
                       backgroundColor: 'rgb(255, 99, 71)',
                     }}
-                    onClick={() =>
-                      handleDelete(tipoEstadistica.tipoEstadistica_id)
-                    }
+                    onClick={() => handleDelete(tipoEstadistica.id)}
                   >
                     Eliminar
                   </button>
