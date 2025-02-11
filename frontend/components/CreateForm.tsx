@@ -80,7 +80,6 @@ const CreateForm = ({ type }: { type: FormType }) => {
         );
         // Redirigir al usuario a /home después de un envío exitoso
         router.push('/home');
-        console.log('Form submitted:', values);
       }
     } catch (error) {
       console.error('Error al crear el club:', error);

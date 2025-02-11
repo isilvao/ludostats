@@ -22,6 +22,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { FaEye, FaEyeSlash } from 'react-icons/fa6';
 
 interface GoogleJwtPayload extends JwtPayload {
   given_name?: string;
@@ -35,9 +36,25 @@ type FormType = 'sign-in' | 'sign-up';
 const authFormSchema = (formType: FormType) => {
   return z.object({
     email: z.string().email('Correo electrónico inválido'),
-    password: z
-      .string()
-      .min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    password:
+      formType === 'sign-in'
+        ? z.string().min(6, 'La contraseña es requerida')
+        : z
+            .string()
+            .min(8, 'La contraseña debe tener al menos 8 caracteres')
+            .regex(
+              /[a-z]/,
+              'La contraseña debe contener al menos una letra minúscula'
+            )
+            .regex(
+              /[A-Z]/,
+              'La contraseña debe contener al menos una letra mayúscula'
+            )
+            .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
+            .regex(
+              /[^a-zA-Z0-9]/,
+              'La contraseña debe contener al menos un carácter especial'
+            ),
     firstName:
       formType === 'sign-up'
         ? z
@@ -54,8 +71,7 @@ const authFormSchema = (formType: FormType) => {
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
-    picture:
-      z.string().optional(),
+    picture: z.string().optional(),
   });
 };
 
@@ -65,6 +81,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const formSchema = authFormSchema(type);
+  const [showPassword, setShowPassword] = useState(false); // Estado para controlar la visibilidad de la contraseña
 
   const [next, setNext] = useState<string | null>(null);
 
@@ -128,7 +145,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const onSubmitGoogle = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage('');
-    console.log(values)
 
     try {
       const result = await authController.register({
@@ -136,7 +152,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         apellido: values.lastName || '',
         correo: values.email,
         contrasena: values.password,
-        foto: values.picture || undefined // 📌 Si no hay foto, enviamos `undefined`
+        foto: values.picture || undefined, // 📌 Si no hay foto, enviamos `undefined`
       });
     } catch {}
 
@@ -155,7 +171,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
         login(accessToken);
         window.location.href = next || '/home';
       }
-      
     } catch {
       setErrorMessage('Fallo al iniciar sesión. Inténtalo de nuevo.');
     } finally {
@@ -246,12 +261,25 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 <div className="shad-form-item">
                   <FormLabel className="shad-form-label">Contraseña</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Ingresa tu contraseña"
-                      className="shad-input"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Ingresa tu contraseña"
+                        className="shad-input"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <FaEye className="h-5 w-5 text-gray-500" />
+                        ) : (
+                          <FaEyeSlash className="h-5 w-5 text-gray-500" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                 </div>
                 <FormMessage className="shad-form-message" />

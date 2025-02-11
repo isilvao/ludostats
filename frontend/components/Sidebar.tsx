@@ -91,7 +91,6 @@ const Sidebar = () => {
 
   const logo = getClubLogo(clubData);
   const name = clubData?.nombre;
-  console.log('🚀 ~ file: Sidebar.tsx ~ equipoData:', selectionType, rolClub);
   if (!logo || !name) {
     return <LoadingScreen />;
   }

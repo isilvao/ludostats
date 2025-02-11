@@ -38,6 +38,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEquipoClub } from '@/hooks/useEquipoClub';
 import { EquipoAPI } from '@/api/equipo';
+import { ClubAPI } from '@/api/club';
 import * as XLSX from 'xlsx';
 import { BiExport } from 'react-icons/bi';
 import {
@@ -47,6 +48,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { IoPersonAdd } from 'react-icons/io5';
+import { useAuth } from '@/hooks/useAuth';
 
 type Member = {
   id: string;
@@ -54,108 +56,8 @@ type Member = {
   apellido: string;
   activo: boolean;
   correo: string;
+  rol: string;
 };
-
-const columns: ColumnDef<Member>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'nombre',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Nombre
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="ml-4">{row.getValue('nombre')}</div>,
-  },
-  {
-    accessorKey: 'apellido',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Apellido
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="ml-4">{row.getValue('apellido')}</div>,
-  },
-  {
-    accessorKey: 'correo',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Correo
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="ml-4">{row.getValue('correo')}</div>,
-  },
-  {
-    accessorKey: 'activo',
-    header: 'Activo',
-    cell: ({ row }) => <div>{row.getValue('activo') ? 'Sí' : 'No'}</div>,
-  },
-  {
-    id: 'actions',
-    enableHiding: false,
-    header: 'Acciones',
-    cell: ({ row }) => {
-      const member = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={`/${member.id}/edit`}>Editar</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>Borrar</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
 
 const DataTableDemo: React.FC = () => {
   const params = useParams();
@@ -165,28 +67,44 @@ const DataTableDemo: React.FC = () => {
       : params.dashboard
     : null;
 
-  const { clubData } = useEquipoClub();
+  const { clubData, rolClub } = useEquipoClub();
   const [data, setData] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  const { accesToken } = useAuth();
+  const selectionType = localStorage.getItem('selectionType');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const equipoAPI = new EquipoAPI();
-        const result = await equipoAPI.getUsersByTeam(clubData.id);
-        const members = result.map((item: any) => ({
-          id: item.usuario.id,
-          nombre: item.usuario.nombre,
-          apellido: item.usuario.apellido,
-          activo: item.usuario.activo,
-          correo: item.usuario.correo,
-        }));
-        setData(members);
-        console.log('Data:', members);
+        if (selectionType === 'equipo') {
+          const equipoAPI = new EquipoAPI();
+          const result = await equipoAPI.getUsersByTeam(clubData.id);
+          const members = result.map((item: any) => ({
+            id: item.usuario.id,
+            nombre: item.usuario.nombre,
+            apellido: item.usuario.apellido,
+            activo: item.usuario.activo,
+            correo: item.usuario.correo,
+            rol: item.rol,
+          }));
+          setData(members);
+        } else if (selectionType === 'club') {
+          const clubAPI = new ClubAPI();
+          const result = await clubAPI.getUsersByClub(clubData.id);
+          const members = result.map((item: any) => ({
+            id: item.usuario.id,
+            nombre: item.usuario.nombre,
+            apellido: item.usuario.apellido,
+            activo: item.usuario.activo,
+            correo: item.usuario.correo,
+            rol: item.rol,
+          }));
+          setData(members);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -215,6 +133,126 @@ const DataTableDemo: React.FC = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Members');
     XLSX.writeFile(workbook, 'members.xlsx');
   };
+
+  const columns: ColumnDef<Member>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'nombre',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Nombre
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <div className="ml-4">{row.getValue('nombre')}</div>,
+    },
+    {
+      accessorKey: 'apellido',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Apellido
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <div className="ml-4">{row.getValue('apellido')}</div>,
+    },
+    {
+      accessorKey: 'correo',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Correo
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <div className="ml-4">{row.getValue('correo')}</div>,
+    },
+    {
+      accessorKey: 'rol',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Rol
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <div className="ml-4">{row.getValue('rol')}</div>,
+    },
+    {
+      accessorKey: 'activo',
+      header: 'Activo',
+      cell: ({ row }) => <div>{row.getValue('activo') ? 'Sí' : 'No'}</div>,
+    },
+    ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
+      ? [
+          {
+            id: 'actions',
+            enableHiding: false,
+            header: 'Acciones',
+            cell: ({ row }: { row: any }) => {
+              const member = row.original;
+
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/${member.id}/edit`}>Editar</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>Borrar</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            },
+          },
+        ]
+      : []),
+  ];
 
   const table = useReactTable({
     data,
@@ -254,29 +292,35 @@ const DataTableDemo: React.FC = () => {
       <div className="flex items-center py-4 justify-between">
         <h1 className="h2">Miembros</h1>
         <div className="flex items-center space-x-5 h-10">
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleDownloadExcel}
-                  className="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 rounded-lg transition-colors duration-w-[10rem] h-full px-2"
-                >
-                  <BiExport className="w-6 h-6" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Exportar</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <Link
-            href={`/${nameTeam}/members/add`}
-            className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center"
-          >
-            <IoPersonAdd className="w-5 h-5" />
-            <p>Añadir miembro</p>
-          </Link>
+          {(rolClub === 'admin' || rolClub === 'gerente') && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleDownloadExcel}
+                    className="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 rounded-lg transition-colors duration-w-[10rem] h-full px-2"
+                  >
+                    <BiExport className="w-6 h-6" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Exportar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          {selectionType === 'equipo' &&
+            (rolClub === 'admin' ||
+              rolClub === 'gerente' ||
+              rolClub === 'entrenador') && (
+              <Link
+                href={`/${nameTeam}/members/add`}
+                className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center"
+              >
+                <IoPersonAdd className="w-5 h-5" />
+                <p>Añadir miembro</p>
+              </Link>
+            )}
         </div>
       </div>
       <div className="flex items-center py-4 justify-between">

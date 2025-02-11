@@ -53,11 +53,10 @@ export class User {
     }
   }
 
-
   async updateMePassword(data) {
     const { id } = data;
 
-    console.log(id,"entro a la api")
+    // console.log(id,"entro a la api")
     //const baseApi = `https://ludostats.up.railway.app/api/v1`
 
     try {
@@ -78,11 +77,10 @@ export class User {
 
       return result;
     } catch (error) {
-      console.log('error observado por la api', error)
+      console.log('error observado por la api', error);
       throw error;
     }
   }
-
 
   async deteleMe(accessToken, id) {
     try {
@@ -147,25 +145,26 @@ export class User {
     } catch (error) {
       throw new Error('No se pudo enviar el correo. Inténtalo de nuevo.');
     }
-
-
   }
 
-   /**
+  /**
    * 📌 Obtener todos los clubes de un usuario.
    * @param {string} usuarioId - ID del usuario.
    * @returns {Promise} - Lista de clubes en los que participa el usuario.
    */
-   async obtenerClubesDeUsuario(usuarioId) {
+  async obtenerClubesDeUsuario(usuarioId) {
     try {
       const url = `${this.baseApi}/usuarios-equipos/${usuarioId}/clubes`;
 
       const response = await fetch(url);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error(result.msg || 'Error al obtener los clubes del usuario.');
+      if (response.status !== 200)
+        throw new Error(
+          result.msg || 'Error al obtener los clubes del usuario.'
+        );
 
-      console.log("📌 Clubes del usuario obtenidos:", result);
+      // console.log("📌 Clubes del usuario obtenidos:", result);
       return result;
     } catch (error) {
       console.error('❌ Error al obtener clubes del usuario:', error);
@@ -188,9 +187,10 @@ export class User {
       const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error(result.msg || 'Error al obtener los hijos.');
+      if (response.status !== 200)
+        throw new Error(result.msg || 'Error al obtener los hijos.');
 
-      console.log("📌 Hijos obtenidos:", result);
+      // console.log("📌 Hijos obtenidos:", result);
       return result;
     } catch (error) {
       console.error('❌ Error al obtener hijos:', error);
@@ -206,10 +206,10 @@ export class User {
     try {
       const url = `${this.baseApi}/usuario_foto/${userId}`;
       const formData = new FormData();
-      formData.append("foto", file);
+      formData.append('foto', file);
 
       const params = {
-        method: "PATCH",
+        method: 'PATCH',
         body: formData,
       };
 
@@ -223,5 +223,4 @@ export class User {
       throw error;
     }
   }
-
 }

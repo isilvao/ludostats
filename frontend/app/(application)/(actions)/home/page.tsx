@@ -84,7 +84,6 @@ const Page: React.FC = () => {
           clubes: clubeshijoData[index].clubes,
         }));
         setEquiposhijo(combinedData);
-        console.log(combinedData);
       } catch (error) {
         console.error('Error al obtener la información:', error);
       } finally {

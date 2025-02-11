@@ -59,7 +59,7 @@ const Pricing: React.FC = () => {
   const plans = [
     {
       name: 'Básico',
-      price: '$0,00',
+      price: '$38,000',
       features: [
         { name: 'Gestión de miembros', included: true },
         { name: 'Control de pagos', included: true },
