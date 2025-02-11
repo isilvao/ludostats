@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type FormType = 'club' | 'team';
 
@@ -48,8 +48,9 @@ const CreateForm = ({ type }: { type: FormType }) => {
   const schema = createFormSchema(type);
   const clubcreate = new ClubAPI();
   const equipoCreate = new EquipoAPI();
-  const { accessToken } = useAuth();
+  const { user, accessToken } = useAuth();
   const router = useRouter();
+  const [clubs, setClubs] = useState<{ id: string; nombre: string }[]>([]);
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -66,6 +67,20 @@ const CreateForm = ({ type }: { type: FormType }) => {
       }),
     },
   });
+
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const clubs = await clubcreate.buscarMisClubesGerente(user.id);
+        console.log(clubs);
+        setClubs(clubs);
+      } catch (error) {
+        console.error('Error al obtener los clubes:', error);
+      }
+    };
+
+    fetchClubs();
+  }, [user.id]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,13 +99,16 @@ const CreateForm = ({ type }: { type: FormType }) => {
         // Redirigir al usuario a /home después de un envío exitoso
         router.push('/home');
       } else if (type === 'team') {
-        await equipoCreate.crearEquipo({
-          nombre: values.name,
-          descripcion: values.description || '',
-          telefono: values.phone || '',
-          nivelPractica: values.level,
-          club: values.club,
-        });
+        await equipoCreate.crearEquipo(
+          {
+            nombre: values.name,
+            descripcion: values.description || '',
+            telefono: values.phone || '',
+            nivelPractica: values.level,
+            club_id: values.club,
+          },
+          accessToken
+        );
         router.push('/home');
       }
     } catch (error) {
@@ -260,8 +278,8 @@ const CreateForm = ({ type }: { type: FormType }) => {
                               <option value="" disabled>
                                 Selecciona un nivel
                               </option>
-                              <option value="competitivo">Competitivo</option>
-                              <option value="recreativo">Recreativo</option>
+                              <option value="Competitivo">Competitivo</option>
+                              <option value="Recreativo">Recreativo</option>
                             </select>
                           </FormControl>
                         </div>
@@ -288,8 +306,11 @@ const CreateForm = ({ type }: { type: FormType }) => {
                               <option value="" disabled>
                                 Selecciona un club
                               </option>
-                              <option value="competitivo">Competitivo</option>
-                              <option value="recreativo">Recreativo</option>
+                              {clubs.map((club) => (
+                                <option key={club.id} value={club.id}>
+                                  {club.nombre}
+                                </option>
+                              ))}
                             </select>
                           </FormControl>
                         </div>

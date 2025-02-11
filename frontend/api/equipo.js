@@ -27,8 +27,6 @@ export class EquipoAPI {
   }
 
   async crearEquipo(equipo, accessToken) {
-    baseApi = `${basePath}/${apiVersion}`;
-
     try {
       const url = `${this.baseApi}/nuevoequipo`;
 

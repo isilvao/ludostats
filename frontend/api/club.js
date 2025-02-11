@@ -179,9 +179,9 @@ export class ClubAPI {
     }
   }
 
-  async buscarMisClubesGerente(userId){
+  async buscarMisClubesGerente(userId) {
     try {
-      const url = `${this.baseApi}/misclubesgerente/:user_id`;
+      const url = `${this.baseApi}/misclubesgerente/${userId}`;
 
       const params = {
         method: 'GET',
@@ -195,7 +195,7 @@ export class ClubAPI {
 
       if (response.status !== 200) throw result;
 
-      return result
+      return result;
     } catch (error) {
       console.error('Error al buscar mis clubes:', error);
       throw error;
