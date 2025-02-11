@@ -18,7 +18,7 @@ async function getMyEstadisticas(req, res){
 }
 
 async function createEstadistica(req, res){
-    const {id_tipoEstadistica, id_usuario} = req.params
+    const {id_tipoestadistica, id_usuario} = req.params
     const {user_id} = req.user
 
     const {valor, fecha} = req.body
@@ -26,7 +26,7 @@ async function createEstadistica(req, res){
 
     try {
 
-        const tipEstadistica = await tipoEstadistica.findOne({where: {id: id_tipoEstadistica}})
+        const tipEstadistica = await tipoEstadistica.findOne({where: {id: id_tipoestadistica}})
 
         if (!tipEstadistica){
             return res.status(400).send({msg: "No se pudo encontrar el tipo de estadistica"})
@@ -47,7 +47,7 @@ async function createEstadistica(req, res){
         }
 
         await Estadistica.create({
-            tipoEstadistica_id: id_tipoEstadistica,
+            tipoEstadistica_id: id_tipoestadistica,
             usuario_id: id_usuario,
             valor: valor,
             fecha : fecha
@@ -104,14 +104,17 @@ async function deleteEstadistica(req, res){
 }
 
 async function getAllEstadisticas(req, res){
-    const {id_tipoEstadistica} = req.params
+    const {id_tipoestadistica} = req.params
 
     try {
-        const usuarios = await Usuario.findAll({include: {
-            model: Estadistica,
-            as: "estadisticas",
-            where: {tipoEstadistica_id: id_tipoEstadistica}
-        }})
+        const usuarios = await Estadistica.findAll({
+            where: {tipoEstadistica_id: id_tipoestadistica},
+            include: {
+                model: Usuario,
+                as: "usuario",
+                attributes: ['nombre', 'apellido']
+            }
+        })
 
         return res.status(200).send(usuarios)
     }catch (error){
@@ -121,20 +124,29 @@ async function getAllEstadisticas(req, res){
 
 // TODO: Implementar la función getAllEstadisticasInTeam
 async function getAllEstadisticasInTeam(req, res){
-    const {id_tipoEstadistica, id_team} = req.params
+    const {id_tipoestadistica, id_team} = req.params
 
     try {
-        const usuarios = await UsuariosEquipos.findAll({
-            where: {equipo_id: id_team},
-            include: {
-                model: Usuario,
-                include: {
-                    model: Estadistica,
-                    as: "estadisticas",
-                    where: {tipoEstadistica_id: id_tipoEstadistica}
+        const usuarios = await Estadistica.findAll({
+            where: { tipoEstadistica_id: id_tipoestadistica },
+            include: [
+                {
+                    model: Usuario,
+                    as: "usuario",
+                    attributes: ['nombre', 'apellido'],
+                    include: [
+                        {
+                            model: UsuariosEquipos,
+                            as: "usuariosEquipos",
+                            where: { equipo_id: id_team },
+                            attributes: []
+                        }
+                    ]
                 }
-            }
-        })
+            ]
+        });
+
+        return res.status(200).send(usuarios)
     } catch (error) {
         return res.status(500).send({msg: "Error al consultar las estadisticas"})
     }
