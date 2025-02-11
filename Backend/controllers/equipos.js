@@ -16,16 +16,17 @@ const crearEquipo = async (req, res) => {
     }
 
     try {
-
+        // TODO: Arreglar funcionalidades del logo
+        /**
         let imagePath = null
-
+         *
         if (req.files.logo){
             imagePath = image.getFilePath(req.files.logo)
         }
+        */
 
         const nuevoEquipo = await Equipo.create({
             nombre,
-            logo: imagePath,
             descripcion: descripcion,
             club_id,
             nivelPractica,
