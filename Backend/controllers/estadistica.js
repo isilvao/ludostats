@@ -127,28 +127,39 @@ async function getAllEstadisticasInTeam(req, res){
     const {id_tipoestadistica, id_team} = req.params
 
     try {
-        const usuarios = await Estadistica.findAll({
-            where: { tipoEstadistica_id: id_tipoestadistica },
-            include: [
-                {
-                    model: Usuario,
-                    as: "usuario",
-                    attributes: ['nombre', 'apellido'],
-                    include: [
-                        {
-                            model: UsuariosEquipos,
-                            as: "usuariosEquipos",
-                            where: { equipo_id: id_team },
-                            attributes: []
-                        }
-                    ]
+        const usuarios = await UsuariosEquipos.findAll({
+            where: {equipo_id: id_team, rol: 'deportista'},
+            include: {
+                model: Usuario,
+                as: "usuario",
+                attributes: ['nombre', 'apellido'],
+                include: {
+                    model: Estadistica,
+                    as: "estadisticas",
+                    where: {tipoEstadistica_id: id_tipoestadistica}
                 }
-            ]
-        });
+            }
+        })
 
-        return res.status(200).send(usuarios)
+        const estadisticas = usuarios.flatMap(usuarios =>
+            usuarios.usuario.estadisticas.map(estadistica => ({
+                id: estadistica.id,
+                usuario_id: estadistica.usuario_id,
+                tipoEstadistica_id: estadistica.tipoEstadistica_id,
+                valor: estadistica.valor,
+                fecha: estadistica.fecha,
+                createdAt: estadistica.createdAt,
+                updatedAt: estadistica.updatedAt,
+                usuario: {
+                    nombre: usuarios.usuario.nombre,
+                    apellido: usuarios.usuario.apellido
+                }
+            }))
+        );
+
+        return res.status(200).send(estadisticas)
     } catch (error) {
-        return res.status(500).send({msg: "Error al consultar las estadisticas"})
+        return res.status(500).send({msg: "Error al consultar las estadisticas", error})
     }
 }
 
