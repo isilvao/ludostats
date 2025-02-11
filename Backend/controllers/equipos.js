@@ -44,8 +44,7 @@ const crearEquipo = async (req, res) => {
             return res.status(201).json({ msg: "Equipo creado correctamente", equipo: nuevoEquipo });
         }
     } catch (error) {
-        console.error("Error al crear el equipo:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
+        return res.status(500).json({ msg: "Error interno del servidor" });
     }
 };
 
