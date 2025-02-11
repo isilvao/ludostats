@@ -5,6 +5,7 @@ import { ClubAPI } from "@/api/club";
 import { estadisticaAPI } from "@/api/estadistica";
 import { useEquipoClub } from "@/hooks/useEquipoClub";
 import { useAuth } from "@/hooks";
+import Link from "next/link";
 
 interface TipoEstadistica {
   tipoEstadistica_id: number;
@@ -159,7 +160,10 @@ const Statistics: React.FC = () => {
               tipoEstadisticaData
                 .map((tipoEstadistica) => (
                   <div key={tipoEstadistica.tipoEstadistica_id || generateRandomKey()} className="p-4 border rounded shadow-lg bg-gray-50">
+
+                    
                     <h2 className="text-xl font-semibold mb-2">{tipoEstadistica.nombre}</h2>
+
                     <p className="text-gray-600 mb-4">{tipoEstadistica.descripcion}</p>
                     <button
                       className="bg-yellow-500 text-white px-2 py-1 rounded mr-4"
