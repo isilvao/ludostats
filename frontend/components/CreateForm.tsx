@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { ClubAPI } from '@/api/club';
+import { EquipoAPI } from '@/api/equipo';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks';
 import {
@@ -24,7 +25,9 @@ type FormType = 'club' | 'team';
 const createFormSchema = (formType: FormType) => {
   return z.object({
     name: z.string().min(2, 'Nombre obligatorio').max(50),
-    sport: z.string().min(1, 'Deporte obligatorio'),
+    ...(formType === 'club' && {
+      sport: z.string().min(1, 'Deporte obligatorio'),
+    }),
     phone: z
       .string()
       .refine((val) => val === '' || val.length >= 10, {
@@ -34,10 +37,9 @@ const createFormSchema = (formType: FormType) => {
     // Cambiado a File para ser más explícitos
     // logo: z.instanceof(File).optional(),
     ...(formType === 'team' && {
-      gender: z.string().min(1, 'Género obligatorio'),
-      age: z.string().min(1, 'Edad obligatoria'),
+      description: z.string().optional(),
       level: z.string().min(1, 'Nivel obligatorio'),
-      teamType: z.string().min(1, 'Tipo de equipo obligatorio'),
+      club: z.string().min(1, 'Club obligatorio'),
     }),
   });
 };
@@ -45,6 +47,7 @@ const createFormSchema = (formType: FormType) => {
 const CreateForm = ({ type }: { type: FormType }) => {
   const schema = createFormSchema(type);
   const clubcreate = new ClubAPI();
+  const equipoCreate = new EquipoAPI();
   const { accessToken } = useAuth();
   const router = useRouter();
 
@@ -52,14 +55,14 @@ const CreateForm = ({ type }: { type: FormType }) => {
     resolver: zodResolver(schema),
     defaultValues: {
       name: '',
-      sport: '',
+      ...(type === 'team' && { sport: '' }),
       phone: '',
       // logo: undefined,
       ...(type === 'team' && {
-        gender: '',
-        age: '',
+        // gender: '',
+        description: '',
         level: '',
-        teamType: '',
+        club: '',
       }),
     },
   });
@@ -80,6 +83,14 @@ const CreateForm = ({ type }: { type: FormType }) => {
         );
         // Redirigir al usuario a /home después de un envío exitoso
         router.push('/home');
+      } else if (type === 'team') {
+        await equipoCreate.crearEquipo({
+          nombre: values.name,
+          descripcion: values.description || '',
+          telefono: values.phone || '',
+          nivelPractica: values.level,
+          club: values.club,
+        });
       }
     } catch (error) {
       console.error('Error al crear el club:', error);
@@ -164,6 +175,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
                           placeholder="ex: AS Fresnes"
                           className="shad-input"
                           {...field}
+                          value={field.value as string}
                         />
                       </FormControl>
                     </div>
@@ -173,89 +185,55 @@ const CreateForm = ({ type }: { type: FormType }) => {
               />
 
               {/* Sport */}
-              <FormField
-                control={form.control}
-                name="sport"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="shad-form-item">
-                      <FormLabel className="shad-form-label">
-                        Deporte *
-                      </FormLabel>
-                      <FormControl>
-                        <select
-                          {...field}
-                          value={field.value as string}
-                          className="text-gray-400 py-2 mt-1"
-                        >
-                          <option value="" disabled>
-                            Selecciona un deporte
-                          </option>
-                          <option value="football">Football</option>
-                          <option value="basketball">Basketball</option>
-                          <option value="volleyball">Volleyball</option>
-                        </select>
-                      </FormControl>
-                    </div>
-                    <FormMessage className="shad-form-message" />
-                  </FormItem>
-                )}
-              />
-
+              {type === 'club' && (
+                <FormField
+                  control={form.control}
+                  name="sport"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="shad-form-item">
+                        <FormLabel className="shad-form-label">
+                          Deporte *
+                        </FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            value={field.value as string}
+                            className="text-gray-400 py-2 mt-1"
+                          >
+                            <option value="" disabled>
+                              Selecciona un deporte
+                            </option>
+                            <option value="football">Football</option>
+                            <option value="basketball">Basketball</option>
+                            <option value="volleyball">Volleyball</option>
+                          </select>
+                        </FormControl>
+                      </div>
+                      <FormMessage className="shad-form-message" />
+                    </FormItem>
+                  )}
+                />
+              )}
               {/* Campos específicos para 'team' */}
               {type === 'team' && (
                 <>
                   <FormField
                     control={form.control}
-                    name="gender"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <div className="shad-form-item">
                           <FormLabel className="shad-form-label">
-                            Género *
+                            Descripción
                           </FormLabel>
                           <FormControl>
-                            <select
+                            <Input
+                              placeholder="ex: AS Fresnes"
+                              className="shad-input"
                               {...field}
                               value={field.value as string}
-                              className="text-gray-400 py-2 mt-1"
-                            >
-                              <option value="" disabled>
-                                Selecciona un género
-                              </option>
-                              <option value="masculino">Masculino</option>
-                              <option value="femenino">Femenino</option>
-                              <option value="mixto">Mixto</option>
-                            </select>
-                          </FormControl>
-                        </div>
-                        <FormMessage className="shad-form-message" />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="age"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="shad-form-item">
-                          <FormLabel className="shad-form-label">
-                            Edad *
-                          </FormLabel>
-                          <FormControl>
-                            <select
-                              {...field}
-                              value={field.value as string}
-                              className="text-gray-400 py-2 mt-1"
-                            >
-                              <option value="" disabled>
-                                Selecciona un grupo de edad
-                              </option>
-                              <option value="infantil">Infantil</option>
-                              <option value="juvenil">Juvenil</option>
-                              <option value="adulto">Adulto</option>
-                            </select>
+                            />
                           </FormControl>
                         </div>
                         <FormMessage className="shad-form-message" />
@@ -281,9 +259,8 @@ const CreateForm = ({ type }: { type: FormType }) => {
                               <option value="" disabled>
                                 Selecciona un nivel
                               </option>
-                              <option value="principiante">Principiante</option>
-                              <option value="intermedio">Intermedio</option>
-                              <option value="avanzado">Avanzado</option>
+                              <option value="competitivo">Competitivo</option>
+                              <option value="recreativo">Recreativo</option>
                             </select>
                           </FormControl>
                         </div>
@@ -294,12 +271,12 @@ const CreateForm = ({ type }: { type: FormType }) => {
 
                   <FormField
                     control={form.control}
-                    name="teamType"
+                    name="club"
                     render={({ field }) => (
                       <FormItem>
                         <div className="shad-form-item">
                           <FormLabel className="shad-form-label">
-                            Tipo de equipo *
+                            Club *
                           </FormLabel>
                           <FormControl>
                             <select
@@ -308,7 +285,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
                               className="text-gray-400 py-2 mt-1"
                             >
                               <option value="" disabled>
-                                Selecciona un tipo
+                                Selecciona un club
                               </option>
                               <option value="competitivo">Competitivo</option>
                               <option value="recreativo">Recreativo</option>
