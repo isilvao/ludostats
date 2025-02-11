@@ -4,6 +4,7 @@ const tipoEstadistica = require('../models/TipoEstadistica')
 const Club = require('../models/Club')
 const Usuario = require('../models/Usuario')
 const UsuarioClub = require('../models/UsuarioClub')
+const UsuariosEquipos = require('../models/UsuariosEquipos')
 
 async function getMyEstadisticas(req, res){
     const {user_id} = req.user
@@ -118,10 +119,32 @@ async function getAllEstadisticas(req, res){
     }
 }
 
+// TODO: Implementar la función getAllEstadisticasInTeam
+async function getAllEstadisticasInTeam(req, res){
+    const {id_tipoEstadistica, id_team} = req.params
+
+    try {
+        const usuarios = await UsuariosEquipos.findAll({
+            where: {equipo_id: id_team},
+            include: {
+                model: Usuario,
+                include: {
+                    model: Estadistica,
+                    as: "estadisticas",
+                    where: {tipoEstadistica_id: id_tipoEstadistica}
+                }
+            }
+        })
+    } catch (error) {
+        return res.status(500).send({msg: "Error al consultar las estadisticas"})
+    }
+}
+
 module.exports = {
     getMyEstadisticas,
     createEstadistica,
     updateEstadistica,
     deleteEstadistica,
-    getAllEstadisticas
+    getAllEstadisticas,
+    getAllEstadisticasInTeam
 }

@@ -15,6 +15,10 @@ const Equipo = sequelize.define('Equipo', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    telefono: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     nivelPractica: {
         type: DataTypes.ENUM('Competitivo', 'Recreativo'),
         allowNull: false,

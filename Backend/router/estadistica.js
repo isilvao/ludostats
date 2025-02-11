@@ -10,6 +10,6 @@ api.post('/nuevaestadistica/:id_tipoestadistica/:id_usuario', [md_auth.asureAuth
 api.patch('/editarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateCoachOrGerenteByStatType], estadisticasController.updateEstadistica) // id del usuario
 api.delete('/eliminarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.validateCoachOrGerenteByStatType], estadisticasController.deleteEstadistica) // id del usuario
 api.get('/estadisticas/:id_tipoestadistica', [md_auth.asureAuth, md_stats.validateCoachOrGerenteOrAdminByStatType], estadisticasController.getAllEstadisticas) // id del usuario
-
+api.get('/estadisticas/:id_tipoestadistica/:id_team', [md_auth.asureAuth, md_stats.validateCoachOrGerenteOrAdminByStatType], estadisticasController.getAllEstadisticasInTeam) // id del usuario
 
 module.exports = api

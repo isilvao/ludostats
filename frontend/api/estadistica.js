@@ -247,4 +247,27 @@ export class estadisticaAPI {
     }
     throw error;
   }
+
+  async getAllEstadisticasByTeam(id_team, id_tipoEstadistica, accessToken) {
+    try {
+      const url = `${this.baseApi}/estadisticas/${id_tipoEstadistica}/${id_team}`;
+
+      const params = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200)
+        throw new Error('Estadisticas no encontradas.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener las estadisticas por equipo:', error);
+    }
+    throw error;
+  }
 }
