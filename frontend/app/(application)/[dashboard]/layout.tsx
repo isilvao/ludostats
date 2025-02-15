@@ -61,7 +61,7 @@ export default function Layout({
   return (
     <main className="flex h-[91vh] bg-white">
       <Sidebar />
-      <section className="flex h-full flex-1 flex-col">
+      <section className="flex max-w-full h-full flex-1 flex-col">
         <div className="main-content">{children}</div>
       </section>
     </main>

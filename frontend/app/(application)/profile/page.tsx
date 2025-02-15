@@ -1,12 +1,65 @@
 'use client';
 import { CiCamera } from 'react-icons/ci';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '../../../hooks';
 import { User, Auth } from '../../../api';
 import { getProfileImage } from '@/lib/utils';
 import LoadingScreen from '@/components/LoadingScreen';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+
+const profileSchema = z.object({
+  nombre: z.string().min(1, 'Nombre obligatorio'),
+  apellido: z.string().min(1, 'Apellido obligatorio'),
+  documento: z.string().optional(),
+  correo: z.string().email('Correo inválido'),
+  telefono: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^[0-9]{10}$/.test(val), {
+      message: 'El teléfono debe tener 10 dígitos y solo contener números',
+    }),
+  fecha_nacimiento: z.string().optional(),
+  genero: z.string().optional(),
+});
+
+const passwordSchema = z
+  .object({
+    oldPassword: z.string().min(1, 'Antigua contraseña obligatoria'),
+    newPassword: z
+      .string()
+      .min(6, 'Nueva contraseña debe tener al menos 6 caracteres'),
+    confirmPassword: z
+      .string()
+      .min(6, 'Confirmar contraseña debe tener al menos 6 caracteres'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  });
 
 const Profile = () => {
   const userController = new User();
@@ -14,233 +67,284 @@ const Profile = () => {
   const { user, accessToken } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
 
+  const form = useForm({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      nombre: user?.nombre || '',
+      apellido: user?.apellido || '',
+      documento: user?.documento || '',
+      correo: user?.correo || '',
+      telefono: user?.telefono || '',
+      fecha_nacimiento: user?.fecha_nacimiento || '',
+      genero: user?.genero || '',
+    },
+  });
+
+  const passwordForm = useForm({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      oldPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        nombre: user.nombre || '',
+        apellido: user.apellido || '',
+        documento: user.documento || '',
+        correo: user.correo || '',
+        telefono: user.telefono || '',
+        fecha_nacimiento: user.fecha_nacimiento || '',
+        genero: user.genero || '',
+      });
+    }
+  }, [user, form]);
+
   if (!user) {
     return <LoadingScreen />;
   }
 
-  //Modificar esta funcion por un async y poner await antes del userController.updateMe
-  const handleSave = () => {
+  const handleSave = async (values: z.infer<typeof profileSchema>) => {
     const data = {
       id: user.id,
-      nombre: '',
-      apellido: '',
-      documento: '',
-      correo: '',
-      telefono: '',
-      fecha_nacimiento: '',
-      genero: '',
+      ...values,
     };
 
-    //const result = userController.updateMe(accessToken, data)
-
-    alert('Función para guardar cambios en desarrollo');
+    try {
+      await userController.updateMe(accessToken, data);
+      alert('Perfil actualizado con éxito');
+    } catch (error) {
+      console.error('Error al actualizar el perfil:', error);
+      if (error instanceof TypeError) {
+        alert('Error de red. Por favor, verifica tu conexión.');
+      } else {
+        alert('Error al actualizar el perfil');
+      }
+    }
   };
 
-  // Cambiar esta funcion por un async y poner await antes del userController.deleteMe
-  const handleDeleteAccount = () => {
-    const result = userController.deteleMe(accessToken, user.id);
-
-    // if (result.success) {
-    //   alert('Cuenta eliminada con éxito')
+  const handleChangePassword = async (
+    values: z.infer<typeof passwordSchema>
+  ) => {
+    // try {
+    //   await authController.changePassword(accessToken, values.oldPassword, values.newPassword);
+    //   alert('Contraseña actualizada con éxito');
+    // } catch (error) {
+    //   console.error('Error al cambiar la contraseña:', error);
+    //   alert('Error al cambiar la contraseña');
     // }
+    alert('Función en desarrollo');
+  };
 
-    alert('Función para eliminar cuenta en desarrollo');
+  const handleDeleteAccount = async () => {
+    try {
+      await userController.deteleMe(accessToken, user.id);
+      alert('Cuenta eliminada con éxito');
+    } catch (error) {
+      console.error('Error al eliminar la cuenta:', error);
+      alert('Error al eliminar la cuenta');
+    }
   };
 
   const renderContent = () => {
     switch (selectedOption) {
       case 'profile':
         return (
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="nombre" className="block text-gray-600">
-                  Nombres *
-                </label>
-                <Input
-                  type="text"
-                  id="nombre"
-                  name="nombre"
-                  defaultValue={user.nombre}
-                  placeholder="Nombres"
-                />
-              </div>
-              <div>
-                <label htmlFor="apellido" className="block text-gray-600">
-                  Apellidos *
-                </label>
-                <Input
-                  type="text"
-                  id="apellido"
-                  name="apellido"
-                  defaultValue={user.apellido}
-                  placeholder="Apellido"
-                />
-              </div>
-              <div>
-                <label htmlFor="documento" className="block text-gray-600">
-                  Documento
-                </label>
-                <Input
-                  type="number"
-                  id="documento"
-                  name="documento"
-                  defaultValue={user.documento}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Documento"
-                />
-              </div>
-              <div>
-                <label htmlFor="correo" className="block text-gray-600">
-                  Correo Electrónico *
-                </label>
-                <Input
-                  type="correo"
-                  name="correo"
-                  defaultValue={user.correo}
-                  placeholder="Correo Electrónico"
-                />
-              </div>
-              <div>
-                <label htmlFor="telefono" className="block text-gray-600">
-                  Teléfono
-                </label>
-                <Input
-                  type="tel"
-                  id="telefono"
-                  name="telefono"
-                  defaultValue={user.telefono}
-                  placeholder="Teléfono"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="fecha_nacimiento"
-                  className="block text-gray-600"
-                >
-                  Fecha de Nacimiento
-                </label>
-                <Input
-                  type="date"
-                  id="fecha_nacimiento"
-                  name="fecha_nacimiento"
-                  defaultValue={user.fecha_nacimiento}
-                  placeholder="Fecha de Nacimiento"
-                />
-              </div>
-              <div>
-                <label htmlFor="genero" className="block text-gray-600">
-                  Género
-                </label>
-                <select
-                  id="genero"
-                  name="genero"
-                  defaultValue={user.genero}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                >
-                  <option value="Masculino">Masculino</option>
-                  <option value="Femenino">Femenino</option>
-                  <option value="Otro">Otro</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="rol" className="block text-gray-600">
-                  Rol
-                </label>
-                <Input
-                  type="text"
-                  id="rol"
-                  name="rol"
-                  defaultValue={user.rol}
-                  placeholder="Rol"
-                  readOnly
-                  className="bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label htmlFor="acudiente" className="block text-gray-600">
-                  Acudiente
-                </label>
-                <Input
-                  type="text"
-                  id="acudiente"
-                  name="acudiente"
-                  defaultValue={user.acudiente}
-                  placeholder="Acudiente"
-                  readOnly
-                  className="bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label htmlFor="equipo" className="block text-gray-600">
-                  Equipo
-                </label>
-                <Input
-                  type="text"
-                  id="equipo"
-                  name="equipo"
-                  defaultValue={user.equipo}
-                  placeholder="Equipo"
-                  readOnly
-                  className="bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="bg-green text-white px-4 py-2 rounded-md hover:bg-green-700"
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSave)}
+              className="space-y-4"
             >
-              Guardar
-            </button>
-          </form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="nombre"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombres *</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Nombres" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="apellido"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Apellidos *</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Apellidos" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="documento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Documento</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          placeholder="Documento"
+                        />
+                      </FormControl>
+                      <FormMessage className="shad-form-message" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="correo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo Electrónico *</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="Correo Electrónico"
+                        />
+                      </FormControl>
+                      <FormMessage className="shad-form-message" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="telefono"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teléfono</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="tel" placeholder="Teléfono" />
+                      </FormControl>
+                      <FormMessage className="shad-form-message" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="fecha_nacimiento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha de Nacimiento</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="date"
+                          placeholder="Fecha de Nacimiento"
+                        />
+                      </FormControl>
+                      <FormMessage className="shad-form-message" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="genero"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Género</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                          <option value="Masculino">Masculino</option>
+                          <option value="Femenino">Femenino</option>
+                          <option value="Otro">Otro</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage className="shad-form-message" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button
+                type="submit"
+                className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
+              >
+                Guardar
+              </Button>
+            </form>
+          </Form>
         );
       case 'preferences':
         return (
-          <form className="space-y-4">
-            <div>
-              <label htmlFor="oldPassword" className="block text-gray-600">
-                Antigua Contraseña
-              </label>
-              <Input
-                type="password"
-                id="oldPassword"
-                name="oldPassword"
-                placeholder="*************"
-              />
-            </div>
-            <div>
-              <label htmlFor="newPassword" className="block text-gray-600">
-                Nueva Contraseña
-              </label>
-              <Input
-                type="password"
-                id="newPassword"
-                name="newPassword"
-                placeholder="*************"
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-gray-600">
-                Confirmar Contraseña
-              </label>
-              <Input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                placeholder="*************"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                alert('Función para cambiar contraseña en desarrollo')
-              }
-              className="bg-green text-white px-4 py-2 rounded-md hover:bg-green-700"
+          <Form {...passwordForm}>
+            <form
+              onSubmit={passwordForm.handleSubmit(handleChangePassword)}
+              className="space-y-4"
             >
-              Guardar
-            </button>
-          </form>
+              <FormField
+                control={passwordForm.control}
+                name="oldPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Antigua Contraseña</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="*************"
+                      />
+                    </FormControl>
+                    <FormMessage className="shad-form-message" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={passwordForm.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nueva Contraseña</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="*************"
+                      />
+                    </FormControl>
+                    <FormMessage className="shad-form-message" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={passwordForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirmar Contraseña</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="*************"
+                      />
+                    </FormControl>
+                    <FormMessage className="shad-form-message" />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
+              >
+                Guardar
+              </Button>
+            </form>
+          </Form>
         );
       default:
         return null;
@@ -253,7 +357,6 @@ const Profile = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Perfil</h1>
       </div>
       <div className="flex flex-col md:flex-row md:space-x-4">
-        {/* Profile Sidebar */}
         <div className="bg-white px-0 py-10 border border-gray-300 rounded-md md:w-1/4 mb-4 md:mb-0 h-full">
           <div className="flex flex-col items-center">
             <div className="relative">
@@ -274,7 +377,6 @@ const Profile = () => {
             <h2 className="mt-4 text-xl font-semibold text-gray-800">
               {user.nombre} {user.apellido}
             </h2>
-            <p className="text-gray-600">{user.telefono}</p>
             <p className="text-gray-600">{user.correo}</p>
           </div>
           <ul className="mt-6">
@@ -290,17 +392,30 @@ const Profile = () => {
             >
               Preferencias
             </li>
-            <li
-              className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-gray-100"
-              onClick={handleDeleteAccount}
-              //onClick={logout()}
-            >
-              Borrar mi cuenta
-            </li>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <li className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-red/20">
+                  Borrar mi cuenta
+                </li>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    ¿Estás seguro de que deseas eliminar tu cuenta? Esta acción
+                    no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteAccount}>
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </ul>
         </div>
-
-        {/* Profile Edit Form */}
         <div className="bg-white p-6 border border-gray-300 rounded-md md:w-[75%] w-full">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             {selectedOption === 'profile'

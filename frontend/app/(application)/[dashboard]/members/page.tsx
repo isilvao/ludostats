@@ -330,7 +330,7 @@ const DataTableDemo: React.FC = () => {
           onChange={(event) =>
             table.getColumn('nombre')?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm mr-3"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
