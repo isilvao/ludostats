@@ -48,11 +48,12 @@ const EditPage = () => {
   const { equipoData, clubData, setEquipoSeleccionado, setClubSeleccionado } =
     useEquipoClub();
   const [selectedOption, setSelectedOption] = useState('edit');
-  const isTeam = !!equipoData;
+  const selectionType = localStorage.getItem('selectionType');
+  const isTeam = selectionType === 'equipo';
   const api = isTeam ? new EquipoAPI() : new ClubAPI();
-  const data = isTeam ? equipoData : clubData;
-  const logo = getClubLogo(clubData);
-  const name = clubData?.nombre;
+  const data = equipoData;
+  const logo = getClubLogo(equipoData);
+  const name = equipoData?.nombre;
 
   const form = useForm({
     resolver: zodResolver(editSchema),
@@ -82,31 +83,31 @@ const EditPage = () => {
   }
 
   const handleSave = async (values: z.infer<typeof editSchema>) => {
-    try {
-      if (isTeam) {
-        await api.updateEquipo(data.id, values);
-      } else {
-        await api.updateClub(data.id, values);
-      }
-      alert('Datos actualizados con éxito');
-    } catch (error) {
-      console.error('Error al actualizar los datos:', error);
-      alert('Error al actualizar los datos');
-    }
+    // try {
+    //   if (isTeam) {
+    //     await api.modificarEquipo(data.id, values);
+    //   } else {
+    //     await api.editarClub(data.id, values);
+    //   }
+    //   alert('Datos actualizados con éxito');
+    // } catch (error) {
+    //   console.error('Error al actualizar los datos:', error);
+    //   alert('Error al actualizar los datos');
+    // }
   };
 
   const handleDelete = async () => {
-    try {
-      if (isTeam) {
-        await api.deleteEquipo(data.id);
-      } else {
-        await api.deleteClub(data.id);
-      }
-      alert('Eliminado con éxito');
-    } catch (error) {
-      console.error('Error al eliminar:', error);
-      alert('Error al eliminar');
-    }
+    // try {
+    //   if (isTeam) {
+    //     await api.deleteEquipo(data.id);
+    //   } else {
+    //     await api.deleteClub(data.id);
+    //   }
+    //   alert('Eliminado con éxito');
+    // } catch (error) {
+    //   console.error('Error al eliminar:', error);
+    //   alert('Error al eliminar');
+    // }
   };
 
   const renderContent = () => {
