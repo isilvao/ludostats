@@ -7,7 +7,7 @@ const cloudinary = require('../utils/cloudinary');
 const { UsuarioClub } = require("../models");
 
 const crearEquipo = async (req, res) => {
-    const { nombre, club_id, entrenador_id = null, nivelPractica, descripcion } =
+    const { nombre, club_id, nivelPractica, descripcion } =
         req.body;
     const {user_id} = req.user;
 
@@ -16,16 +16,17 @@ const crearEquipo = async (req, res) => {
     }
 
     try {
-
+        // TODO: Arreglar funcionalidades del logo
+        /**
         let imagePath = null
-
+         *
         if (req.files.logo){
             imagePath = image.getFilePath(req.files.logo)
         }
+        */
 
         const nuevoEquipo = await Equipo.create({
             nombre,
-            logo: imagePath,
             descripcion: descripcion,
             club_id,
             nivelPractica,
@@ -39,29 +40,11 @@ const crearEquipo = async (req, res) => {
 
         if (!nuevoEquipo || !usuariosEquipos) {
             return res.status(400).json({ msg: "Error al crear el equipo" });
-        } else if (entrenador_id === null) {
-            return res.status(201).json({ msg: "Equipo creado correctamente", equipo: nuevoEquipo });
         } else {
-            const usuario = await Usuario.findByPk(entrenador_id);
-
-            if (!usuario) {
-                return res.status(404).json({ msg: "Usuario no encontrado" });
-            }
-
-            await UsuariosEquipos.create({
-                usuario_id: entrenador_id,
-                equipo_id: nuevoEquipo.id,
-                rol: 'entrenador', // 2 = Entrenador
-            }).then((response) => {
-                return res.status(201).json({ msg: "Equipo creado correctamente", equipo: nuevoEquipo });
-            }).catch((error) => {
-                console.error("Error al registrar el entrenador en el equipo:", error);
-                return res.status(500).json({ msg: "Error interno del servidor" });
-            })
+            return res.status(201).json({ msg: "Equipo creado correctamente", equipo: nuevoEquipo });
         }
     } catch (error) {
-        console.error("Error al crear el equipo:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
+        return res.status(500).json({ msg: "Error interno del servidor" });
     }
 };
 

@@ -27,8 +27,6 @@ export class EquipoAPI {
   }
 
   async crearEquipo(equipo, accessToken) {
-    baseApi = `${basePath}/${apiVersion}`;
-
     try {
       const url = `${this.baseApi}/nuevoequipo`;
 
@@ -44,11 +42,12 @@ export class EquipoAPI {
       const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 200) throw result;
+      // if (response.status !== 200) throw result;
 
       return result;
     } catch (error) {
       console.error('Error al crear el equipo:', error);
+      throw error;
     }
   }
 

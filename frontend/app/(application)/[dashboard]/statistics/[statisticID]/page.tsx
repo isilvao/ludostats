@@ -35,10 +35,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useEquipoClub } from '@/hooks/useEquipoClub';
-import { EquipoAPI } from '@/api/equipo';
-import { ClubAPI } from '@/api/club';
+// import { useParams } from 'next/navigation';
+// import { useEquipoClub } from '@/hooks/useEquipoClub';
+// import { EquipoAPI } from '@/api/equipo';
+// import { ClubAPI } from '@/api/club';
 import * as XLSX from 'xlsx';
 import { BiExport } from 'react-icons/bi';
 import {
@@ -49,26 +49,19 @@ import {
 } from '@/components/ui/tooltip';
 import { IoPersonAdd } from 'react-icons/io5';
 import { useAuth } from '@/hooks/useAuth';
+import { estadisticaAPI } from '@/api/estadistica';
+import { useParams } from 'next/navigation';
 
-type Member = {
+type statistic = {
   id: string;
   nombre: string;
   apellido: string;
-  activo: boolean;
-  correo: string;
-  rol: string;
+  valor: string;
+  fecha: string;
 };
 
-const DataTableDemo: React.FC = () => {
-  const params = useParams();
-  const nameTeam = params
-    ? Array.isArray(params.dashboard)
-      ? params.dashboard[0]
-      : params.dashboard
-    : null;
-
-  const { clubData, rolClub } = useEquipoClub();
-  const [data, setData] = useState<Member[]>([]);
+const StatisticDetail: React.FC = () => {
+  const [data, setData] = useState<statistic[]>([]);
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -76,46 +69,45 @@ const DataTableDemo: React.FC = () => {
   const [rowSelection, setRowSelection] = useState({});
   const { accesToken } = useAuth();
   const selectionType = localStorage.getItem('selectionType');
+  const { statisticID } = useParams();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchEstadisticas = async () => {
       try {
         if (selectionType === 'equipo') {
-          const equipoAPI = new EquipoAPI();
-          const result = await equipoAPI.getUsersByTeam(clubData.id);
-          const members = result.map((item: any) => ({
-            id: item.usuario.id,
+          const api = new estadisticaAPI();
+          const result = await api.getAllEstadisticas(accesToken, statisticID);
+          const statistics = result.map((item: any) => ({
+            id: item.id,
             nombre: item.usuario.nombre,
             apellido: item.usuario.apellido,
-            activo: item.usuario.activo,
-            correo: item.usuario.correo,
-            rol: item.rol,
+            valor: item.valor,
+            fecha: item.fecha,
           }));
-          setData(members);
+          setData(statistics);
         } else if (selectionType === 'club') {
-          const clubAPI = new ClubAPI();
-          const result = await clubAPI.getUsersByClub(clubData.id);
-          const members = result.map((item: any) => ({
-            id: item.usuario.id,
+          const api = new estadisticaAPI();
+          const result = await api.getAllEstadisticas(accesToken, statisticID);
+          const statistics = result.map((item: any) => ({
+            id: item.id,
             nombre: item.usuario.nombre,
             apellido: item.usuario.apellido,
-            activo: item.usuario.activo,
-            correo: item.usuario.correo,
-            rol: item.rol,
+            valor: item.valor,
+            fecha: item.fecha,
           }));
-          setData(members);
+          setData(statistics);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching statistics:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (clubData.id) {
-      fetchData();
+    if (statisticID) {
+      fetchEstadisticas();
     }
-  }, [clubData.id]);
+  }, [statisticID, accesToken]);
 
   const handleDelete = async (id: string) => {
     // try {
@@ -130,11 +122,11 @@ const DataTableDemo: React.FC = () => {
   const handleDownloadExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Members');
-    XLSX.writeFile(workbook, 'members.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Estadisticas');
+    XLSX.writeFile(workbook, 'Estadisticas.xlsx');
   };
 
-  const columns: ColumnDef<Member>[] = [
+  const columns: ColumnDef<statistic>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -188,70 +180,61 @@ const DataTableDemo: React.FC = () => {
       cell: ({ row }) => <div className="ml-4">{row.getValue('apellido')}</div>,
     },
     {
-      accessorKey: 'correo',
+      accessorKey: 'valor',
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Correo
+            Valor
             <ArrowUpDown />
           </Button>
         );
       },
-      cell: ({ row }) => <div className="ml-4">{row.getValue('correo')}</div>,
+      cell: ({ row }) => <div className="ml-4">{row.getValue('valor')}</div>,
     },
     {
-      accessorKey: 'rol',
+      accessorKey: 'fecha',
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Rol
+            Fecha
             <ArrowUpDown />
           </Button>
         );
       },
-      cell: ({ row }) => <div className="ml-4">{row.getValue('rol')}</div>,
+      cell: ({ row }) => <div className="ml-4">{row.getValue('fecha')}</div>,
     },
-    {
-      accessorKey: 'activo',
-      header: 'Activo',
-      cell: ({ row }) => <div>{row.getValue('activo') ? 'Sí' : 'No'}</div>,
-    },
-    ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
-      ? [
-          {
-            id: 'actions',
-            enableHiding: false,
-            header: 'Acciones',
-            cell: ({ row }: { row: any }) => {
-              const member = row.original;
+    // {
+    //   id: 'actions',
+    //   enableHiding: false,
+    //   header: 'Acciones',
+    //   cell: ({ row }: { row: any }) => {
+    //     const member = row.original;
 
-              return (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/${member.id}/edit`}>Editar</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>Borrar</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
-            },
-          },
-        ]
-      : []),
+    //     return (
+    //       <DropdownMenu>
+    //         <DropdownMenuTrigger asChild>
+    //           <Button variant="outline" className="h-8 w-8 p-0">
+    //             <span className="sr-only">Open menu</span>
+    //             <MoreHorizontal />
+    //           </Button>
+    //         </DropdownMenuTrigger>
+    //         <DropdownMenuContent align="end">
+    //           <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+    //           <DropdownMenuItem asChild>
+    //             <Link href={`/${member.id}/edit`}>Editar</Link>
+    //           </DropdownMenuItem>
+    //           <DropdownMenuItem>Borrar</DropdownMenuItem>
+    //         </DropdownMenuContent>
+    //       </DropdownMenu>
+    //     );
+    //   },
+    // },
   ];
 
   const table = useReactTable({
@@ -290,37 +273,23 @@ const DataTableDemo: React.FC = () => {
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
-        <h1 className="h2">Miembros</h1>
+        <h1 className="h2">Estadística</h1>
         <div className="flex items-center space-x-5 h-10">
-          {(rolClub === 'admin' || rolClub === 'gerente') && (
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={handleDownloadExcel}
-                    className="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 rounded-lg transition-colors duration-w-[10rem] h-full px-2"
-                  >
-                    <BiExport className="w-6 h-6" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Exportar</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          {selectionType === 'equipo' &&
-            (rolClub === 'admin' ||
-              rolClub === 'gerente' ||
-              rolClub === 'entrenador') && (
-              <Link
-                href={`/${nameTeam}/members/add`}
-                className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center"
-              >
-                <IoPersonAdd className="w-5 h-5" />
-                <p>Añadir miembro</p>
-              </Link>
-            )}
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleDownloadExcel}
+                  className="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 rounded-lg transition-colors duration-w-[10rem] h-full px-2"
+                >
+                  <BiExport className="w-6 h-6" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Exportar</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       <div className="flex items-center py-4 justify-between">
@@ -330,7 +299,7 @@ const DataTableDemo: React.FC = () => {
           onChange={(event) =>
             table.getColumn('nombre')?.setFilterValue(event.target.value)
           }
-          className="max-w-sm mr-3"
+          className="max-w-sm"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -437,4 +406,4 @@ const DataTableDemo: React.FC = () => {
   );
 };
 
-export default DataTableDemo;
+export default StatisticDetail;
