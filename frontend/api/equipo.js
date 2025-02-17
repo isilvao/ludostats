@@ -97,7 +97,7 @@ export class EquipoAPI {
   async obtenerMisEquipos(userId) {
     try {
       // 📌 Pasamos `userId` como query param en la URL
-      const url = `${this.baseApi}/misequiposv2?user_id=${userId}`;
+      const url = `${this.baseApi}/misequipos?user_id=${userId}`;
 
       const params = {
         method: 'GET',
