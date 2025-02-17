@@ -112,7 +112,7 @@ const Sidebar = () => {
                 width={48} // Aumentar el tamaño del logo
                 height={48} // Aumentar el tamaño del logo
                 className={cn(
-                  'w-12 h-12 rounded-full', // Ajustar el tamaño del logo
+                  'w-12 h-12 object-cover rounded-full border-2 border-gray-100', // Ajustar el tamaño del logo
                   pathname === `/${nameTeam}`
                 )}
               />

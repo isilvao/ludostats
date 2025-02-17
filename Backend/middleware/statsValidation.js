@@ -3,10 +3,10 @@ const UsuarioClub = require('../models/UsuarioClub');
 
 const validateCoachOrGerenteByStatType = async (req, res, next) => {
     const {user_id} = req.user
-    const {id_estadistica} = req.params
+    const {id_tipoestadistica} = req.params
 
     try {
-        const response = await TipoEstadistica.findeOne({where: {id: id_estadistica}})
+        const response = await TipoEstadistica.findOne({where: {id: id_tipoestadistica}})
 
         if (!response){
             return res.status(400).send({msg: "No existe este tipo de estadistica"})
@@ -27,10 +27,10 @@ const validateCoachOrGerenteByStatType = async (req, res, next) => {
 
 const validateCoachOrGerenteOrAdminByStatType = async (req, res, next) => {
     const {user_id} = req.user
-    const {id_estadistica} = req.params
+    const {id_tipoestadistica} = req.params
 
     try {
-        const response = await TipoEstadistica.findeOne({where: {id: id_estadistica}})
+        const response = await TipoEstadistica.findOne({where: {id: id_tipoestadistica}})
 
         if (!response){
             return res.status(400).send({msg: "No existe este tipo de estadistica"})

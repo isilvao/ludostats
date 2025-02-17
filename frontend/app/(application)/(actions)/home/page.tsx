@@ -262,38 +262,35 @@ const Page: React.FC = () => {
 
         {/* Pestañas */}
         <div className="mb-8">
-          <nav className="flex justify-between items-center space-x-4">
+          <nav className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
             <div className="flex space-x-4">
               <button
                 onClick={() => setActiveTab('equipos')}
-                className={`px-4 py-2 font-medium rounded-lg transition 
-          ${
-            activeTab === 'equipos'
-              ? 'bg-brand text-white'
-              : 'bg-gray-200 text-gray-700'
-          }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${
+                  activeTab === 'equipos'
+                    ? 'bg-brand text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
               >
                 Equipos
               </button>
               <button
                 onClick={() => setActiveTab('clubes')}
-                className={`px-4 py-2 font-medium rounded-lg transition 
-          ${
-            activeTab === 'clubes'
-              ? 'bg-brand text-white'
-              : 'bg-gray-200 text-gray-700'
-          }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${
+                  activeTab === 'clubes'
+                    ? 'bg-brand text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
               >
                 Clubes
               </button>
               <button
                 onClick={() => setActiveTab('hijos')}
-                className={`px-4 py-2 font-medium rounded-lg transition 
-          ${
-            activeTab === 'hijos'
-              ? 'bg-brand text-white'
-              : 'bg-gray-200 text-gray-700'
-          }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${
+                  activeTab === 'hijos'
+                    ? 'bg-brand text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
               >
                 Hijos
               </button>
