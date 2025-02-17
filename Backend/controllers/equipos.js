@@ -9,7 +9,7 @@ const { UsuarioClub } = require("../models");
 const crearEquipo = async (req, res) => {
     const { nombre, club_id, nivelPractica, descripcion } =
         req.body;
-    const {user_id} = req.user;
+    const { user_id } = req.user;
 
     if (!nombre || !club_id || !nivelPractica) {
         return res.status(400).json({ msg: "Faltan datos obligatorios" });
@@ -19,8 +19,8 @@ const crearEquipo = async (req, res) => {
         // TODO: Arreglar funcionalidades del logo
         /**
         let imagePath = null
-         *
-        if (req.files.logo){
+
+        if (req.files.logo) {
             imagePath = image.getFilePath(req.files.logo)
         }
         */
@@ -56,7 +56,7 @@ const modificarEquipo = async (req, res) => {
         const equipo = await Equipo.findByPk(id);
 
         if (!equipo) {
-        return res.status(404).json({ msg: "Equipo no encontrado" });
+            return res.status(404).json({ msg: "Equipo no encontrado" });
         }
 
         await equipo.update(datosActualizados);
@@ -75,7 +75,7 @@ const borrarEquipo = async (req, res) => {
         const resultado = await Equipo.destroy({ where: { id } });
 
         if (!resultado) {
-        return res.status(404).json({ msg: "Equipo no encontrado" });
+            return res.status(404).json({ msg: "Equipo no encontrado" });
         }
 
         res.status(200).json({ msg: "Equipo eliminado correctamente" });
@@ -118,11 +118,9 @@ const obtenerMisEquipos = async (req, res) => {
             include: [{ model: Equipo, as: "equipo", include: [{ model: Club, as: "club" }] }],
         });
 
-        console.log(equipos)
-
         respuesta = equipos.map((team) => {
 
-            const response = UsuariosEquipos.findOne({where: {equipo_id: team.equipo.id, rol: 'entrenador'}})
+            const response = UsuariosEquipos.findOne({ where: { equipo_id: team.equipo.id, rol: 'entrenador' } })
 
             return {
                 id: team.equipo.id,
@@ -143,6 +141,7 @@ const obtenerMisEquipos = async (req, res) => {
                     createdAt: team.equipo.club.createdAt,
                     updatedAt: team.equipo.club.updatedAt,
                 },
+                rol: team.rol
             };
         })
 
