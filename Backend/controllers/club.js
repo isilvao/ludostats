@@ -11,7 +11,15 @@ const buscarMisClubes = async (req, res) => {
       where: { usuario_id: user_id },
       include: [{ model: Club, as: "club" }],
     });
-    const clubesResponse = clubes.map((club) => club.club);
+    const clubesResponse = clubes.map((club) => {
+      return {
+        id: club.club.id,
+        nombre: club.club.nombre,
+        deporte: club.club.deporte,
+        logo: club.club.logo,
+        rol: club.rol,
+      }
+    });
 
     res.status(200).json(clubesResponse);
   } catch (error) {
@@ -21,7 +29,7 @@ const buscarMisClubes = async (req, res) => {
 };
 
 const buscarMisClubesGerente = async (req, res) => {
-  const {user_id} = req.params;
+  const { user_id } = req.params;
 
   try {
     const clubes = await UsuarioClub.findAll({
@@ -34,7 +42,7 @@ const buscarMisClubesGerente = async (req, res) => {
     res.status(200).json(clubesResponse);
 
   } catch (error) {
-    return res.status(500).send({msg: "Error al buscar los clubes del gerente"})
+    return res.status(500).send({ msg: "Error al buscar los clubes del gerente" })
   }
 
 }
@@ -44,15 +52,15 @@ const actualizarClub = async (req, res) => {
   let logo = req.file ? req.file.path : null; // 📌 URL de Cloudinary
 
   try {
-      const club = await Club.findByPk(id);
-      if (!club) return res.status(404).json({ msg: "Club no encontrado" });
+    const club = await Club.findByPk(id);
+    if (!club) return res.status(404).json({ msg: "Club no encontrado" });
 
-      await club.update({ logo });
+    await club.update({ logo });
 
-      res.status(200).json({ msg: "Club actualizado", club });
+    res.status(200).json({ msg: "Club actualizado", club });
   } catch (error) {
-      console.error("Error al actualizar club:", error);
-      res.status(500).json({ msg: "Error interno del servidor" });
+    console.error("Error al actualizar club:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
 
