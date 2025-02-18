@@ -18,7 +18,8 @@ const upload = multer({ storage });
 api.post("/nuevoequipo", [md_auth.asureAuth, md_upload], equipoController.crearEquipo);
 
 // Modificar un equipo por su ID
-api.patch("/patchequipo/:id_equipo", [md_auth.asureAuth, md_upload, md_team.validateAdminOrGerenteInTeam], equipoController.modificarEquipo);
+//api.patch("/patchequipo/:id_equipo", [md_auth.asureAuth, md_upload, md_team.validateAdminOrGerenteInTeam], equipoController.modificarEquipo);
+api.patch("/patchequipo/:id_equipo", equipoController.modificarEquipo);
 
 // Eliminar un equipo por su ID
 api.delete("/eliminarequipo/:id_equipo", [md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam], equipoController.borrarEquipo);

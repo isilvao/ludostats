@@ -51,7 +51,7 @@ export class EquipoAPI {
     }
   }
 
-  async modificarEquipo(equipo, accessToken) {
+  async modificarEquipo(equipo) {
     try {
       const url = `${this.baseApi}/patchequipo/${equipo.id}`;
 
@@ -59,7 +59,6 @@ export class EquipoAPI {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(equipo),
       };
