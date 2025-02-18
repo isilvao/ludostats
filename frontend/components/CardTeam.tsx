@@ -1,6 +1,5 @@
-// frontend/components/EquipoCard.tsx
 'use client';
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import { getClubLogo } from '@/lib/utils';
 import { UsuariosEquipos } from '@/api/usuariosEquipos';
 import { useRouter } from 'next/navigation';
@@ -55,38 +54,35 @@ const EquipoCard: React.FC<EquipoCardProps> = ({
       router.push(`/${equipo.nombre.replace(/\s+/g, '')}`);
     } catch (error) {
       console.error('❌ Error al seleccionar el equipo:', error);
-    } finally {
     }
   };
-
-  // const handleSelectTeam = () => {
-  //   setEquipoSeleccionado(equipo, null, equipo.club); // Actualizar el contexto con la información del equipo
-  // };
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center align-middle h-full relative">
       {/* Menú de tres puntos */}
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          setIsMenuOpen(!isMenuOpen);
-        }}
-        className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full"
-      >
-        <svg
-          className="w-6 h-6 text-gray-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      {equipo.rol !== 'gerente' && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setIsMenuOpen(!isMenuOpen);
+          }}
+          className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 5v.01M12 12v.01M12 19v.01"
-          />
-        </svg>
-      </button>
+          <svg
+            className="w-6 h-6 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 5v.01M12 12v.01M12 19v.01"
+            />
+          </svg>
+        </button>
+      )}
 
       {/* Dropdown menu */}
       {isMenuOpen && (
@@ -146,7 +142,6 @@ const EquipoCard: React.FC<EquipoCardProps> = ({
           <div>
             <h3 className="text-lg font-semibold">{equipo.nombre}</h3>
             <p>Club: {equipo.club.nombre}</p>
-            {/* <p>Deporte: {equipo.club.deporte}</p> */}
             <p>Rol: {equipo.rol}</p>
           </div>
         </div>
