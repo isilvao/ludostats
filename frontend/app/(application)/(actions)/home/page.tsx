@@ -1,12 +1,11 @@
 'use client';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { FaTshirt, FaShieldAlt, FaHandshake } from 'react-icons/fa';
+import { FaShieldAlt, FaHandshake } from 'react-icons/fa';
 import { useAuth } from '@/hooks/useAuth';
 import { EquipoAPI } from '@/api/equipo';
 import { ClubAPI } from '@/api/club';
 import LoadingScreen from '@/components/LoadingScreen';
-import { getClubLogo } from '@/lib/utils';
 import { User } from '@/api/user';
 import CardClub from '@/components/CardClub';
 import CardTeam from '@/components/CardTeam';
@@ -17,6 +16,7 @@ interface Equipo {
   //Equipo: {
   nombre: string;
   logo?: string;
+  rol: string;
   club: {
     nombre: string;
     deporte: string;
@@ -64,7 +64,6 @@ const Page: React.FC = () => {
         setEquipos(equiposData);
         const clubesData = await clubAPI.buscarMisClubes(user.id);
         setClubes(clubesData);
-
         const hijos = await userhijo.obtenerMisHijos(accessToken);
         const equiposhijoData = await Promise.all(
           hijos.map(async (hijo: Hijo) => {
