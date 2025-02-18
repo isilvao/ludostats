@@ -204,23 +204,26 @@ export class User {
 
   async actualizarFotoPerfil(userId, file) {
     try {
-      const url = `${this.baseApi}/user_foto/${userId}`;
-      const formData = new FormData();
-      formData.append('foto', file);
+        const url = `${this.baseApi}/user_foto/${userId}`;
+        const formData = new FormData();
+        formData.append('foto', file);
 
-      const params = {
-        method: 'PATCH',
-        body: formData,
-      };
+        const params = {
+            method: 'PATCH',
+            body: formData,
+        };
 
-      const response = await fetch(url, params);
-      const result = await response.json();
+        const response = await fetch(url, params);
+        const result = await response.json();
 
-      if (response.status !== 200) throw result;
+        // if (response.status !== 200) throw result;
 
-      return result;
+        // 📌 Devolver la URL de la imagen
+        return result.foto;
+
     } catch (error) {
-      throw error;
+        throw error;
     }
-  }
+}
+
 }
