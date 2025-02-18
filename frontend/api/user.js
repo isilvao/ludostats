@@ -204,7 +204,7 @@ export class User {
 
   async actualizarFotoPerfil(userId, file) {
     try {
-      const url = `${this.baseApi}/usuario_foto/${userId}`;
+      const url = `${this.baseApi}/user_foto/${userId}`;
       const formData = new FormData();
       formData.append('foto', file);
 
