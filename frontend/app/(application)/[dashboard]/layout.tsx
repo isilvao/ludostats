@@ -5,6 +5,7 @@ import { useEquipoClub } from '@/hooks/useEquipoClub';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { TeamsAPI } from '@/api/teams';
+import HeaderMovile from '@/components/HeaderMovile';
 
 export default function Layout({
   children,
@@ -59,8 +60,9 @@ export default function Layout({
   }
 
   return (
-    <main className="flex h-[91vh] bg-white">
+    <main className="flex-col md:flex-row md:flex h-[80vh] md:h-[91vh] bg-white">
       <Sidebar />
+      <HeaderMovile />
       <section className="flex max-w-full h-full flex-1 flex-col">
         <div className="main-content">{children}</div>
       </section>
