@@ -3,9 +3,12 @@ import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import { ChartInit } from '@/components/ChartInit';
+import { useEquipoClub } from '@/hooks/useEquipoClub';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const { clubData } = useEquipoClub();
+  console.log(clubData);
 
   if (!user) {
     return (
@@ -21,6 +24,7 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  const year = new Date(clubData.createdAt).getFullYear();
   return (
     <>
       <div className=" bg-gray-100">
@@ -36,17 +40,18 @@ const Dashboard: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Tarjeta de información del equipo */}
             <div className="bg-white rounded shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">equipo prueba</h2>
+              <h2 className="text-xl font-semibold mb-4">{clubData.nombre}</h2>
               <div className="space-y-2 text-gray-700">
                 <p>
-                  <span className="font-medium">Deporte:</span> Voleibol
+                  <span className="font-medium">Deporte:</span>{' '}
+                  {clubData.club.deporte}
                 </p>
                 <p>
                   <span className="font-medium">País:</span> Colombia
                 </p>
                 <p>
                   <span className="font-medium">Año de integración:</span>{' '}
-                  Desconocido
+                  {year}
                 </p>
                 <p>
                   <span className="font-medium">Jugadores:</span> 3

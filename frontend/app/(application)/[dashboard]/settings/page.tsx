@@ -51,9 +51,9 @@ const EditPage = () => {
   const selectionType = localStorage.getItem('selectionType');
   const isTeam = selectionType === 'equipo';
   const api = isTeam ? new EquipoAPI() : new ClubAPI();
-  const data = equipoData;
-  const logo = getClubLogo(equipoData);
-  const name = equipoData?.nombre;
+  const data = clubData;
+  const logo = getClubLogo(clubData);
+  const name = clubData?.nombre;
 
   const form = useForm({
     resolver: zodResolver(editSchema),
@@ -209,7 +209,7 @@ const EditPage = () => {
               <Image
                 src={logo}
                 alt="Logo"
-                className="rounded-full w-24 h-24"
+                className="rounded-full w-24 h-24 object-cover border-4 border-gray-100 shadow-md"
                 width={100}
                 height={100}
               />

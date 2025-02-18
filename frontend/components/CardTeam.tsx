@@ -4,12 +4,14 @@ import React, { use, useState } from 'react';
 import { getClubLogo } from '@/lib/utils';
 import { UsuariosEquipos } from '@/api/usuariosEquipos';
 import { useRouter } from 'next/navigation';
+import { useEquipoClub } from '@/hooks/useEquipoClub';
 
 interface EquipoCardProps {
   equipo: {
     id: string;
     nombre: string;
     logo?: string;
+    rol: string;
     club: {
       nombre: string;
       deporte: string;
@@ -28,6 +30,7 @@ const EquipoCard: React.FC<EquipoCardProps> = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const usuariosEquipos = new UsuariosEquipos();
   const router = useRouter();
+  const { resetDatos } = useEquipoClub();
 
   const handleLeaveTeam = () => {
     setShowConfirmation(false);
@@ -41,6 +44,7 @@ const EquipoCard: React.FC<EquipoCardProps> = ({
 
   const handleSelectTeam = async () => {
     try {
+      resetDatos();
       localStorage.setItem('selectedTeamId', equipo.id); // Almacena el ID del equipo en localStorage
       localStorage.setItem(
         'selectedTeamName',
@@ -142,7 +146,8 @@ const EquipoCard: React.FC<EquipoCardProps> = ({
           <div>
             <h3 className="text-lg font-semibold">{equipo.nombre}</h3>
             <p>Club: {equipo.club.nombre}</p>
-            <p>Deporte: {equipo.club.deporte}</p>
+            {/* <p>Deporte: {equipo.club.deporte}</p> */}
+            <p>Rol: {equipo.rol}</p>
           </div>
         </div>
       </button>
