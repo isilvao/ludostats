@@ -26,7 +26,7 @@ const Header = () => {
   };
 
   return (
-    <nav className="header flex items-center justify-between">
+    <nav className="header">
       <Link href="/home">
         <Image
           src="/assets/images/logo-ludostats.svg"

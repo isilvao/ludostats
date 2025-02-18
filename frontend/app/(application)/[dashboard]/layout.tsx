@@ -10,13 +10,7 @@ import HeaderMovile from '@/components/HeaderMovile';
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const {
-    equipoData,
-    clubData,
-    setEquipoSeleccionado,
-    resetDatos,
-    setClubSeleccionado,
-  } = useEquipoClub();
+  const { clubData, setClubSeleccionado } = useEquipoClub();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

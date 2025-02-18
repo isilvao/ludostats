@@ -52,9 +52,8 @@ const EditPage = () => {
   const isTeam = selectionType === 'equipo';
   const api = isTeam ? new EquipoAPI() : new ClubAPI();
   const data = clubData;
-  console.log('data:', equipoData);
   const logo = getClubLogo(clubData);
-  const name = equipoData?.nombre;
+  const name = clubData?.nombre;
 
   const form = useForm({
     resolver: zodResolver(editSchema),

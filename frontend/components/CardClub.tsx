@@ -2,8 +2,8 @@
 // frontend/components/ClubCard.tsx
 import React, { useState } from 'react';
 import { getClubLogo } from '@/lib/utils';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEquipoClub } from '@/hooks/useEquipoClub';
 
 interface ClubCardProps {
   club: {
@@ -17,9 +17,11 @@ interface ClubCardProps {
 
 const ClubCard: React.FC<ClubCardProps> = ({ club, userId }) => {
   const router = useRouter();
+  const { resetDatos } = useEquipoClub();
 
   const handleSelectClub = async () => {
     try {
+      resetDatos();
       localStorage.setItem('selectedTeamId', club.id);
       localStorage.setItem('selectedTeamName', club.nombre.replace(/\s+/g, ''));
       localStorage.setItem('userId', userId);
