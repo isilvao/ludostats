@@ -44,7 +44,7 @@ const profileSchema = z.object({
       message: 'El teléfono debe tener 10 dígitos y solo contener números',
     }),
   fecha_nacimiento: z.string().optional(),
-  genero: z.string().optional(),
+  direccion: z.string().optional(),
 });
 
 const passwordSchema = z
@@ -78,7 +78,7 @@ const Profile = () => {
       correo: user?.correo || '',
       telefono: user?.telefono || '',
       fecha_nacimiento: user?.fecha_nacimiento || '',
-      genero: user?.genero || '',
+      direccion: user?.direccion || '',
     },
   });
 
@@ -100,7 +100,7 @@ const Profile = () => {
         correo: user.correo || '',
         telefono: user.telefono || '',
         fecha_nacimiento: user.fecha_nacimiento || '',
-        genero: user.genero || '',
+        direccion: user.direccion || '',
       });
     }
   }, [user, form]);
@@ -114,9 +114,9 @@ const Profile = () => {
       id: user.id,
       ...values,
     };
-
+    console.log(data);
     try {
-      await userController.updateMe(data);
+      await userController.updateUser(data);
       alert('Perfil actualizado con éxito');
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
@@ -264,19 +264,12 @@ const Profile = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="genero"
+                  name="direccion"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Género</FormLabel>
+                      <FormLabel>Dirección</FormLabel>
                       <FormControl>
-                        <select
-                          {...field}
-                          className="w-full p-2 border border-gray-300 rounded-md"
-                        >
-                          <option value="Masculino">Masculino</option>
-                          <option value="Femenino">Femenino</option>
-                          <option value="Otro">Otro</option>
-                        </select>
+                        <Input {...field} placeholder="Dirección" />
                       </FormControl>
                       <FormMessage className="shad-form-message" />
                     </FormItem>
