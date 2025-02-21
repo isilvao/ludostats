@@ -27,7 +27,32 @@ export class User {
     }
   }
 
-  async updateMe(accessToken, data) {
+  async updateMe(data) {
+    const { id } = data;
+
+    try {
+      const url = `${this.baseApi}/user/updateMe`;
+
+      const params = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateUser(data) {
     const { id } = data;
 
     try {
@@ -37,7 +62,6 @@ export class User {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(data),
       };
@@ -204,7 +228,7 @@ export class User {
 
   async actualizarFotoPerfil(userId, file) {
     try {
-      const url = `${this.baseApi}/usuario_foto/${userId}`;
+      const url = `${this.baseApi}/user_foto/${userId}`;
       const formData = new FormData();
       formData.append('foto', file);
 
@@ -216,11 +240,14 @@ export class User {
       const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 200) throw result;
+      // if (response.status !== 200) throw result;
 
-      return result;
+      // 📌 Devolver la URL de la imagen
+      return result.foto;
+
     } catch (error) {
       throw error;
     }
   }
+
 }

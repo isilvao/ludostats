@@ -15,16 +15,17 @@ const storage = multer.diskStorage({});
 const upload = multer({ storage });
 
 // Crear un equipo
-api.post("/nuevoequipo",[md_auth.asureAuth, md_upload],equipoController.crearEquipo);
+api.post("/nuevoequipo", [md_auth.asureAuth, md_upload], equipoController.crearEquipo);
 
 // Modificar un equipo por su ID
-api.patch("/patchequipo/:id_equipo",[md_auth.asureAuth, md_upload, md_team.validateAdminOrGerenteInTeam],equipoController.modificarEquipo);
+//api.patch("/patchequipo/:id_equipo", [md_auth.asureAuth, md_upload, md_team.validateAdminOrGerenteInTeam], equipoController.modificarEquipo);
+api.patch("/patchequipo/:id_equipo", equipoController.modificarEquipo);
 
 // Eliminar un equipo por su ID
-api.delete("/eliminarequipo/:id_equipo",[md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam],equipoController.borrarEquipo);
+api.delete("/eliminarequipo/:id_equipo", [md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam], equipoController.borrarEquipo);
 
 // Obtener información completa de un equipo por su ID
-api.get("/equipo/:id_equipo",[md_auth.asureAuth],equipoController.obtenerEquipoPorId);
+api.get("/equipo/:id_equipo", [md_auth.asureAuth], equipoController.obtenerEquipoPorId);
 
 // Obtener los equipos de un gerente
 api.get("/misequipos", equipoController.obtenerMisEquipos);

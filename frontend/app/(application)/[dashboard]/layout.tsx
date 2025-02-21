@@ -5,17 +5,12 @@ import { useEquipoClub } from '@/hooks/useEquipoClub';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { TeamsAPI } from '@/api/teams';
+import HeaderMovile from '@/components/HeaderMovile';
 
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const {
-    equipoData,
-    clubData,
-    setEquipoSeleccionado,
-    resetDatos,
-    setClubSeleccionado,
-  } = useEquipoClub();
+  const { clubData, setClubSeleccionado } = useEquipoClub();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -59,8 +54,9 @@ export default function Layout({
   }
 
   return (
-    <main className="flex h-[91vh] bg-white">
+    <main className="flex-col md:flex-row md:flex h-[80vh] md:h-[91vh] bg-white">
       <Sidebar />
+      <HeaderMovile />
       <section className="flex max-w-full h-full flex-1 flex-col">
         <div className="main-content">{children}</div>
       </section>
