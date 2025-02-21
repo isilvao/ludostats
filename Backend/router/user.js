@@ -12,7 +12,7 @@ const upload = require("../middleware/upload"); // 📌 Importamos el middleware
 // Personal Routes
 api.get('/user/me', [md_auth.asureAuth], userController.getMe)
 //api.patch('/user/updateMe', [md_auth.asureAuth, md_upload], userController.updateMe)
-api.patch('/user/updateMe', userController.updateMe)
+api.patch('/user/updateMe', [md_upload], userController.updateMe)
 api.patch("/user2/:id", userController.updatePassword);
 api.get("/user/email", userController.getUserByEmail);
 api.delete("/user/deleteAccount", [md_auth.asureAuth], userController.deleteMe);
@@ -21,7 +21,7 @@ api.delete("/user/deleteAccount", [md_auth.asureAuth], userController.deleteMe);
 api.get('/users', [md_auth.asureAuth], userController.getUsers)
 api.post('/user', [md_auth.asureAuth, md_upload], userController.createUser)
 //api.patch('/user/:id', [md_auth.asureAuth, md_upload], userController.updateUser)
-api.patch('/user/:id', userController.updateUser)
+api.patch('/user/:id', [md_upload], userController.updateUser)
 api.get("/user/me", [md_auth.asureAuth], userController.getMe);
 api.delete("/user/:id", [md_auth.asureAuth], userController.deleteUser);
 

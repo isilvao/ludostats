@@ -165,6 +165,8 @@ async function updateUser(req, res) {
   //   userData.foto = image.getFilePath(req.files.foto);
   // }
 
+  console.log(userData)
+
   User.update(userData, { where: { id } })
     .then((response) => {
       if (!response[0]) {
