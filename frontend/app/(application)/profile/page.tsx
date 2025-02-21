@@ -30,6 +30,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import { useRouter } from 'next/navigation';
 
 const profileSchema = z.object({
   nombre: z.string().min(1, 'Nombre obligatorio'),
@@ -63,9 +64,10 @@ const passwordSchema = z
 
 const Profile = () => {
   const userController = new User();
-  const authController = new Auth();
   const { user, accessToken } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
+  const [profileImage, setProfileImage] = useState(getProfileImage(user));
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
@@ -114,7 +116,7 @@ const Profile = () => {
     };
 
     try {
-      await userController.updateMe(accessToken, data);
+      await userController.updateMe(data);
       alert('Perfil actualizado con éxito');
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
@@ -129,13 +131,6 @@ const Profile = () => {
   const handleChangePassword = async (
     values: z.infer<typeof passwordSchema>
   ) => {
-    // try {
-    //   await authController.changePassword(accessToken, values.oldPassword, values.newPassword);
-    //   alert('Contraseña actualizada con éxito');
-    // } catch (error) {
-    //   console.error('Error al cambiar la contraseña:', error);
-    //   alert('Error al cambiar la contraseña');
-    // }
     alert('Función en desarrollo');
   };
 
@@ -143,9 +138,27 @@ const Profile = () => {
     try {
       await userController.deteleMe(accessToken, user.id);
       alert('Cuenta eliminada con éxito');
+      router.push('/');
     } catch (error) {
       console.error('Error al eliminar la cuenta:', error);
       alert('Error al eliminar la cuenta');
+    }
+  };
+
+  const handleProfileImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const result = await userController.actualizarFotoPerfil(user.id, file);
+        console.log(result);
+        setProfileImage(result); // Assuming the API returns the new image URL
+        alert('Foto de perfil actualizada con éxito');
+      } catch (error) {
+        console.error('Error al actualizar la foto de perfil:', error);
+        alert('Error al actualizar la foto de perfil');
+      }
     }
   };
 
@@ -361,18 +374,25 @@ const Profile = () => {
           <div className="flex flex-col items-center">
             <div className="relative">
               <Image
-                src={getProfileImage(user)}
+                src={profileImage}
                 alt="Foto de perfil"
-                className="rounded-full w-24 h-24 "
+                className="rounded-full w-28 h-28 object-cover"
                 width={100}
                 height={100}
               />
-              <button
-                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white"
-                onClick={() => alert('Función para cambiar foto en desarrollo')}
+              <label
+                htmlFor="profileImageInput"
+                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
               >
                 <CiCamera className="h-6 w-6" />
-              </button>
+              </label>
+              <input
+                id="profileImageInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfileImageChange}
+              />
             </div>
             <h2 className="mt-4 text-xl font-semibold text-gray-800">
               {user.nombre} {user.apellido}
