@@ -154,6 +154,12 @@ async function updateUser(req, res) {
   const { id } = req.params;
   const userData = req.body;
 
+  delete userData.id;
+
+  if (userData.fecha_nacimiento === "") {
+    delete userData.fecha_nacimiento;
+  }
+
   if (userData.contrasena) {
     const salt = bcrypt.genSaltSync(10);
     userData.contrasena = bcrypt.hashSync(userData.contrasena, salt);
@@ -165,7 +171,6 @@ async function updateUser(req, res) {
   //   userData.foto = image.getFilePath(req.files.foto);
   // }
 
-  console.log(userData)
 
   User.update(userData, { where: { id } })
     .then((response) => {
