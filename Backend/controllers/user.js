@@ -161,9 +161,9 @@ async function updateUser(req, res) {
     delete userData.contrasena;
   }
 
-  if (req.files.foto) {
-    userData.foto = image.getFilePath(req.files.foto);
-  }
+  // if (req.files.foto) {
+  //   userData.foto = image.getFilePath(req.files.foto);
+  // }
 
   User.update(userData, { where: { id } })
     .then((response) => {
