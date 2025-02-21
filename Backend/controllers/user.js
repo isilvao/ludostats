@@ -156,6 +156,10 @@ async function updateUser(req, res) {
 
   delete userData.id;
 
+  if (userData.documento === "") {
+    delete userData.documento;
+  }
+
   if (userData.fecha_nacimiento === "") {
     delete userData.fecha_nacimiento;
   }
@@ -182,6 +186,7 @@ async function updateUser(req, res) {
       }
     })
     .catch((err) => {
+      console.log(err)
       res.status(500).send({ msg: "Error al actualizar el usuario" });
     });
 }
