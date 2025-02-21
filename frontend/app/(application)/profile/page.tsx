@@ -35,7 +35,7 @@ const profileSchema = z.object({
   nombre: z.string().min(1, 'Nombre obligatorio'),
   apellido: z.string().min(1, 'Apellido obligatorio'),
   documento: z.string().optional(),
-  correo: z.string().email('Correo inválido'),
+  // correo: z.string().email('Correo inválido'),
   telefono: z
     .string()
     .optional()
@@ -73,7 +73,7 @@ const Profile = () => {
       nombre: user?.nombre || '',
       apellido: user?.apellido || '',
       documento: user?.documento || '',
-      correo: user?.correo || '',
+      // correo: user?.correo || '',
       telefono: user?.telefono || '',
       fecha_nacimiento: user?.fecha_nacimiento || '',
       genero: user?.genero || '',
@@ -95,7 +95,7 @@ const Profile = () => {
         nombre: user.nombre || '',
         apellido: user.apellido || '',
         documento: user.documento || '',
-        correo: user.correo || '',
+        // correo: user.correo || '',
         telefono: user.telefono || '',
         fecha_nacimiento: user.fecha_nacimiento || '',
         genero: user.genero || '',
@@ -202,7 +202,7 @@ const Profile = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="correo"
                   render={({ field }) => (
@@ -218,7 +218,7 @@ const Profile = () => {
                       <FormMessage className="shad-form-message" />
                     </FormItem>
                   )}
-                />
+                /> */}
                 <FormField
                   control={form.control}
                   name="telefono"
