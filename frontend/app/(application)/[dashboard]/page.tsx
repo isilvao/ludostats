@@ -91,33 +91,6 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Columna derecha (estadísticas) */}
-          {/* <h3 className="font-semibold mb-4">Estadísticas</h3>
-            <div className="mb-4">
-              <span className="text-gray-700">Categoría:</span>{' '}
-              <span className="font-bold">Desconocida</span>
-            </div>
-
-
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className="inline-block w-3 h-3 bg-green-500 rounded-full"></span>
-                <span className="text-gray-700">Victoria</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="inline-block w-3 h-3 bg-yellow-400 rounded-full"></span>
-                <span className="text-gray-700">Empate</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
-                <span className="text-gray-700">Derrota</span>
-              </div>
-            </div>
-
-
-            <div className="mt-6 text-gray-500">
-              <p>No hay resultados</p>
-            </div> */}
           <ChartInit />
         </div>
       </div>

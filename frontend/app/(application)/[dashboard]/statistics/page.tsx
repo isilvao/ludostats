@@ -16,7 +16,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -28,6 +27,8 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import { Toaster, toast } from 'sonner';
+import { useParams } from 'next/navigation';
 
 interface TipoEstadistica {
   id: string;
@@ -39,23 +40,37 @@ const EstadisticaCard = ({
   tipoEstadistica,
   onEdit,
   onDelete,
+  nameTeam,
 }: {
   tipoEstadistica: TipoEstadistica;
   onEdit: (tipoEstadistica: TipoEstadistica) => void;
   onDelete: (id: string) => void;
+  nameTeam: string | null;
 }) => (
-  <div className="estadistica-card bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center space-y-4">
-    <h3 className="text-xl font-semibold text-gray-700">
-      {tipoEstadistica.nombre}
-    </h3>
-    <p className="text-gray-600">{tipoEstadistica.descripcion}</p>
-    <div className="flex space-x-4">
-      <Button onClick={() => onEdit(tipoEstadistica)}>Editar</Button>
+  <div className="estadistica-card bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center gap-4 h-full cursor-pointer">
+    <Link href={`/${nameTeam}/statistics/${tipoEstadistica.id}`} passHref>
+      <div className="w-full h-full flex flex-col items-center text-center gap-4">
+        <h3 className="text-xl font-semibold text-gray-700">
+          {tipoEstadistica.nombre}
+        </h3>
+        <p className="text-gray-600">{tipoEstadistica.descripcion}</p>
+      </div>
+    </Link>
+    <div className="flex space-x-4 mt-auto">
+      <Button
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit(tipoEstadistica);
+        }}
+      >
+        Editar
+      </Button>
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button
             variant="destructive"
             className="bg-red text-white hover:bg-red/90"
+            onClick={(e) => e.stopPropagation()}
           >
             Eliminar
           </Button>
@@ -94,6 +109,14 @@ const EstadisticasPage = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editEstadistica, setEditEstadistica] =
     useState<TipoEstadistica | null>(null);
+  const selectionType = localStorage.getItem('selectionType');
+  const params = useParams();
+  const nameTeam: string | null =
+    params && params.dashboard
+      ? Array.isArray(params.dashboard)
+        ? params.dashboard[0]
+        : params.dashboard
+      : null;
 
   useEffect(() => {
     const fetchEstadisticas = async () => {
@@ -132,8 +155,15 @@ const EstadisticasPage = () => {
       ]);
       setNewEstadistica({ nombre: '', descripcion: '' });
       setIsDialogOpen(false);
+      toast.success('Estadística creada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error: any) {
       setError(error);
+      toast.error('Error al crear la estadística');
     }
   };
 
@@ -150,8 +180,15 @@ const EstadisticasPage = () => {
       );
       setEditEstadistica(null);
       setIsEditDialogOpen(false);
+      toast.success('Estadística actualizada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error: any) {
       setError(error);
+      toast.error('Error al actualizar la estadística');
     }
   };
 
@@ -162,8 +199,15 @@ const EstadisticasPage = () => {
       setEstadisticas((prevEstadisticas) =>
         prevEstadisticas.filter((estadistica) => estadistica.id !== id)
       );
+      toast.success('Estadística eliminada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error: any) {
       setError(error);
+      toast.error('Error al eliminar la estadística');
     }
   };
 
@@ -172,6 +216,7 @@ const EstadisticasPage = () => {
 
   return (
     <div className="py-6 px-6 items-center max-w-7xl mx-auto">
+      <Toaster />
       <div className="flex items-center py-4 justify-between">
         <h1 className="h2">Tipos de Estadística</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -240,6 +285,7 @@ const EstadisticasPage = () => {
               setIsEditDialogOpen(true);
             }}
             onDelete={handleDeleteEstadistica}
+            nameTeam={nameTeam}
           />
         ))}
       </div>
