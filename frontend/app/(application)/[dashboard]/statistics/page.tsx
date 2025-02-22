@@ -53,7 +53,12 @@ const EstadisticaCard = ({
       <Button onClick={() => onEdit(tipoEstadistica)}>Editar</Button>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="destructive">Eliminar</Button>
+          <Button
+            variant="destructive"
+            className="bg-red text-white hover:bg-red/90"
+          >
+            Eliminar
+          </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -136,11 +141,7 @@ const EstadisticasPage = () => {
     if (!editEstadistica) return;
     try {
       const api = new estadisticaAPI();
-      const result = await api.updateTipoEstadistica(
-        editEstadistica,
-        accessToken,
-        clubData.id
-      );
+      const result = await api.updateTipoEstadistica(editEstadistica);
       console.log(result);
       setEstadisticas((prevEstadisticas) =>
         prevEstadisticas.map((estadistica) =>
@@ -157,7 +158,7 @@ const EstadisticasPage = () => {
   const handleDeleteEstadistica = async (id: string) => {
     try {
       const api = new estadisticaAPI();
-      await api.deleteTipoEstadistica({ id }, accessToken, clubData.id);
+      await api.deleteTipoEstadistica(id);
       setEstadisticas((prevEstadisticas) =>
         prevEstadisticas.filter((estadistica) => estadistica.id !== id)
       );
