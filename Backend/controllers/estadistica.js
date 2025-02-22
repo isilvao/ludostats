@@ -168,8 +168,6 @@ async function getAllEstadisticasInTeam(req, res) {
             }));
         });
 
-        console.log(estadisticas);
-
         return res.status(200).send(estadisticas)
     } catch (error) {
         return res.status(500).send({ msg: "Error al consultar las estadisticas", error })
