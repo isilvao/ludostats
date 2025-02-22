@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useEquipoClub } from '@/hooks/useEquipoClub';
 import { EquipoAPI } from '@/api/equipo';
 import { ClubAPI } from '@/api/club';
+import { useAuth } from '@/hooks';
 import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
 import {
@@ -30,6 +31,11 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import Resizer from 'react-image-file-resizer';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
+import { FaSpinner } from 'react-icons/fa';
+import { CiCamera } from 'react-icons/ci';
 
 const editSchema = z.object({
   nombre: z.string().min(1, 'Nombre obligatorio'),
@@ -45,14 +51,21 @@ const editSchema = z.object({
 });
 
 const EditPage = () => {
-  const { equipoData, clubData, setEquipoSeleccionado, setClubSeleccionado } =
-    useEquipoClub();
+  const {
+    equipoData,
+    clubData,
+    setEquipoSeleccionado,
+    setClubSeleccionado,
+    updateClubLogo,
+  } = useEquipoClub();
   const [selectedOption, setSelectedOption] = useState('edit');
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
   const selectionType = localStorage.getItem('selectionType');
   const isTeam = selectionType === 'equipo';
   const api = isTeam ? new EquipoAPI() : new ClubAPI();
   const data = clubData;
-  const logo = getClubLogo(clubData);
+  const { accessToken } = useAuth();
+  const [logo, setLogo] = useState(getClubLogo(clubData));
   const name = clubData?.nombre;
 
   const form = useForm({
@@ -75,6 +88,7 @@ const EditPage = () => {
         deporte: data.deporte || '',
         nivelPractica: data.nivelPractica || '',
       });
+      setLogo(getClubLogo(data));
     }
   }, [data, form]);
 
@@ -83,31 +97,92 @@ const EditPage = () => {
   }
 
   const handleSave = async (values: z.infer<typeof editSchema>) => {
-    // try {
-    //   if (isTeam) {
-    //     await api.modificarEquipo(data.id, values);
-    //   } else {
-    //     await api.editarClub(data.id, values);
-    //   }
-    //   alert('Datos actualizados con éxito');
-    // } catch (error) {
-    //   console.error('Error al actualizar los datos:', error);
-    //   alert('Error al actualizar los datos');
-    // }
+    try {
+      console.log('values:', {
+        id: data.id,
+        ...values,
+      });
+      if (isTeam) {
+        await (api as EquipoAPI).modificarEquipo({
+          id: data.id,
+          ...values,
+        });
+      } else {
+        await (api as ClubAPI).editarClub({
+          id: data.id,
+          ...values,
+        });
+      }
+      toast.success('Datos actualizados con éxito');
+    } catch (error) {
+      console.error('Error al actualizar los datos:', error);
+      toast.error('Error al actualizar los datos');
+    }
   };
 
   const handleDelete = async () => {
-    // try {
-    //   if (isTeam) {
-    //     await api.deleteEquipo(data.id);
-    //   } else {
-    //     await api.deleteClub(data.id);
-    //   }
-    //   alert('Eliminado con éxito');
-    // } catch (error) {
-    //   console.error('Error al eliminar:', error);
-    //   alert('Error al eliminar');
-    // }
+    try {
+      if (isTeam) {
+        await (api as EquipoAPI).eliminarEquipo(data.id, accessToken);
+      } else {
+        await (api as ClubAPI).eliminarClub(data.id, accessToken);
+      }
+      toast.success('Eliminado con éxito');
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      toast.error('Error al eliminar');
+    }
+  };
+
+  const handleLogoChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsLoadingImage(true);
+      try {
+        const resizedImage = await new Promise<File>((resolve) => {
+          Resizer.imageFileResizer(
+            file,
+            150, // ancho máximo
+            150, // alto máximo
+            'JPEG', // formato
+            100, // calidad
+            0, // rotación
+            (uri) => {
+              resolve(uri as File);
+            },
+            'file'
+          );
+        });
+
+        let result;
+        if (isTeam) {
+          result = await (api as EquipoAPI).actualizarLogoEquipo(
+            data.id,
+            resizedImage
+          );
+        } else {
+          result = await (api as ClubAPI).actualizarLogoClub(
+            data.id,
+            resizedImage
+          );
+        }
+        setLogo(result.logo); // Actualiza el logo en el estado local
+        updateClubLogo(result.logo); // Actualiza el logo en el contexto
+        toast.success('Logo actualizado con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
+      } catch (error) {
+        console.error('Error al actualizar el logo:', error);
+        toast.error('Error al actualizar el logo');
+      } finally {
+        setIsLoadingImage(false);
+      }
+    }
   };
 
   const renderContent = () => {
@@ -196,22 +271,41 @@ const EditPage = () => {
   };
 
   return (
-    <section className="py-10 mx-8">
+    <section className="py-5 mx-0">
+      <Toaster />
       <div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">
           {isTeam ? 'Editar Equipo' : 'Editar Club'}
         </h1>
       </div>
-      <div className="flex flex-col md:flex-row md:space-x-4">
-        <div className="bg-white px-0 py-10 border border-gray-300 rounded-md md:w-1/4 mb-4 md:mb-0 h-full">
+      <div className="flex flex-col lg:flex-row lg:space-x-4">
+        <div className="bg-white px-0 py-10 border border-gray-300 rounded-md lg:w-1/4 mb-4 lg:mb-0 h-full">
           <div className="flex flex-col items-center">
             <div className="relative">
               <Image
-                src={logo}
+                src={logo} // Asegúrate de que src no sea una cadena vacía
                 alt="Logo"
                 className="rounded-full w-24 h-24 object-cover border-4 border-gray-100 shadow-md"
                 width={100}
                 height={100}
+              />
+              {isLoadingImage && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                  <FaSpinner className="animate-spin text-white h-8 w-8" />
+                </div>
+              )}
+              <label
+                htmlFor="logoInput"
+                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
+              >
+                <CiCamera className="h-6 w-6" />
+              </label>
+              <input
+                id="logoInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoChange}
               />
             </div>
             <h2 className="mt-4 text-xl font-semibold text-gray-800">{name}</h2>
@@ -248,7 +342,7 @@ const EditPage = () => {
             </AlertDialog>
           </ul>
         </div>
-        <div className="bg-white p-6 border border-gray-300 rounded-md md:w-[75%] w-full">
+        <div className="bg-white p-6 border border-gray-300 rounded-md lg:w-[75%] w-full">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             {selectedOption === 'edit' ? 'Editar Información' : ''}
           </h1>
