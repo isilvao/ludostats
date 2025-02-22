@@ -79,27 +79,36 @@ async function deleteMe(req, res) {
 
 async function updatePassword(req, res) {
   const { id } = req.params;
-  const userData = req.body;
+  const { contrasena } = req.body;
 
-  if (userData.contrasena) {
-    const salt = bcrypt.genSaltSync(10);
-    userData.contrasena = bcrypt.hashSync(userData.contrasena, salt);
-  } else {
-    delete userData.contrasena;
+  try {
+    // Obtener el usuario actual de la base de datos
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).send({ msg: "No se ha encontrado el usuario" });
+    }
+
+    // Verificar si la contraseña proporcionada es la misma que la actual
+    const isSamePassword = bcrypt.compareSync(contrasena, user.contrasena);
+
+    if (isSamePassword) {
+      return res.status(501).send({ msg: "La nueva contraseña no puede ser la misma que la actual" });
+    }
+
+    // Si la contraseña es diferente, proceder con la actualización
+    if (contrasena) {
+      const salt = bcrypt.genSaltSync(10);
+      user.contrasena = bcrypt.hashSync(contrasena, salt);
+    }
+
+    await user.save();
+
+    res.status(200).send({ msg: "Usuario actualizado correctamente" });
+    console.log("usuario actualizado correctamente");
+  } catch (err) {
+    res.status(500).send({ msg: "Error al actualizar el usuario" });
   }
-
-  User.update(userData, { where: { id } })
-    .then((response) => {
-      if (!response[0]) {
-        res.status(404).send({ msg: "No se ha encontrado el usuario" });
-      } else {
-        res.status(200).send({ msg: "Usuario actualizado correctamente" });
-        console.log("usuario actualizada correctamente");
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({ msg: "Error al actualizar el usuario" });
-    });
 }
 
 //*********************     GENERAL ROUTES     *********************
