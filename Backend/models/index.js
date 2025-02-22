@@ -218,7 +218,29 @@ UsuarioClub.belongsTo(Club, { foreignKey: 'club_id' });
 Transaccion.belongsTo(Usuario, { foreignKey: 'destinatario_id', as: 'destinatario' });
 
 
+// 📌 Relación de usuarios con transacciones (Usuario envía transacción)
+Usuario.hasMany(Transaccion, { foreignKey: 'usuario_id' });
+Transaccion.belongsTo(Usuario, { foreignKey: 'usuario_id' });
 
-module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, EventoDependencia, initModels, Transaccion, 
+// 📌 Relación de transacciones con clubes
+Transaccion.belongsTo(Club, { foreignKey: 'club_id' });
+Club.hasMany(Transaccion, { foreignKey: 'club_id' });
+
+// 📌 Relación de usuarios con notificaciones
+Usuario.hasMany(Notificacion, { foreignKey: 'usuario_id' });
+Notificacion.belongsTo(Usuario, { foreignKey: 'usuario_id' });
+
+// 📌 Relación de UsuariosClub con usuarios y clubes
+Usuario.hasMany(UsuarioClub, { foreignKey: 'usuario_id' });
+Club.hasMany(UsuarioClub, { foreignKey: 'club_id' });
+UsuarioClub.belongsTo(Usuario, { foreignKey: 'usuario_id' });
+UsuarioClub.belongsTo(Club, { foreignKey: 'club_id' });
+
+// 📌 Relación de transacciones con usuario receptor
+Transaccion.belongsTo(Usuario, { foreignKey: 'destinatario_id', as: 'destinatario' });
+
+
+
+
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento,EventoDependencia, initModels, Transaccion, 
   Notificacion};
-
