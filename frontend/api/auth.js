@@ -1,14 +1,14 @@
-import { basePath, apiVersion } from "./config";
-import {JWT} from './config'
+import { basePath, apiVersion } from "../utils/config";
+import { JWT } from '../utils/config'
 
 export class Auth {
     baseApiUrl = `${basePath}/${apiVersion}`;
 
-    async register(data){
+    async register(data) {
         try {
             const url = `${this.baseApiUrl}/register`;
 
-             // 📌 No incluimos `foto` si es `undefined`
+            // 📌 No incluimos `foto` si es `undefined`
             const requestBody = {
                 nombre: data.nombre,
                 apellido: data.apellido,
@@ -36,7 +36,7 @@ export class Auth {
         }
     }
 
-    async login(data){
+    async login(data) {
         try {
             const url = `${this.baseApiUrl}/login`;
 
@@ -63,7 +63,7 @@ export class Auth {
         }
     }
 
-    async refreshAccessToken(refreshToken){
+    async refreshAccessToken(refreshToken) {
         try {
             const url = `${this.baseApiUrl}/refreshAccessToken`;
             const params = {
@@ -87,42 +87,32 @@ export class Auth {
         }
     }
 
-    setAccessToken(token, rememberMe){
-        if (rememberMe){
-            localStorage.setItem(JWT.ACCESS, token)
-        }else {
-            sessionStorage.setItem(JWT.ACCESS, token)
-        }
+    setAccessToken(token) {
+        localStorage.setItem(JWT.ACCESS, token)
     }
 
-    getAccessToken(){
-        return localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+    getAccessToken() {
+        return localStorage.getItem(JWT.ACCESS);
+    }
+
+    removeTokens() {
+        localStorage.removeItem(JWT.ACCESS);
+        localStorage.removeItem(JWT.REFRESH);
     }
 
     removeAccessToken() {
-        localStorage.removeItem("accessToken");
-        sessionStorage.removeItem("accessToken");
+        localStorage.removeItem(JWT.ACCESS);
     }
 
-    setRefreshToken(token, rememberMe){
-        if (rememberMe){
-            localStorage.setItem(JWT.REFRESH, token)
-        }else {
-            sessionStorage.setItem(JWT.REFRESH, token)
-        }
+    setRefreshToken(token) {
+        localStorage.setItem(JWT.REFRESH, token)
     }
 
-    getRefreshToken(){
-        return localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
+    getRefreshToken() {
+        return localStorage.getItem(JWT.REFRESH);
     }
 
     removeRefreshToken() {
-        localStorage.removeItem("refreshToken");
-        sessionStorage.removeItem("refreshToken");
-    }
-
-    removeTokens(){
-        this.removeAccessToken();
-        this.removeRefreshToken()
+        localStorage.removeItem(JWT.REFRESH);
     }
 }

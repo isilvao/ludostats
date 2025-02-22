@@ -1,4 +1,4 @@
-import { basePath, apiVersion } from './config';
+import { basePath, apiVersion } from '../utils/config';
 import Stripe from 'stripe';
 
 

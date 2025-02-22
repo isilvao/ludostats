@@ -1,4 +1,4 @@
-import { apiVersion, basePath } from './config';
+import { apiVersion, basePath } from '../utils/config';
 
 export class ClubAPI {
   baseApi = `${basePath}/${apiVersion}`;
@@ -94,7 +94,7 @@ export class ClubAPI {
       console.error('❌ Error al crear el club:', error);
       throw error;
     }
-}
+  }
 
   async editarClub(club) {
     try {
