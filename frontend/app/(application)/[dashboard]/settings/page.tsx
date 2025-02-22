@@ -237,7 +237,17 @@ const EditPage = () => {
                   <FormItem>
                     <FormLabel>Nivel de Práctica</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Nivel de Práctica" />
+                      <select
+                        {...field}
+                        value={field.value as string}
+                        className="text-black pl-2 py-2 mt-1 w-full border border-gray-300 rounded-md focus:outline-none focus:border-black focus:ring-1 focus:ring-black/50"
+                      >
+                        <option value="" disabled>
+                          Selecciona un nivel
+                        </option>
+                        <option value="Competitivo">Competitivo</option>
+                        <option value="Recreativo">Recreativo</option>
+                      </select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
