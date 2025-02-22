@@ -26,6 +26,7 @@
     "@schedule-x/calendar": "^2.18.0",
     "@schedule-x/react": "^2.18.0",
     "@schedule-x/theme-shadcn": "^2.18.0",
+    "@stripe/react-stripe-js": "^3.1.1",
     "@tanstack/react-table": "^8.20.6",
     "chart.js": "^4.4.7",
     "class-variance-authority": "^0.7.1",
@@ -44,6 +45,7 @@
     "react-router-dom": "^7.1.1",
     "recharts": "^2.15.1",
     "resend": "^4.1.1",
+    "stripe": "^17.6.0",
     "tailwind-merge": "^2.6.0",
     "xlsx": "^0.18.5",
     "zod": "^3.24.1"
