@@ -195,16 +195,15 @@ export class estadisticaAPI {
     }
   }
 
-  async deleteTipoEstadistica(tipoEstadistica, id_club) {
+  async deleteTipoEstadistica(id_tipoEstadistica, id_club) {
     try {
-      const url = `${this.baseApi}/deletetipoestadistica/${tipoEstadistica.id}/${id_club}`;
+      const url = `${this.baseApi}/deletetipoestadistica/${id_tipoEstadistica}/${id_club}`;
 
       const params = {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(tipoEstadistica),
       };
 
       const response = await fetch(url, params);
