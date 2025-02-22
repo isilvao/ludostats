@@ -171,7 +171,7 @@ export class estadisticaAPI {
     }
   }
 
-  async updateTipoEstadistica(tipoEstadistica, accessToken, id_club) {
+  async updateTipoEstadistica(tipoEstadistica, id_club) {
     try {
       const url = `${this.baseApi}/updatetipoestadistica/${tipoEstadistica.id}/${id_club}`;
 
@@ -179,7 +179,6 @@ export class estadisticaAPI {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(tipoEstadistica),
       };
@@ -196,7 +195,7 @@ export class estadisticaAPI {
     }
   }
 
-  async deleteTipoEstadistica(tipoEstadistica, accessToken, id_club) {
+  async deleteTipoEstadistica(tipoEstadistica, id_club) {
     try {
       const url = `${this.baseApi}/deletetipoestadistica/${tipoEstadistica.id}/${id_club}`;
 
@@ -204,7 +203,6 @@ export class estadisticaAPI {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(tipoEstadistica),
       };
