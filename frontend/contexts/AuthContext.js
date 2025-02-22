@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext } from 'react';
 import { User, Auth } from '../api';
 import { hasExpiredToken } from '../utils';
+import { set } from 'zod';
 
 const userController = new User();
 const authController = new Auth();
@@ -104,6 +105,7 @@ export function AuthProvider(props) {
     login,
     logout,
     updateProfileImage,
+    setUser,
   };
 
   return <AuthContext.Provider value={data}>{children}</AuthContext.Provider>;

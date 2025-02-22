@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '../../../hooks';
 import { User, Auth } from '../../../api';
 import { getProfileImage } from '@/lib/utils';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import LoadingScreen from '@/components/LoadingScreen';
 import {
   Form,
@@ -66,7 +68,7 @@ const passwordSchema = z
 
 const Profile = () => {
   const userController = new User();
-  const { user, accessToken, updateProfileImage } = useAuth();
+  const { user, accessToken, updateProfileImage, setUser } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
   const [profileImage, setProfileImage] = useState(getProfileImage(user));
   const [isLoadingImage, setIsLoadingImage] = useState(false);
@@ -100,9 +102,10 @@ const Profile = () => {
         nombre: user.nombre || '',
         apellido: user.apellido || '',
         documento: user.documento || '',
-        // correo: user.correo || '',
         telefono: user.telefono || '',
-        fecha_nacimiento: user.fecha_nacimiento || '',
+        fecha_nacimiento: user.fecha_nacimiento
+          ? new Date(user.fecha_nacimiento).toISOString().split('T')[0]
+          : '',
         direccion: user.direccion || '',
       });
     }
@@ -116,11 +119,25 @@ const Profile = () => {
     const data = {
       id: user.id,
       ...values,
+      fecha_nacimiento: values.fecha_nacimiento
+        ? new Date(values.fecha_nacimiento).toISOString().split('T')[0]
+        : null,
     };
-    console.log(data);
     try {
       await userController.updateUser(data);
-      alert('Perfil actualizado con éxito');
+      setUser((prevUser: any) => ({
+        ...prevUser,
+        ...values,
+        fecha_nacimiento: values.fecha_nacimiento
+          ? new Date(values.fecha_nacimiento).toISOString().split('T')[0]
+          : null,
+      }));
+      toast.success('Perfil actualizado con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
       if (error instanceof TypeError) {
@@ -176,6 +193,12 @@ const Profile = () => {
         );
         setProfileImage(result); // Assuming the API returns the new image URL
         updateProfileImage(result); // Actualiza la imagen de perfil en el contexto
+        toast.success('Foto de perfil actualizada con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
       } catch (error) {
         console.error('Error al actualizar la foto de perfil:', error);
       } finally {
@@ -380,6 +403,7 @@ const Profile = () => {
 
   return (
     <section className="py-10 mx-8">
+      <Toaster />
       <div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Perfil</h1>
       </div>
