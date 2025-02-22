@@ -212,7 +212,7 @@ async function updateClub(req, res) {
 async function deleteClub(req, res) {
   const { id_club } = req.params;
 
-  const club = req.club;
+  const club = await Club.findByPk(id_club);
 
   club
     .destroy({ where: { id: id_club } })
