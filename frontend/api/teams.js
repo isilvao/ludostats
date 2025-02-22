@@ -234,5 +234,36 @@ export class TeamsAPI {
         throw error;
     }
   }
-  
+
+
+  /////////////////////////////
+  ////////NOTIFICACIONES
+
+
+  async obtenerNotificaciones(usuario_id) {
+    try {
+        const url = `${this.baseApi}/misNotificaciones/${usuario_id}`;
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+  }
+
+  async marcarNotificacionLeida(notificacion_id) {
+    try {
+        const url = `${this.baseApi}/notificacion/${notificacion_id}/leida`;
+        const params = {
+            method: 'PATCH',
+            headers: { "Content-Type": "application/json" }
+        };
+
+        const response = await fetch(url, params);
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 }

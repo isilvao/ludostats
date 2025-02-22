@@ -13,7 +13,7 @@ const Notificacion = sequelize.define('Notificacion', {
         allowNull: false,
     },
     tipo: {
-        type: DataTypes.ENUM('membresia', 'matricula', 'otro'),
+        type: DataTypes.ENUM('membresia', 'matricula', 'otro', 'pago', 'membresia_proxima_expiracion', 'matricula_proxima_expiracion'),
         allowNull: false,
     },
     mensaje: {

@@ -4,6 +4,7 @@ const Usuario = require('../models/Usuario');
 const Club = require("../models/Club");
 const UsuarioClub = require('../models/UsuarioClub'); // Importar el modelo
 const Transaccion = require('../models/Transaccion');
+const Notificacion = require('../models/Notificacion')
 
 
 
@@ -163,19 +164,20 @@ const obtenerTransaccionesPorUsuario = async (req, res) => {
 //CONTROLADOR DE MEMBRESIA y MATRICULA
 
 
-const comprarMembresia = async (req, res) => {
+const comprarMembresia = async (req) => {
     const { usuario_id, tipo_suscripcion, transaccion_id, duracion_meses } = req.body;
 
     if (!usuario_id || !tipo_suscripcion || !transaccion_id || !duracion_meses) {
-        return res.status(400).json({ msg: "Faltan datos obligatorios" });
+        throw new Error("Faltan datos obligatorios");
     }
-    console.log(transaccion_id)
+
+    console.log(transaccion_id);
 
     try {
         const usuario = await Usuario.findByPk(usuario_id);
 
         if (!usuario) {
-            return res.status(404).json({ msg: "Usuario no encontrado" });
+            throw new Error("Usuario no encontrado");
         }
 
         // 📌 Si ya tiene una membresía activa, extender la fecha
@@ -195,22 +197,22 @@ const comprarMembresia = async (req, res) => {
 
         await usuario.save();
 
-        res.status(200).json({ msg: "Membresía actualizada correctamente", usuario });
+        return { msg: "Membresía actualizada correctamente", usuario };
 
     } catch (error) {
         console.error("❌ Error al actualizar la membresía:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
+        throw error;
     }
 };
 
 
 
 
-const comprarMatricula = async (req, res) => {
+const comprarMatricula = async (req) => {
     const { usuario_id, club_id, transaccion_id, duracion_meses } = req.body;
 
     if (!usuario_id || !club_id || !transaccion_id || !duracion_meses) {
-        return res.status(400).json({ msg: "Faltan datos obligatorios" });
+        throw new Error("Faltan datos obligatorios");
     }
 
     try {
@@ -219,10 +221,10 @@ const comprarMatricula = async (req, res) => {
 
         // 📌 Si NO está registrado, cancelar el proceso
         if (!usuarioClub) {
-            return res.status(400).json({ msg: "El usuario no está registrado en el club. Debe unirse primero." });
+            throw new Error("El usuario no está registrado en el club. Debe unirse primero.");
         }
 
-        // 📌 Si está registrado, pero aún no ha pagado (activado: false), actualizar la activación y extender la matrícula
+        // 📌 Si está registrado, actualizar activación y extender la matrícula
         let nuevaFechaFin;
         if (usuarioClub.fecha_fin_matricula && usuarioClub.fecha_fin_matricula > new Date()) {
             nuevaFechaFin = new Date(usuarioClub.fecha_fin_matricula);
@@ -238,13 +240,13 @@ const comprarMatricula = async (req, res) => {
 
         await usuarioClub.save();
 
-        res.status(200).json({ msg: "Matrícula activada correctamente", usuarioClub });
+        return { usuarioClub };
 
     } catch (error) {
-        console.error("❌ Error al actualizar la matrícula:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
+        throw error;
     }
 };
+
 
 
 //////////////////////////////////////
@@ -287,7 +289,17 @@ const pagarMembresia = async (req, res) => {
         }};
 
         // 📌 Llamar a `comprarMembresia()` y ESPERAR SU RESPUESTA
-        await comprarMembresia(fakeReq, res);
+        await comprarMembresia(fakeReq);
+
+        // 📌 Crear notificación para el usuario que pagó
+        await Notificacion.create({
+            usuario_id: usuario_ids,
+            mensaje: `Tu membresía ${tipo_suscripcion} se renovó/adquirió con éxito.`,
+            tipo: "membresia",
+            leido: false
+        });
+
+        res.status(200).json({ msg: "Pago de membresia exitoso"});
 
     } catch (error) {
         console.error("❌ Error al pagar la membresía:", error);
@@ -302,16 +314,46 @@ const pagarMatricula = async (req, res) => {
     try {
         console.log("📌 Body recibido en pagarMatricula:", req.body);
 
-        const { usuario_id, club_id, total, metodo_pago, duracion_meses, destinatario_id } = req.body;
+        let { usuario_id, club_id, total, metodo_pago, duracion_meses, destinatario_id } = req.body;
 
-        if (!usuario_id || !club_id || !total || !metodo_pago || !duracion_meses || !destinatario_id) {
+        if (!usuario_id || !club_id || !total || !metodo_pago || !duracion_meses) {
             return res.status(400).json({ msg: "Faltan datos obligatorios en la solicitud" });
         }
 
+        // 📌 Verificar si el usuario tiene un acudiente
+        const usuario = await Usuario.findByPk(usuario_id);
+        if (!usuario) {
+            return res.status(404).json({ msg: "Usuario no encontrado" });
+        }
+
+        let usuarioPago = usuario;  // Si no tiene acudiente, él es quien paga
+        if (usuario.acudiente_id) {
+            usuarioPago = await Usuario.findByPk(usuario.acudiente_id);
+            if (!usuarioPago) {
+                return res.status(404).json({ msg: "Acudiente no encontrado" });
+            }
+            usuario_id = usuarioPago.id;  // Asignar la transacción al acudiente
+        }
+
+        // 📌 Si destinatario_id es null, buscar al gerente del club
+        if (!destinatario_id) {
+            const gerente = await UsuarioClub.findOne({
+                where: { club_id, rol: "gerente" }
+            });
+            if (!gerente) {
+                return res.status(404).json({ msg: "No se encontró un gerente para este club" });
+            }
+            destinatario_id = gerente.usuario_id;
+        }
+
+        // 📌 Verificar si la matrícula es nueva o renovación
+        const usuarioClubExistente = await UsuarioClub.findOne({ where: { usuario_id: usuario.id, club_id } });
+        const nuevaMatricula = !usuarioClubExistente || !usuarioClubExistente.fecha_fin_matricula;
+
         // 📌 Crear la transacción con `destinatario_id`
         const transaccion = await Transaccion.create({
-            usuario_id, 
-            destinatario_id,  // ✅ Guardamos quién recibe el dinero
+            usuario_id,
+            destinatario_id,
             total,
             tipo: "matricula",
             concepto: `Matrícula en club`,
@@ -324,14 +366,56 @@ const pagarMatricula = async (req, res) => {
 
         // 📌 Simular un objeto `req` falso con `body`
         const fakeReq = { body: {
-            usuario_id,
+            usuario_id: usuario.id, // 🔹 Se usa la ID original para matricular al hijo
             club_id,
             transaccion_id: transaccion.id,
             duracion_meses
         }};
 
         // 📌 Llamar a `comprarMatricula()` y ESPERAR SU RESPUESTA
-        await comprarMatricula(fakeReq, res);
+        const matricula = await comprarMatricula(fakeReq);
+
+        // 📌 Buscar información del club
+        const club = await Club.findByPk(club_id);
+        if (!club) {
+            return res.status(404).json({ msg: "Club no encontrado" });
+        }
+
+        // 📌 Determinar el mensaje de notificación según si es nueva o renovación
+        const mensajeUsuario = nuevaMatricula
+            ? `Te has matriculado por primera vez al club ${club.nombre}.`
+            : `Tu matrícula en el club ${club.nombre} ha sido renovada por ${duracion_meses} meses.`;
+
+        const fechaNotificacion = new Date().toLocaleDateString("es-ES");
+
+        // 📌 Si el usuario tiene un acudiente, incluir ambos nombres en la notificación
+        const nombreUsuario = `${usuario.nombre} ${usuario.apellido}`;
+        const nombrePago = `${usuarioPago.nombre} ${usuarioPago.apellido}`;
+        const mensajeCompleto = usuario.acudiente_id
+            ? `${nombrePago} ha pagado la matrícula de ${nombreUsuario} en el club ${club.nombre}.`
+            : mensajeUsuario;
+
+        // 📌 Crear notificación para el usuario que pagó (o su acudiente)
+        await Notificacion.create({
+            usuario_id: usuarioPago.id,
+            mensaje: `${mensajeCompleto} (Fecha: ${fechaNotificacion})`,
+            tipo: "matricula",
+            leido: false,
+            fecha_creacion: new Date()
+        });
+
+        // 📌 Crear notificación para el gerente del club
+        await Notificacion.create({
+            usuario_id: destinatario_id,
+            mensaje: usuario.acudiente_id
+                ? `${nombrePago} ha pagado una matrícula de ${total} para ${nombreUsuario} en el club ${club.nombre}. (Fecha: ${fechaNotificacion})`
+                : `${nombrePago} ha pagado una matrícula de ${total} en el club ${club.nombre}. (Fecha: ${fechaNotificacion})`,
+            tipo: "matricula",
+            leido: false,
+            fecha_creacion: new Date()
+        });
+
+        res.status(200).json({ msg: "Pago de matrícula exitoso", matricula });
 
     } catch (error) {
         console.error("❌ Error al pagar la matrícula:", error);
@@ -340,6 +424,72 @@ const pagarMatricula = async (req, res) => {
         }
     }
 };
+
+
+//////////////////////////////////////////
+//NOTIFICACIONES///////////////.///////
+
+
+const marcarNotificacionLeida = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const notificacion = await Notificacion.findByPk(id);
+        if (!notificacion) {
+            return res.status(404).json({ msg: "Notificación no encontrada" });
+        }
+
+        notificacion.leido = true;
+        await notificacion.save();
+
+        res.status(200).json({ msg: "Notificación marcada como leída", notificacion });
+
+    } catch (error) {
+        console.error("❌ Error al marcar notificación como leída:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
+const obtenerNotificacionesPorUsuario = async (req, res) => {
+    try {
+        const { usuario_id } = req.params;
+
+        // 📌 Obtener notificaciones del usuario
+        const notificaciones = await Notificacion.findAll({
+            where: { usuario_id },
+            order: [['fecha_creacion', 'DESC']]
+        });
+
+        // 📌 Obtener notificaciones NO leídas
+        const notificacionesNoLeidas = notificaciones.filter(noti => !noti.leido);
+
+        // 📌 Verificar si el usuario tiene un acudiente (y agregar sus notificaciones)
+        const usuario = await Usuario.findByPk(usuario_id);
+        let notificacionesHijo = [];
+
+        if (usuario && usuario.acudiente_id) {
+            notificacionesHijo = await Notificacion.findAll({
+                where: { usuario_id: usuario.acudiente_id },
+                order: [['fecha_creacion', 'DESC']]
+            });
+        }
+
+        const notificacionesFinal = [...notificaciones, ...notificacionesHijo];
+
+        res.status(200).json({
+            notificaciones: notificacionesFinal,
+            noLeidas: notificacionesNoLeidas,
+            notificacionesNuevas: notificacionesNoLeidas.length > 0
+        });
+
+    } catch (error) {
+        console.error("❌ Error al obtener notificaciones:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
 
 
 
@@ -353,5 +503,7 @@ module.exports = {
     comprarMembresia,
     comprarMatricula,
     pagarMatricula,
-    pagarMembresia
+    pagarMembresia,
+    marcarNotificacionLeida,
+    obtenerNotificacionesPorUsuario
   };

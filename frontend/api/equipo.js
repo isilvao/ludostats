@@ -26,30 +26,62 @@ export class EquipoAPI {
     }
   }
 
+  // async crearEquipo(equipo, accessToken) {
+  //   try {
+  //     const url = `${this.baseApi}/nuevoequipo`;
+
+  //     const params = {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //       body: JSON.stringify(equipo),
+  //     };
+
+  //     const response = await fetch(url, params);
+  //     const result = await response.json();
+
+  //     // if (response.status !== 200) throw result;
+
+  //     return result;
+  //   } catch (error) {
+  //     console.error('Error al crear el equipo:', error);
+  //     throw error;
+  //   }
+  // }
+
   async crearEquipo(equipo, accessToken) {
     try {
       const url = `${this.baseApi}/nuevoequipo`;
-
+  
+      const data = new FormData();
+      data.append('nombre', equipo.nombre);
+      data.append('club_id', equipo.club_id);
+      data.append('nivelPractica', equipo.nivelPractica);
+      if (equipo.descripcion) data.append('descripcion', equipo.descripcion);
+      if (equipo.logo) data.append('logo', equipo.logo); // 📌 Agregar el logo si existe
+  
       const params = {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(equipo),
+        body: data, // 📌 Se envía como FormData
       };
-
+  
       const response = await fetch(url, params);
       const result = await response.json();
-
-      // if (response.status !== 200) throw result;
-
+  
+      if (response.status !== 200) throw result;
+  
       return result;
     } catch (error) {
-      console.error('Error al crear el equipo:', error);
+      console.error('❌ Error al crear el equipo:', error);
       throw error;
     }
   }
+  
 
   async modificarEquipo(equipo) {
     try {

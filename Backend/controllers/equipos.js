@@ -6,47 +6,109 @@ const { Op } = require("sequelize"); // 📌 Importamos operadores de Sequelize
 const cloudinary = require('../utils/cloudinary');
 const { UsuarioClub } = require("../models");
 
+// const crearEquipo = async (req, res) => {
+//     const { nombre, club_id, nivelPractica, descripcion } =
+//         req.body;
+//     const { user_id } = req.user;
+
+//     if (!nombre || !club_id || !nivelPractica) {
+//         return res.status(400).json({ msg: "Faltan datos obligatorios" });
+//     }
+
+//     try {
+//         // TODO: Arreglar funcionalidades del logo
+//         /**
+//         let imagePath = null
+
+//         if (req.files.logo) {
+//             imagePath = image.getFilePath(req.files.logo)
+//         }
+//         */
+
+//         const nuevoEquipo = await Equipo.create({
+//             nombre,
+//             descripcion: descripcion,
+//             club_id,
+//             nivelPractica,
+//         });
+
+//         const usuariosEquipos = await UsuariosEquipos.create({
+//             usuario_id: user_id,
+//             equipo_id: nuevoEquipo.id,
+//             rol: 'gerente'
+//         })
+
+//         if (!nuevoEquipo || !usuariosEquipos) {
+//             return res.status(400).json({ msg: "Error al crear el equipo" });
+//         } else {
+//             return res.status(201).json({ msg: "Equipo creado correctamente", equipo: nuevoEquipo });
+//         }
+//     } catch (error) {
+//         return res.status(500).json({ msg: "Error interno del servidor" });
+//     }
+// };
+
+
+
 const crearEquipo = async (req, res) => {
-    const { nombre, club_id, nivelPractica, descripcion } =
-        req.body;
-    const { user_id } = req.user;
-
-    if (!nombre || !club_id || !nivelPractica) {
-        return res.status(400).json({ msg: "Faltan datos obligatorios" });
-    }
-
     try {
-        // TODO: Arreglar funcionalidades del logo
-        /**
-        let imagePath = null
+        const { nombre, club_id, nivelPractica, descripcion } = req.body;
+        const { user_id } = req.user;
 
-        if (req.files.logo) {
-            imagePath = image.getFilePath(req.files.logo)
+        if (!nombre || !club_id || !nivelPractica) {
+            return res.status(400).json({ msg: "Faltan datos obligatorios" });
         }
-        */
 
+        // 📌 Subir imagen a Cloudinary si se proporciona
+        let logoUrl = null;
+        if (req.file) {
+            const resultado = await cloudinary.uploader.upload(req.file.path, {
+                folder: "equipos",
+                public_id: `equipo_${nombre.replace(/ /g, "_")}`,
+                overwrite: true
+            });
+            logoUrl = resultado.secure_url; // 📌 Guardamos la URL de Cloudinary
+        }
+
+        // 📌 Crear el equipo en la BD
         const nuevoEquipo = await Equipo.create({
             nombre,
-            descripcion: descripcion,
+            descripcion,
             club_id,
             nivelPractica,
+            logo: logoUrl
         });
 
+        // 📌 Asignar al usuario como gerente del equipo
         const usuariosEquipos = await UsuariosEquipos.create({
             usuario_id: user_id,
             equipo_id: nuevoEquipo.id,
             rol: 'gerente'
-        })
+        });
 
         if (!nuevoEquipo || !usuariosEquipos) {
             return res.status(400).json({ msg: "Error al crear el equipo" });
-        } else {
-            return res.status(201).json({ msg: "Equipo creado correctamente", equipo: nuevoEquipo });
         }
+
+        // 📌 Devolver la URL del logo si se subió
+        res.status(200).json({ 
+            msg: "Equipo creado correctamente", 
+            equipo: {
+                id: nuevoEquipo.id,
+                nombre: nuevoEquipo.nombre,
+                descripcion: nuevoEquipo.descripcion,
+                club_id: nuevoEquipo.club_id,
+                nivelPractica: nuevoEquipo.nivelPractica,
+                logo: nuevoEquipo.logo // 📌 Devuelve la URL del logo
+            }
+        });
+
     } catch (error) {
-        return res.status(500).json({ msg: "Error interno del servidor" });
+        console.error("❌ Error al crear el equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
     }
 };
+
 
 const modificarEquipo = async (req, res) => {
     const { id } = req.params;
@@ -189,15 +251,61 @@ const getUsersByTeam = async (req, res) => {
     try {
         const users = await UsuariosEquipos.findAll({
             where: { equipo_id: id_equipo },
-            include: [{ model: Usuario, as: "usuario" }],
+            include: [
+                {
+                    model: Usuario,
+                    as: "usuario",
+                    attributes: ["id", "nombre", "apellido", "correo", "acudiente_id"],
+                    include: [
+                        {
+                            model: Usuario,
+                            as: "acudiente",
+                            attributes: ["correo"],
+                        }
+                    ]
+                }
+            ]
         });
 
-        res.status(200).json(users);
+        // 📌 Transformamos los datos antes de enviarlos en la respuesta
+        const formattedUsers = await Promise.all(users.map(async (user) => {
+            let usuarioData = user.usuario.toJSON();  // Convertimos a objeto manipulable
+
+            // 📌 Buscar en UsuarioClub si el usuario está activado en el club correspondiente
+            const usuarioClub = await UsuarioClub.findOne({
+                where: { usuario_id: usuarioData.id },
+                attributes: ["activado"]
+            });
+
+            let activado = usuarioClub ? usuarioClub.activado : false;
+
+            // 📌 Si es "miembro" o tiene un acudiente, cambiamos la info
+            if (user.rol === "miembro" || usuarioData.acudiente_id) {
+                usuarioData.correo = usuarioData.acudiente ? usuarioData.acudiente.correo : usuarioData.correo;
+                user.rol = "deportista";
+            }
+
+            return {
+                id: user.id,
+                equipo_id: user.equipo_id,
+                usuario: {
+                    id: usuarioData.id,
+                    nombre: usuarioData.nombre,
+                    apellido: usuarioData.apellido,
+                    correo: usuarioData.correo,
+                    activo: activado // ✅ Se agrega el estado de activación del usuario
+                },
+                rol: user.rol
+            };
+        }));
+
+        res.status(200).json(formattedUsers);
     } catch (error) {
         console.error("❌ Error al obtener los usuarios del equipo:", error);
         res.status(500).json({ msg: "Error interno del servidor" });
     }
-}
+};
+
 
 module.exports = {
     crearEquipo,

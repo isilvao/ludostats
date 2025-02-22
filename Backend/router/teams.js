@@ -31,4 +31,15 @@ api.post('/pagar-membresia', diegoController.pagarMembresia);
 api.post('/pagar-matricula', diegoController.pagarMatricula);
 
 
+//////////////////////////////////////
+///////////////////////////////////
+//RUTAS DE NOTIFICACIONES (si es diferente)
+
+api.patch('/notificacion/:id/leida', diegoController.marcarNotificacionLeida);
+
+api.get('/misNotificaciones/:usuario_id', diegoController.obtenerNotificacionesPorUsuario);
+
+
+
+
 module.exports = api

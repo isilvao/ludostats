@@ -35,7 +35,7 @@ const createFormSchema = (formType: FormType) => {
       })
       .optional(),
     // Cambiado a File para ser más explícitos
-    // logo: z.instanceof(File).optional(),
+       logo: z.instanceof(File).optional(),
     ...(formType === 'team' && {
       description: z.string().optional(),
       level: z.string().min(1, 'Nivel obligatorio'),
@@ -58,7 +58,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
       name: '',
       ...(type === 'team' && { sport: '' }),
       phone: '',
-      // logo: undefined,
+      logo: undefined,
       ...(type === 'team' && {
         // gender: '',
         description: '',
@@ -93,6 +93,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
             nombre: values.name,
             deporte: values.sport,
             telefono: values.phone || '',
+            logo: values.logo || '',
           },
           accessToken
         );
@@ -105,7 +106,8 @@ const CreateForm = ({ type }: { type: FormType }) => {
             descripcion: values.description || '',
             telefono: values.phone || '',
             nivelPractica: values.level,
-            club_id: values.club,
+            club_id: values.club, 
+            logo: values.logo || '',
           },
           accessToken
         );

@@ -25,7 +25,7 @@ const Evento = sequelize.define('Evento', {
     },
     club_id: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
     },
 })
 

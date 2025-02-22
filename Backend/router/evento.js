@@ -21,4 +21,17 @@ api.post("/nuevoevento/:id_club", eventoController.crearEvento);
 api.patch("/updateevento/:id", eventoController.modificarEvento);
 api.delete("/deleteevento/:id", eventoController.deleteEvento);
 
+/////////////////////////////////////////
+///////////EVENTO DEPENDENCIAS/////
+
+// 📌 Crear evento con dependencias
+api.post('/evento', eventoController.crearEventoConDependencias);
+
+// 📌 Obtener eventos por club
+api.get('/eventos/club/:club_id', eventoController.obtenerEventosPorClub);
+
+// 📌 Obtener eventos por equipo
+api.get('/eventos/equipo/:equipo_id', eventoController.obtenerEventosPorEquipo);
+
+
 module.exports = api;
