@@ -240,14 +240,22 @@ async function diagramaUsuariosDeEquipos(req, res) {
 
         usuarios.forEach(usuario => {
             const mes = moment(usuario.usuario.createdAt).format("MMMM");
+
             if (!usuariosPorMes[mes]) {
                 usuariosPorMes[mes] = 0;
             }
             usuariosPorMes[mes]++;
         });
 
-        const chartData = Object.keys(usuariosPorMes).map(mes => {
-            return { mes: mes, nuevosUsuarios: usuariosPorMes[mes] };
+        let totalUsuarios = 0
+        for (const key in usuariosPorMes) {
+            console.log(key)
+            totalUsuarios += usuariosPorMes[key];
+            usuariosPorMes[key] = totalUsuarios;
+        }
+
+        chartData = Object.keys(usuariosPorMes).map(mes => {
+            return { mes: mes, totalUsuarios: usuariosPorMes[mes] };
         });
 
         res.status(200).send(chartData);
@@ -270,18 +278,24 @@ async function diagramaUsuariosDeClubes(req, res) {
         });
 
         const usuariosPorMes = {};
-        let totalUsuarios = 0
 
         usuarios.forEach(usuario => {
             const mes = moment(usuario.usuario.createdAt).format("MMMM");
-            totalUsuarios++;
+
             if (!usuariosPorMes[mes]) {
                 usuariosPorMes[mes] = 0;
             }
-            usuariosPorMes[mes] = totalUsuarios;
+            usuariosPorMes[mes]++;
         });
 
-        const chartData = Object.keys(usuariosPorMes).map(mes => {
+        let totalUsuarios = 0
+        for (const key in usuariosPorMes) {
+            console.log(key)
+            totalUsuarios += usuariosPorMes[key];
+            usuariosPorMes[key] = totalUsuarios;
+        }
+
+        chartData = Object.keys(usuariosPorMes).map(mes => {
             return { mes: mes, totalUsuarios: usuariosPorMes[mes] };
         });
 
