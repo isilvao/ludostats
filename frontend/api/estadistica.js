@@ -171,7 +171,7 @@ export class estadisticaAPI {
     }
   }
 
-  async updateTipoEstadistica(tipoEstadistica, id_club) {
+  async updateTipoEstadistica(tipoEstadistica) {
     try {
       const url = `${this.baseApi}/updatetipoestadistica/${tipoEstadistica.id}/`;
 
@@ -195,7 +195,7 @@ export class estadisticaAPI {
     }
   }
 
-  async deleteTipoEstadistica(id_tipoEstadistica, id_club) {
+  async deleteTipoEstadistica(id_tipoEstadistica) {
     try {
       const url = `${this.baseApi}/deletetipoestadistica/${id_tipoEstadistica}`;
 
