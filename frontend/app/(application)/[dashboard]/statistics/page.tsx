@@ -1,321 +1,301 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
-import { ClubAPI } from '@/api/club';
+import React, { useEffect, useState } from 'react';
 import { estadisticaAPI } from '@/api/estadistica';
-import { useEquipoClub } from '@/hooks/useEquipoClub';
 import { useAuth } from '@/hooks';
+import { useEquipoClub } from '@/hooks';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 
 interface TipoEstadistica {
-  id: number;
+  id: string;
   nombre: string;
   descripcion: string;
 }
 
-const generateRandomKey = () => {
-  return `key-${Math.random().toString(36).substr(2, 9)}`;
-};
+const EstadisticaCard = ({
+  tipoEstadistica,
+  onEdit,
+  onDelete,
+}: {
+  tipoEstadistica: TipoEstadistica;
+  onEdit: (tipoEstadistica: TipoEstadistica) => void;
+  onDelete: (id: string) => void;
+}) => (
+  <div className="estadistica-card bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center space-y-4">
+    <h3 className="text-xl font-semibold text-gray-700">
+      {tipoEstadistica.nombre}
+    </h3>
+    <p className="text-gray-600">{tipoEstadistica.descripcion}</p>
+    <div className="flex space-x-4">
+      <Button onClick={() => onEdit(tipoEstadistica)}>Editar</Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive">Eliminar</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Estás seguro de que deseas eliminar esta estadística? Esta acción
+              no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => onDelete(tipoEstadistica.id)}>
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  </div>
+);
 
-const Statistics: React.FC = () => {
-  const { accessToken, user } = useAuth();
+const EstadisticasPage = () => {
+  const [estadisticas, setEstadisticas] = useState<TipoEstadistica[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const { accessToken } = useAuth();
   const { clubData } = useEquipoClub();
-  const [tipoEstadisticaData, setTipoEstadisticaData] = useState<
-    TipoEstadistica[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [editing, setEditing] = useState<number | null>(null);
-  const [formData, setFormData] = useState<TipoEstadistica>({
-    id: 0,
+  const [newEstadistica, setNewEstadistica] = useState({
     nombre: '',
     descripcion: '',
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editEstadistica, setEditEstadistica] =
+    useState<TipoEstadistica | null>(null);
 
-  const selectionType = localStorage.getItem('selectionType');
-  const params = useParams();
-  const nameTeam = params
-    ? Array.isArray(params.dashboard)
-      ? params.dashboard[0]
-      : params.dashboard
-    : null;
-
-  // 🔹 Obtener estadísticas según contexto (club o equipo)
   useEffect(() => {
-    const fetchTipoEstadisticas = async () => {
-      if (!accessToken) return;
-
+    const fetchEstadisticas = async () => {
       try {
-        let data;
-        if (selectionType === 'club') {
-          const api = new estadisticaAPI();
-          data = await api.getTipoEstadistica(clubData.id, accessToken);
-          console.log('Data:', data);
-        } else if (selectionType === 'equipo') {
-          const api = new estadisticaAPI();
-          data = await api.getTipoEstadisticaByTeam(clubData.id, accessToken);
-        }
-
-        setTipoEstadisticaData(data || []);
-      } catch (error) {
-        console.error('Error al obtener los tipos de estadísticas:', error);
-        setError('Error al obtener los datos de tipos de estadísticas');
+        const api = new estadisticaAPI();
+        const result = await api.getTipoEstadistica(clubData.id, accessToken);
+        console.log(result);
+        setEstadisticas(result);
+      } catch (error: any) {
+        setError(error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchTipoEstadisticas();
-  }, [accessToken, clubData]);
+    fetchEstadisticas();
+  }, [accessToken, clubData.id]);
 
-  // 🔹 Mostrar formulario para agregar tarjeta
-  const handleCreate = () => {
-    setCreating(true);
-    setFormData({ id: 0, nombre: '', descripcion: '' });
-  };
-
-  // 🔹 Guardar nueva tarjeta
-  const handleSaveCreate = async () => {
-    if (!formData.nombre.trim() || !formData.descripcion.trim() || !accessToken)
-      return;
-
+  const handleCreateEstadistica = async () => {
     try {
-      let newEntry;
-      if (selectionType === 'club') {
-        const api = new estadisticaAPI();
-        newEntry = await api.createTipoEstadistica(
-          formData,
-          accessToken,
-          clubData.id
-        );
-      } else if (selectionType === 'equipo') {
-        const api = new estadisticaAPI();
-        newEntry = await api.createTipoEstadistica(
-          formData,
-          accessToken,
-          clubData.id
-        );
-      }
+      const api = new estadisticaAPI();
+      const result = await api.createTipoEstadistica(
+        newEstadistica,
+        clubData.id
+      );
+      console.log(result);
+      const nuevaEstadistica = {
+        id: result.id,
+        nombre: newEstadistica.nombre,
+        descripcion: newEstadistica.descripcion,
+      };
 
-      if (newEntry?.tipoEstadistica_id) {
-        setTipoEstadisticaData([
-          ...tipoEstadisticaData,
-          { ...newEntry, randomKey: generateRandomKey() },
-        ]);
-      }
-
-      setCreating(false);
-      setFormData({ id: 0, nombre: '', descripcion: '' });
-    } catch (error) {
-      console.error('Error al crear la estadística:', error);
+      setEstadisticas((prevEstadisticas) => [
+        ...prevEstadisticas,
+        nuevaEstadistica,
+      ]);
+      setNewEstadistica({ nombre: '', descripcion: '' });
+      setIsDialogOpen(false);
+    } catch (error: any) {
+      setError(error);
     }
   };
 
-  // 🔹 Editar tarjeta existente
-  const handleEdit = (tipoEstadistica: TipoEstadistica) => {
-    console.log('tipoEstadistica_id:', tipoEstadistica.id);
-    setEditing(tipoEstadistica.id);
-    setFormData({ ...tipoEstadistica });
-  };
-
-  // 🔹 Guardar cambios en una tarjeta editada
-  const handleSaveEdit = async () => {
-    if (!formData.nombre.trim() || !formData.descripcion.trim() || !accessToken)
-      return;
-
+  const handleEditEstadistica = async () => {
+    if (!editEstadistica) return;
     try {
-      if (selectionType === 'club') {
-        const api = new estadisticaAPI();
-        await api.updateTipoEstadistica(formData, accessToken, clubData.id);
-      } else if (selectionType === 'equipo') {
-        const api = new estadisticaAPI();
-        await api.updateTipoEstadistica(formData, accessToken, clubData.id);
-      }
-
-      setTipoEstadisticaData((prevData) =>
-        prevData.map((item) => (item.id === formData.id ? formData : item))
+      const api = new estadisticaAPI();
+      const result = await api.updateTipoEstadistica(
+        editEstadistica,
+        accessToken,
+        clubData.id
       );
-      setEditing(null);
-      setFormData({ id: 0, nombre: '', descripcion: '' });
-    } catch (error) {
-      console.error('Error al actualizar la estadística:', error);
+      console.log(result);
+      setEstadisticas((prevEstadisticas) =>
+        prevEstadisticas.map((estadistica) =>
+          estadistica.id === editEstadistica.id ? editEstadistica : estadistica
+        )
+      );
+      setEditEstadistica(null);
+      setIsEditDialogOpen(false);
+    } catch (error: any) {
+      setError(error);
     }
   };
 
-  // 🔹 Eliminar tarjeta
-  const handleDelete = async (id: number) => {
-    const confirmDelete = window.confirm(
-      '¿Estás seguro de que deseas eliminar esta estadística?'
-    );
-    if (!confirmDelete || !accessToken) return;
-
+  const handleDeleteEstadistica = async (id: string) => {
     try {
-      console.log('Eliminando estadística con ID:', id);
-      console.log(
-        'Contexto:',
-        selectionType === 'club'
-          ? 'Club'
-          : selectionType === 'equipo'
-            ? 'Equipo'
-            : 'Ninguno'
+      const api = new estadisticaAPI();
+      await api.deleteTipoEstadistica({ id }, accessToken, clubData.id);
+      setEstadisticas((prevEstadisticas) =>
+        prevEstadisticas.filter((estadistica) => estadistica.id !== id)
       );
-      if (selectionType === 'club') {
-        const api = new estadisticaAPI();
-        await api.deleteTipoEstadistica({ id }, accessToken, clubData.id);
-      } else if (selectionType === 'equipo') {
-        const api = new estadisticaAPI();
-        await api.deleteTipoEstadistica({ id }, accessToken, clubData.id);
-      }
-
-      setTipoEstadisticaData((prevData) =>
-        prevData.filter((item) => item.id !== id)
-      );
-    } catch (error) {
-      console.error('Error al eliminar la estadística:', error);
+    } catch (error: any) {
+      setError(error);
     }
   };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
-      <p className="text-center">Componente Statistics montado correctamente</p>
-
-      <section className="bg-white p-6 rounded-md shadow-lg mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Tipos de Estadísticas
-        </h1>
-        <p className="text-sm text-gray-500">
-          Contexto:{' '}
-          {selectionType === 'club'
-            ? 'Club'
-            : selectionType === 'equipo'
-              ? 'Equipo'
-              : 'Ninguno'}
-        </p>
-
-        {isLoading ? (
-          <p className="text-center text-gray-600">
-            Cargando tipos de estadísticas...
-          </p>
-        ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {tipoEstadisticaData.length > 0 ? (
-              tipoEstadisticaData.map((tipoEstadistica) => (
-                <Link
-                  href={`/${nameTeam}/statistics/${tipoEstadistica.id}`}
-                  key={tipoEstadistica.id || generateRandomKey()}
-                  className="p-4 border rounded shadow-lg bg-gray-50"
-                >
-                  <h2 className="text-xl font-semibold mb-2">
-                    {tipoEstadistica.nombre}
-                  </h2>
-
-                  <p className="text-gray-600 mb-4">
-                    {tipoEstadistica.descripcion}
-                  </p>
-                  <button
-                    className="bg-yellow-500 text-white px-2 py-1 rounded mr-4"
-                    style={{ marginBottom: 10 }}
-                    onClick={() => handleEdit(tipoEstadistica)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="px-2 py-1 rounded"
-                    style={{
-                      color: 'rgb(255 255 255)',
-                      backgroundColor: 'rgb(255, 99, 71)',
-                    }}
-                    onClick={() => handleDelete(tipoEstadistica.id)}
-                  >
-                    Eliminar
-                  </button>
-                </Link>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">
-                No hay tipos de estadísticas disponibles.
-              </p>
-            )}
-          </div>
-        )}
-        <button
-          className="px-4 py-2 rounded mt-4 block mx-auto"
-          style={{
-            color: 'rgb(255 255 255)',
-            backgroundColor:
-              'rgb(76 175 79 / var(--tw-bg-opacity, 1)) !important',
-          }}
-          onClick={handleCreate}
-        >
-          Agregar Tarjeta
-        </button>
-      </section>
-
-      {/* 🔹 Formulario Modal para Agregar o Editar Tarjeta */}
-      {(creating || editing !== null) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">
-              {editing !== null
-                ? 'Editar Estadística'
-                : 'Agregar Nueva Estadística'}
-            </h2>
-
-            <label className="block text-sm font-medium">Nombre</label>
-            <input
-              type="text"
-              className="border w-full p-2 mb-3"
-              value={formData.nombre}
-              onChange={(e) =>
-                setFormData({ ...formData, nombre: e.target.value })
-              }
-            />
-
-            <label className="block text-sm font-medium">Descripción</label>
-            <input
-              type="text"
-              className="border w-full p-2 mb-3"
-              value={formData.descripcion}
-              onChange={(e) =>
-                setFormData({ ...formData, descripcion: e.target.value })
-              }
-            />
-
-            <div className="flex justify-end space-x-4">
-              <button
-                className="px-4 py-2 rounded"
-                style={{
-                  color: 'rgb(255 255 255)',
-                  backgroundColor:
-                    'rgb(76 175 79 / var(--tw-bg-opacity, 1)) !important',
-                }}
-                onClick={editing !== null ? handleSaveEdit : handleSaveCreate}
-              >
-                Guardar
-              </button>
-              <button
-                className="px-4 py-2 rounded"
-                style={{
-                  color: 'rgb(255 255 255)',
-                  backgroundColor: 'rgb(255, 99, 71)',
-                }}
-                onClick={() => {
-                  setCreating(false);
-                  setEditing(null);
-                }}
-              >
-                Cancelar
-              </button>
+    <div className="py-6 px-6 items-center max-w-7xl mx-auto">
+      <div className="flex items-center py-4 justify-between">
+        <h1 className="h2">Tipos de Estadística</h1>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+              <span>Agregar Nueva</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Crear nueva estadística</DialogTitle>
+              <DialogDescription>
+                Ingresa los detalles de la nueva estadística. Haz clic en
+                guardar cuando termines.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="nombre" className="text-right">
+                  Nombre
+                </Label>
+                <Input
+                  id="nombre"
+                  value={newEstadistica.nombre}
+                  onChange={(e) =>
+                    setNewEstadistica({
+                      ...newEstadistica,
+                      nombre: e.target.value,
+                    })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="descripcion" className="text-right">
+                  Descripción
+                </Label>
+                <Input
+                  id="descripcion"
+                  value={newEstadistica.descripcion}
+                  onChange={(e) =>
+                    setNewEstadistica({
+                      ...newEstadistica,
+                      descripcion: e.target.value,
+                    })
+                  }
+                  className="col-span-3"
+                />
+              </div>
             </div>
-          </div>
-        </div>
+            <DialogFooter>
+              <Button type="button" onClick={handleCreateEstadistica}>
+                Guardar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <div className="estadisticas-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {estadisticas.map((tipoEstadistica) => (
+          <EstadisticaCard
+            key={tipoEstadistica.id}
+            tipoEstadistica={tipoEstadistica}
+            onEdit={(estadistica) => {
+              setEditEstadistica(estadistica);
+              setIsEditDialogOpen(true);
+            }}
+            onDelete={handleDeleteEstadistica}
+          />
+        ))}
+      </div>
+      {editEstadistica && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Editar estadística</DialogTitle>
+              <DialogDescription>
+                Modifica los detalles de la estadística. Haz clic en guardar
+                cuando termines.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-nombre" className="text-right">
+                  Nombre
+                </Label>
+                <Input
+                  id="edit-nombre"
+                  value={editEstadistica.nombre}
+                  onChange={(e) =>
+                    setEditEstadistica({
+                      ...editEstadistica,
+                      nombre: e.target.value,
+                    })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-descripcion" className="text-right">
+                  Descripción
+                </Label>
+                <Input
+                  id="edit-descripcion"
+                  value={editEstadistica.descripcion}
+                  onChange={(e) =>
+                    setEditEstadistica({
+                      ...editEstadistica,
+                      descripcion: e.target.value,
+                    })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={handleEditEstadistica}>
+                Guardar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
 };
 
-export default Statistics;
+export default EstadisticasPage;

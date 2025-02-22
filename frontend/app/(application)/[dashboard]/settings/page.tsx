@@ -68,6 +68,7 @@ const EditPage = () => {
   const { accessToken } = useAuth();
   const [logo, setLogo] = useState(getClubLogo(clubData));
   const [name, setName] = useState(clubData?.nombre);
+  const [nivelPractica, setNivelPractica] = useState(data?.nivelPractica || '');
 
   const form = useForm({
     resolver: zodResolver(editSchema),
@@ -91,6 +92,7 @@ const EditPage = () => {
       });
       setLogo(getClubLogo(data));
       setName(data.nombre); // Actualizar el nombre en el estado local
+      setNivelPractica(data.nivelPractica); // Actualizar el nivel de práctica en el estado local
     }
   }, [data, form]);
 
@@ -117,6 +119,10 @@ const EditPage = () => {
       }
       updateClubName(values.nombre); // Actualizar el nombre en el contexto
       setName(values.nombre); // Actualizar el nombre en el estado local
+      form.reset(values); // Actualizar el formulario con los nuevos valores
+      if (isTeam) {
+        setNivelPractica(values.nivelPractica); // Actualizar el nivel de práctica en el estado local
+      }
       toast.success('Datos actualizados con éxito', {
         style: {
           background: '#4CAF50', // Fondo verde
