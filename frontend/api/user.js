@@ -106,6 +106,29 @@ export class User {
     }
   }
 
+  async updatePasswordFromProfile(id, contrasena, nuevaContrasena) {
+    try {
+      const url = `${this.baseApi}/user/updatePasswordFromProfile/${id}`;
+
+      const params = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contrasena, nuevaContrasena }),
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async deteleMe(accessToken, id) {
     try {
       const url = `${this.baseApi}/user/deleteAccount`;

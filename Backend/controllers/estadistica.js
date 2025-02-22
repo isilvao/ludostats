@@ -189,6 +189,8 @@ async function diagramaBarrasEstadisticaPorEquipo(req, res) {
             })
         })
 
+        let chartData = []
+
         res.status(200).send(usuarios)
     } catch (error) {
         return res.status(500).send({ msg: "Error al consultar las estadisticas", error })

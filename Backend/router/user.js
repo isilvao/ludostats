@@ -17,6 +17,8 @@ api.patch("/user2/:id", userController.updatePassword);
 api.get("/user/email", userController.getUserByEmail);
 api.delete("/user/deleteAccount", [md_auth.asureAuth], userController.deleteMe);
 
+api.patch('/user/updatePasswordFromProfile/:id', userController.updatePasswordFromProfile)
+
 // General Routes
 api.get('/users', [md_auth.asureAuth], userController.getUsers)
 api.post('/user', [md_auth.asureAuth, md_upload], userController.createUser)
