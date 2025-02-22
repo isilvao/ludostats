@@ -46,7 +46,9 @@ async function createTipoEstadistica(req, res) {
 
 async function updateTipoEstadistica(req, res) {
 
-    const tipoEstadistica = req.tipoEstadistica
+    const { id_tipoestadistica } = req.params;
+
+    const tipoEstadistica = await TipoEstadistica.findByPk(id_tipoestadistica);
 
     tipoEstadistica.update({
         ...req.body
@@ -63,7 +65,10 @@ async function updateTipoEstadistica(req, res) {
 }
 
 async function deleteTipoEstadistica(req, res) {
-    const tipoEstadistica = req.tipoEstadistica
+
+    const { id_tipoestadistica } = req.params;
+
+    const tipoEstadistica = await TipoEstadistica.findByPk(id_tipoestadistica);
 
     tipoEstadistica.destroy().then(() => {
         res.status(200).send({ msg: "Tipo de estadistica eliminado correctamente", success: true })
