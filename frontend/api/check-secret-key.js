@@ -1,12 +1,25 @@
+import { basePath, apiVersion } from './config';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
+
+  const baseApiUrl = `${basePath}/${apiVersion}`;
+
+  const url = `${baseApiUrl}/getSecretKeyStripe`;
+
+  const response = await fetch(url);
+  const result = await response.json();
+
+  if (response.status !== 200) throw result;
+
+  console.log("WTFFF SECRET KEYYY", result)
+
+  const stripe = new Stripe(SECRETKEY);
   const { pathname } = new URL(req.url, `http://${req.headers.host}`);
 
   if (pathname === '/api/check-secret-key' && req.query.route === 'check-secret-key') {
-    console.log("🔐 Clave secreta de Stripe (Backend):", process.env.STRIPE_SECRET_KEY);
+    console.log("🔐 Clave secreta de Stripe (Backend):", SECRETKEY);
     return res.status(200).json({ message: 'Clave secreta de Stripe registrada en el servidor' });
   }
 
