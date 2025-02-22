@@ -26,7 +26,7 @@ api.get('/club/:id', clubController.encontrarClubPorId);
 api.get('/club/equipo/:id', clubController.encontrarClubPorEquipoId);
 
 //api.patch("/club_logo/:id", upload.single("logo"), clubController.actualizarClub);
-api.patch("/club_logo/:id", upload.single("logo"), clubController.actualizarClubLogo);
+api.patch("/club_logo/:id_club", upload.single("logo"), clubController.actualizarClubLogo);
 
 api.get('/club/users/:id_club', clubController.getUsersByClub);
 
