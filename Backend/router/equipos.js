@@ -23,7 +23,7 @@ api.post("/nuevoequipo", [md_auth.asureAuth, upload.single("logo")], equipoContr
 api.patch("/patchequipo/:id_equipo", equipoController.modificarEquipo);
 
 // Eliminar un equipo por su ID
-api.delete("/eliminarequipo/:id_equipo", [md_auth.asureAuth, md_team.validateAdminOrGerenteInTeam], equipoController.borrarEquipo);
+api.delete("/eliminarequipo/:id_equipo", equipoController.borrarEquipo);
 
 // Obtener información completa de un equipo por su ID
 api.get("/equipo/:id_equipo", [md_auth.asureAuth], equipoController.obtenerEquipoPorId);
