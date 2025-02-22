@@ -248,17 +248,11 @@ export class estadisticaAPI {
     throw error;
   }
 
-  async getAllEstadisticasByTeam(id_team, id_tipoEstadistica, accessToken) {
+  async getAllEstadisticasByTeam(id_team, id_tipoEstadistica) {
     try {
       const url = `${this.baseApi}/estadisticas/${id_tipoEstadistica}/${id_team}`;
 
-      const params = {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
-
-      const response = await fetch(url, params);
+      const response = await fetch(url);
       const result = await response.json();
 
       if (response.status !== 200)

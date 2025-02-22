@@ -36,7 +36,7 @@ import {
 } from '@/components/ui/table';
 import Link from 'next/link';
 // import { useParams } from 'next/navigation';
-// import { useEquipoClub } from '@/hooks/useEquipoClub';
+import { useEquipoClub } from '@/hooks/useEquipoClub';
 // import { EquipoAPI } from '@/api/equipo';
 // import { ClubAPI } from '@/api/club';
 import * as XLSX from 'xlsx';
@@ -70,13 +70,19 @@ const StatisticDetail: React.FC = () => {
   const { accesToken } = useAuth();
   const selectionType = localStorage.getItem('selectionType');
   const { statisticID } = useParams();
+  const { clubData } = useEquipoClub();
 
   useEffect(() => {
     const fetchEstadisticas = async () => {
       try {
         if (selectionType === 'equipo') {
           const api = new estadisticaAPI();
-          const result = await api.getAllEstadisticas(accesToken, statisticID);
+          const result = await api.getAllEstadisticasByTeam(
+            clubData.id,
+            statisticID
+          );
+          console.log('result:', result);
+          console.log('clubData', clubData);
           const statistics = result.map((item: any) => ({
             id: item.id,
             nombre: item.usuario.nombre,

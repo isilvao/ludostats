@@ -56,10 +56,36 @@ const passwordSchema = z
     oldPassword: z.string().min(1, 'Antigua contraseña obligatoria'),
     newPassword: z
       .string()
-      .min(6, 'Nueva contraseña debe tener al menos 6 caracteres'),
+      .min(8, 'La contraseña debe tener al menos 8 caracteres')
+      .regex(
+        /[a-z]/,
+        'La contraseña debe contener al menos una letra minúscula'
+      )
+      .regex(
+        /[A-Z]/,
+        'La contraseña debe contener al menos una letra mayúscula'
+      )
+      .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
+      .regex(
+        /[^a-zA-Z0-9]/,
+        'La contraseña debe contener al menos un carácter especial'
+      ),
     confirmPassword: z
       .string()
-      .min(6, 'Confirmar contraseña debe tener al menos 6 caracteres'),
+      .min(8, 'La contraseña debe tener al menos 8 caracteres')
+      .regex(
+        /[a-z]/,
+        'La contraseña debe contener al menos una letra minúscula'
+      )
+      .regex(
+        /[A-Z]/,
+        'La contraseña debe contener al menos una letra mayúscula'
+      )
+      .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
+      .regex(
+        /[^a-zA-Z0-9]/,
+        'La contraseña debe contener al menos un carácter especial'
+      ),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
@@ -151,7 +177,31 @@ const Profile = () => {
   const handleChangePassword = async (
     values: z.infer<typeof passwordSchema>
   ) => {
-    alert('Función en desarrollo');
+    try {
+      await userController.updatePasswordFromProfile(
+        user.id,
+        values.oldPassword,
+        values.newPassword
+      );
+      toast.success('Contraseña actualizada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    } catch (error) {
+      console.error('Error al actualizar la contraseña:', error);
+      if (
+        error instanceof Error &&
+        error.message === 'Contraseña antigua incorrecta'
+      ) {
+        alert(
+          'La contraseña antigua no coincide. Por favor, inténtalo de nuevo.'
+        );
+      } else {
+        alert('Error al actualizar la contraseña');
+      }
+    }
   };
 
   const handleDeleteAccount = async () => {
