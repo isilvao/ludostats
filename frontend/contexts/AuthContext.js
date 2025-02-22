@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext } from 'react';
 import { User, Auth } from '../api';
 import { hasExpiredToken } from '../utils';
+import { set } from 'zod';
 
 const userController = new User();
 const authController = new Auth();
@@ -80,15 +81,21 @@ export function AuthProvider(props) {
 
   const logout = async () => {
     return new Promise((resolve) => {
-      // Simulamos un pequeño retraso para ilustrar un flujo asincrónico
       setTimeout(() => {
         setUser(null);
         setToken(null);
         authController.removeTokens();
         console.log('Cuenta cerrada exitosamente');
-        resolve(); // Marca que la operación se ha completado
-      }, 0); // Retraso mínimo; puede eliminarse si no es necesario
+        resolve();
+      }, 0);
     });
+  };
+
+  const updateProfileImage = (newImageUrl) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      foto: newImageUrl, // <-- Aquí está la corrección importante
+    }));
   };
 
   const data = {
@@ -97,6 +104,8 @@ export function AuthProvider(props) {
     loading,
     login,
     logout,
+    updateProfileImage,
+    setUser,
   };
 
   return <AuthContext.Provider value={data}>{children}</AuthContext.Provider>;

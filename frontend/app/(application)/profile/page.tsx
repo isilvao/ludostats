@@ -1,5 +1,6 @@
 'use client';
 import { CiCamera } from 'react-icons/ci';
+import { FaSpinner } from 'react-icons/fa'; // Importa el spinner de react-icons
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
@@ -9,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '../../../hooks';
 import { User, Auth } from '../../../api';
 import { getProfileImage } from '@/lib/utils';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import LoadingScreen from '@/components/LoadingScreen';
 import {
   Form,
@@ -31,12 +34,13 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import Resizer from 'react-image-file-resizer';
 
 const profileSchema = z.object({
   nombre: z.string().min(1, 'Nombre obligatorio'),
   apellido: z.string().min(1, 'Apellido obligatorio'),
   documento: z.string().optional(),
-  correo: z.string().email('Correo inválido'),
+  // correo: z.string().email('Correo inválido'),
   telefono: z
     .string()
     .optional()
@@ -64,9 +68,10 @@ const passwordSchema = z
 
 const Profile = () => {
   const userController = new User();
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, updateProfileImage, setUser } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
   const [profileImage, setProfileImage] = useState(getProfileImage(user));
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
   const router = useRouter();
 
   const form = useForm({
@@ -75,7 +80,7 @@ const Profile = () => {
       nombre: user?.nombre || '',
       apellido: user?.apellido || '',
       documento: user?.documento || '',
-      correo: user?.correo || '',
+      // correo: user?.correo || '',
       telefono: user?.telefono || '',
       fecha_nacimiento: user?.fecha_nacimiento || '',
       direccion: user?.direccion || '',
@@ -97,9 +102,10 @@ const Profile = () => {
         nombre: user.nombre || '',
         apellido: user.apellido || '',
         documento: user.documento || '',
-        correo: user.correo || '',
         telefono: user.telefono || '',
-        fecha_nacimiento: user.fecha_nacimiento || '',
+        fecha_nacimiento: user.fecha_nacimiento
+          ? new Date(user.fecha_nacimiento).toISOString().split('T')[0]
+          : '',
         direccion: user.direccion || '',
       });
     }
@@ -113,11 +119,25 @@ const Profile = () => {
     const data = {
       id: user.id,
       ...values,
+      fecha_nacimiento: values.fecha_nacimiento
+        ? new Date(values.fecha_nacimiento).toISOString().split('T')[0]
+        : null,
     };
-    console.log(data);
     try {
       await userController.updateUser(data);
-      alert('Perfil actualizado con éxito');
+      setUser((prevUser: any) => ({
+        ...prevUser,
+        ...values,
+        fecha_nacimiento: values.fecha_nacimiento
+          ? new Date(values.fecha_nacimiento).toISOString().split('T')[0]
+          : null,
+      }));
+      toast.success('Perfil actualizado con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
       if (error instanceof TypeError) {
@@ -150,14 +170,39 @@ const Profile = () => {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      setIsLoadingImage(true);
       try {
-        const result = await userController.actualizarFotoPerfil(user.id, file);
-        console.log(result);
+        const resizedImage = await new Promise<File>((resolve) => {
+          Resizer.imageFileResizer(
+            file,
+            150, // ancho máximo
+            150, // alto máximo
+            'JPEG', // formato
+            100, // calidad
+            0, // rotación
+            (uri) => {
+              resolve(uri as File);
+            },
+            'file'
+          );
+        });
+
+        const result = await userController.actualizarFotoPerfil(
+          user.id,
+          resizedImage
+        );
         setProfileImage(result); // Assuming the API returns the new image URL
-        alert('Foto de perfil actualizada con éxito');
+        updateProfileImage(result); // Actualiza la imagen de perfil en el contexto
+        toast.success('Foto de perfil actualizada con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
       } catch (error) {
         console.error('Error al actualizar la foto de perfil:', error);
-        alert('Error al actualizar la foto de perfil');
+      } finally {
+        setIsLoadingImage(false);
       }
     }
   };
@@ -215,7 +260,7 @@ const Profile = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="correo"
                   render={({ field }) => (
@@ -230,8 +275,7 @@ const Profile = () => {
                       </FormControl>
                       <FormMessage className="shad-form-message" />
                     </FormItem>
-                  )}
-                />
+                  )} */}
                 <FormField
                   control={form.control}
                   name="telefono"
@@ -359,6 +403,7 @@ const Profile = () => {
 
   return (
     <section className="py-10 mx-8">
+      <Toaster />
       <div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Perfil</h1>
       </div>
@@ -373,6 +418,12 @@ const Profile = () => {
                 width={100}
                 height={100}
               />
+              {isLoadingImage && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                  <FaSpinner className="animate-spin text-white h-8 w-8" />{' '}
+                  {/* Usa el spinner de react-icons */}
+                </div>
+              )}
               <label
                 htmlFor="profileImageInput"
                 className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
