@@ -28,8 +28,10 @@ async function createTipoEstadistica(req, res) {
     const data = req.body;
     delete data.id;
 
+    console.log(data)
+
     TipoEstadistica.create({
-        data,
+        ...data,
         club_id: id_club,
     }).then((tipoEstadisticaStored) => {
         if (!tipoEstadisticaStored) {
