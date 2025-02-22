@@ -1,8 +1,9 @@
-'use client';
+"use client"
 
-import * as React from 'react';
-import { TrendingUp } from 'lucide-react';
-import { Label, Pie, PieChart } from 'recharts';
+import React, { useEffect, useState } from 'react';
+import { TrendingUp } from "lucide-react"
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { estadisticaAPI } from "@/api/estadistica"
 
 import {
   Card,
@@ -11,116 +12,109 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card"
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
-const chartData = [
-  { browser: 'chrome', visitors: 275, fill: '#0088FE' },
-  { browser: 'safari', visitors: 200, fill: '#00C49F' },
-  { browser: 'firefox', visitors: 287, fill: '#FFBB28' },
-  { browser: 'edge', visitors: 173, fill: '#FF8042' },
-  { browser: 'other', visitors: 190, fill: '#FF8042' },
-];
+} from "@/components/ui/chart"
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors',
+  desktop: {
+    label: "Desktop",
+    color: "hsl(120, 100%, 50%)",
   },
-  chrome: {
-    label: 'Chrome',
-    color: 'hsl(var(--chart-1))',
-  },
-  safari: {
-    label: 'Safari',
-    color: 'hsl(var(--chart-2))',
-  },
-  firefox: {
-    label: 'Firefox',
-    color: 'hsl(var(--chart-3))',
-  },
-  edge: {
-    label: 'Edge',
-    color: 'hsl(var(--chart-4))',
-  },
-  other: {
-    label: 'Other',
-    color: 'hsl(var(--chart-5))',
-  },
-} satisfies ChartConfig;
+} satisfies ChartConfig
+
+interface ChartDatas {
+  mes: string
+  totalUsuarios: number
+}
 
 export function ChartInit() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [estadisticas, setEstadisticas] = useState<ChartDatas[]>([]);
+  const [firstMonth, setFirstMonth] = useState<string>("");
+  const [lastMonth, setLastMonth] = useState<string>("");
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const apiEstadisticas = new estadisticaAPI()
+
+        const id_team = "837ebb9f-64ce-46e9-9c6d-31307331afa7"
+
+        const data = await apiEstadisticas.diagramaUsuariosEquipo(id_team)
+
+        //TODO: Cambiar los datos de mes a espanol
+
+        setFirstMonth(data[0].mes)
+        setLastMonth(data[data.length - 1].mes)
+
+        setEstadisticas(data)
+      } catch (error: any) {
+        setError(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+    <Card>
+      <CardHeader>
+        <CardTitle>Nuevos Usuarios</CardTitle>
+        <CardDescription>
+          Se muestra el recuento de los nuevos usuarios
+        </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <PieChart>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <AreaChart
+            accessibilityLayer
+            data={estadisticas}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
+          >
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="mes"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value.slice(0, 3)}
+            />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent indicator="line" />}
             />
-            <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={60}
-              strokeWidth={5}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
-                        >
-                          {totalVisitors.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Visitors
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
+            <Area
+              dataKey="totalUsuarios"
+              type="natural"
+              fill="var(--color-desktop)"
+              fillOpacity={0.4}
+              stroke="var(--color-desktop)"
+            />
+          </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+      <CardFooter>
+        <div className="flex w-full items-start gap-2 text-sm">
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2 leading-none text-muted-foreground">
+              Los datos se muestran desde {firstMonth} hasta {lastMonth}
+            </div>
+          </div>
         </div>
       </CardFooter>
     </Card>
-  );
+  )
 }

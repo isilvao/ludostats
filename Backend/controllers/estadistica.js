@@ -9,11 +9,11 @@ const { Op } = require('sequelize');
 const moment = require('moment');
 
 async function getMyEstadisticas(req, res) {
-    const { user_id } = req.user
+    const { id } = req.params
 
     try {
         const estadisticas = await Estadistica.findAll({
-            where: { usuario_id: user_id }, include: {
+            where: { usuario_id: id }, include: {
                 model: tipoEstadistica,
                 as: "tipoEstadistica",
                 attributes: ['nombre']
@@ -270,17 +270,19 @@ async function diagramaUsuariosDeClubes(req, res) {
         });
 
         const usuariosPorMes = {};
+        let totalUsuarios = 0
 
         usuarios.forEach(usuario => {
             const mes = moment(usuario.usuario.createdAt).format("MMMM");
+            totalUsuarios++;
             if (!usuariosPorMes[mes]) {
                 usuariosPorMes[mes] = 0;
             }
-            usuariosPorMes[mes]++;
+            usuariosPorMes[mes] = totalUsuarios;
         });
 
         const chartData = Object.keys(usuariosPorMes).map(mes => {
-            return { mes: mes, nuevosUsuarios: usuariosPorMes[mes] };
+            return { mes: mes, totalUsuarios: usuariosPorMes[mes] };
         });
 
         res.status(200).send(chartData);
