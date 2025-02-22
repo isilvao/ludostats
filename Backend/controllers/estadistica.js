@@ -11,7 +11,13 @@ async function getMyEstadisticas(req, res) {
     const { user_id } = req.user
 
     try {
-        const estadisticas = await Estadistica.findAll({ where: { usuario_id: user_id } })
+        const estadisticas = await Estadistica.findAll({
+            where: { usuario_id: user_id }, include: {
+                model: tipoEstadistica,
+                as: "tipoEstadistica",
+                attributes: ['nombre']
+            }
+        })
         res.status(200).send(estadisticas)
     } catch (error) {
         res.status(500).send({ msg: "Error al consultar las estadisticas" })
@@ -217,6 +223,8 @@ async function diagramaBarrasEstadisticaPorEquipo(req, res) {
         return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
     }
 }
+
+//TODO: Hacer el otro diagrama para saber que deportistas están entrando a cada equipo con las fechas
 
 module.exports = {
     getMyEstadisticas,
