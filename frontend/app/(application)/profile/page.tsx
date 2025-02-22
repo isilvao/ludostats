@@ -1,5 +1,6 @@
 'use client';
 import { CiCamera } from 'react-icons/ci';
+import { FaSpinner } from 'react-icons/fa'; // Importa el spinner de react-icons
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
@@ -31,6 +32,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import Resizer from 'react-image-file-resizer';
 
 const profileSchema = z.object({
   nombre: z.string().min(1, 'Nombre obligatorio'),
@@ -64,9 +66,10 @@ const passwordSchema = z
 
 const Profile = () => {
   const userController = new User();
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, updateProfileImage } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
   const [profileImage, setProfileImage] = useState(getProfileImage(user));
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
   const router = useRouter();
 
   const form = useForm({
@@ -150,14 +153,33 @@ const Profile = () => {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      setIsLoadingImage(true);
       try {
-        const result = await userController.actualizarFotoPerfil(user.id, file);
-        console.log(result);
+        const resizedImage = await new Promise<File>((resolve) => {
+          Resizer.imageFileResizer(
+            file,
+            150, // ancho máximo
+            150, // alto máximo
+            'JPEG', // formato
+            100, // calidad
+            0, // rotación
+            (uri) => {
+              resolve(uri as File);
+            },
+            'file'
+          );
+        });
+
+        const result = await userController.actualizarFotoPerfil(
+          user.id,
+          resizedImage
+        );
         setProfileImage(result); // Assuming the API returns the new image URL
-        alert('Foto de perfil actualizada con éxito');
+        updateProfileImage(result); // Actualiza la imagen de perfil en el contexto
       } catch (error) {
         console.error('Error al actualizar la foto de perfil:', error);
-        alert('Error al actualizar la foto de perfil');
+      } finally {
+        setIsLoadingImage(false);
       }
     }
   };
@@ -230,8 +252,7 @@ const Profile = () => {
                       </FormControl>
                       <FormMessage className="shad-form-message" />
                     </FormItem>
-                  )}
-                /> */}
+                  )} */}
                 <FormField
                   control={form.control}
                   name="telefono"
@@ -373,6 +394,12 @@ const Profile = () => {
                 width={100}
                 height={100}
               />
+              {isLoadingImage && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                  <FaSpinner className="animate-spin text-white h-8 w-8" />{' '}
+                  {/* Usa el spinner de react-icons */}
+                </div>
+              )}
               <label
                 htmlFor="profileImageInput"
                 className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
