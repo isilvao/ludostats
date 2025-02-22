@@ -40,34 +40,34 @@ const authFormSchema = (formType: FormType) => {
       formType === 'sign-in'
         ? z.string().min(6, 'La contraseña es requerida')
         : z
-            .string()
-            .min(8, 'La contraseña debe tener al menos 8 caracteres')
-            .regex(
-              /[a-z]/,
-              'La contraseña debe contener al menos una letra minúscula'
-            )
-            .regex(
-              /[A-Z]/,
-              'La contraseña debe contener al menos una letra mayúscula'
-            )
-            .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
-            .regex(
-              /[^a-zA-Z0-9]/,
-              'La contraseña debe contener al menos un carácter especial'
-            ),
+          .string()
+          .min(8, 'La contraseña debe tener al menos 8 caracteres')
+          .regex(
+            /[a-z]/,
+            'La contraseña debe contener al menos una letra minúscula'
+          )
+          .regex(
+            /[A-Z]/,
+            'La contraseña debe contener al menos una letra mayúscula'
+          )
+          .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
+          .regex(
+            /[^a-zA-Z0-9]/,
+            'La contraseña debe contener al menos un carácter especial'
+          ),
     firstName:
       formType === 'sign-up'
         ? z
-            .string()
-            .min(2, 'El nombre debe tener al menos 2 caracteres')
-            .max(50, 'El nombre debe tener menos de 50 caracteres')
+          .string()
+          .min(2, 'El nombre debe tener al menos 2 caracteres')
+          .max(50, 'El nombre debe tener menos de 50 caracteres')
         : z.string().optional(),
     lastName:
       formType === 'sign-up'
         ? z
-            .string()
-            .min(2, 'El apellido debe tener al menos 2 caracteres')
-            .max(50, 'El apellido debe tener menos de 50 caracteres')
+          .string()
+          .min(2, 'El apellido debe tener al menos 2 caracteres')
+          .max(50, 'El apellido debe tener menos de 50 caracteres')
         : z.string().optional(),
     rememberMe:
       formType === 'sign-in' ? z.boolean().optional() : z.boolean().optional(),
@@ -127,8 +127,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
         });
       }
 
-      authController.setAccessToken(result.accessToken, result.rememberMe);
-      authController.setRefreshToken(result.refreshToken, result.rememberMe);
+      authController.setAccessToken(result.accessToken);
+      authController.setRefreshToken(result.refreshToken);
 
       const { accessToken, refreshToken } = result;
       if (accessToken && refreshToken) {
@@ -154,7 +154,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         contrasena: values.password,
         foto: values.picture || undefined, // 📌 Si no hay foto, enviamos `undefined`
       });
-    } catch {}
+    } catch { }
 
     try {
       const result = await authController.login({
@@ -163,8 +163,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
         rememberMe: values.rememberMe,
       });
 
-      authController.setAccessToken(result.accessToken, result.rememberMe);
-      authController.setRefreshToken(result.refreshToken, result.rememberMe);
+      authController.setAccessToken(result.accessToken);
+      authController.setRefreshToken(result.refreshToken);
 
       const { accessToken, refreshToken } = result;
       if (accessToken && refreshToken) {

@@ -87,14 +87,12 @@ const Statistics: React.FC = () => {
         const api = new estadisticaAPI();
         newEntry = await api.createTipoEstadistica(
           formData,
-          accessToken,
           clubData.id
         );
       } else if (selectionType === 'equipo') {
         const api = new estadisticaAPI();
         newEntry = await api.createTipoEstadistica(
           formData,
-          accessToken,
           clubData.id
         );
       }
