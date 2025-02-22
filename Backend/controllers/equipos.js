@@ -91,8 +91,8 @@ const crearEquipo = async (req, res) => {
         }
 
         // 📌 Devolver la URL del logo si se subió
-        res.status(200).json({ 
-            msg: "Equipo creado correctamente", 
+        res.status(200).json({
+            msg: "Equipo creado correctamente",
             equipo: {
                 id: nuevoEquipo.id,
                 nombre: nuevoEquipo.nombre,
@@ -111,11 +111,11 @@ const crearEquipo = async (req, res) => {
 
 
 const modificarEquipo = async (req, res) => {
-    const { id } = req.params;
+    const { id_equipo } = req.params;
     const datosActualizados = req.body;
 
     try {
-        const equipo = await Equipo.findByPk(id);
+        const equipo = await Equipo.findByPk(id_equipo);
 
         if (!equipo) {
             return res.status(404).json({ msg: "Equipo no encontrado" });
@@ -131,10 +131,10 @@ const modificarEquipo = async (req, res) => {
 };
 
 const borrarEquipo = async (req, res) => {
-    const { id } = req.params;
+    const { id_equipo } = req.params;
 
     try {
-        const resultado = await Equipo.destroy({ where: { id } });
+        const resultado = await Equipo.destroy({ where: { id_equipo } });
 
         if (!resultado) {
             return res.status(404).json({ msg: "Equipo no encontrado" });

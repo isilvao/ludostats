@@ -49,11 +49,11 @@ const buscarMisClubesGerente = async (req, res) => {
 }
 
 const actualizarClub = async (req, res) => {
-  const { id } = req.params;
+  const { id_club } = req.params;
   let logo = req.file ? req.file.path : null; // 📌 URL de Cloudinary
 
   try {
-    const club = await Club.findByPk(id);
+    const club = await Club.findByPk(id_club);
     if (!club) return res.status(404).json({ msg: "Club no encontrado" });
 
     await club.update({ logo });
@@ -67,10 +67,10 @@ const actualizarClub = async (req, res) => {
 
 
 const actualizarClubLogo = async (req, res) => {
-  const { id } = req.params;
+  const { id_club } = req.params;
 
   try {
-    const club = await Club.findByPk(id);
+    const club = await Club.findByPk(id_club);
     if (!club) return res.status(404).json({ msg: "Club no encontrado" });
 
     // 📌 Verificar si se subió una nueva imagen
@@ -81,7 +81,7 @@ const actualizarClubLogo = async (req, res) => {
     // 📌 Subir la imagen a Cloudinary
     const resultado = await cloudinary.uploader.upload(req.file.path, {
       folder: "clubes",
-      public_id: `club_${id}`,
+      public_id: `club_${id_club}`,
       overwrite: true
     });
 
