@@ -189,7 +189,7 @@ async function createClub(req, res) {
 async function updateClub(req, res) {
   const { id_club } = req.params;
 
-  const club = req.club;
+  const club = await Club.findByPk(id_club);
 
   const userData = req.body;
 
