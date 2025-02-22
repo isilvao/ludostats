@@ -2,15 +2,9 @@ import { basePath, apiVersion } from '../utils/config';
 export class estadisticaAPI {
   baseApi = `${basePath}/${apiVersion}`;
 
-  async getMyEstadisticas(accessToken) {
+  async getMyEstadisticas(user_id) {
     try {
-      const url = `${this.baseApi}/misestadisticas`;
-
-      const params = {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
+      const url = `${this.baseApi}/misestadisticas/${user_id}`;
 
       const response = await fetch(url, params);
       const result = await response.json();
