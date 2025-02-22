@@ -2,8 +2,8 @@ const Usuario = require("../models/Usuario");
 const bcrypt = require("bcryptjs");
 const jwt = require("../utils/jwt");
 
-function register(req, res){
-    const { nombre, apellido, correo, contrasena, foto } = req.body;
+function register(req, res) {
+  const { nombre, apellido, correo, contrasena, foto } = req.body;
 
   if (!correo) res.status(400).send({ msg: "El correo es obligatorio" });
   if (!contrasena)
@@ -14,7 +14,7 @@ function register(req, res){
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(contrasena, salt);
 
-  
+
   Usuario.create({
     nombre,
     apellido,
@@ -23,14 +23,14 @@ function register(req, res){
     foto: foto || null // 📌 Guardar la foto si está disponible
   })
     .then((userStored) => {
-        if (!userStored) {
-            return res.status(400).send({ msg: "Error al crear el usuario" });
-        }
-        return res.status(200).send({ msg: "Usuario creado correctamente", success: true });
+      if (!userStored) {
+        return res.status(400).send({ msg: "Error al crear el usuario" });
+      }
+      return res.status(200).send({ msg: "Usuario creado correctamente", success: true });
     })
     .catch((err) => {
-        console.error(err);
-        return res.status(500).send({ msg: "Error al crear el usuario" });
+      console.error(err);
+      return res.status(500).send({ msg: "Error al crear el usuario" });
     });
 }
 

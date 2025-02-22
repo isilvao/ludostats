@@ -1,5 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
+import CheckoutButton from '@/components/CheckoutButton';
+
 
 interface PlanProps {
   name: string;
@@ -111,6 +113,17 @@ const Pricing: React.FC = () => {
         <h2 className="text-4xl font-bold text-center text-[#4D4D4D] mb-5">
           Planes y precios
         </h2>
+        
+
+
+        <div>
+          <h1>Compra un producto</h1>
+          <CheckoutButton />
+        </div>
+    
+ 
+
+
         <p className="text-center text-gray-600 mb-12">
           Escoge el plan que mejor se ajuste a las necesidades de tu club
           deportivo.

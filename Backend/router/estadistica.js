@@ -12,4 +12,5 @@ api.delete('/eliminarestadistica/:id_estadistica', [md_auth.asureAuth, md_stats.
 api.get('/estadisticas/:id_tipoestadistica', estadisticasController.getAllEstadisticas) // id del usuario
 api.get('/estadisticas/:id_tipoestadistica/:id_team', estadisticasController.getAllEstadisticasInTeam) // id del usuario
 
+api.get('/diagramaBarrasEstadisticaPorEquipo/:id_tipoestadistica/:id_team', estadisticasController.diagramaBarrasEstadisticaPorEquipo) // id del usuario
 module.exports = api

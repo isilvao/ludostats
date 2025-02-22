@@ -1,5 +1,6 @@
 'use client';
 import { CiCamera } from 'react-icons/ci';
+import { FaSpinner } from 'react-icons/fa'; // Importa el spinner de react-icons
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
@@ -9,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '../../../hooks';
 import { User, Auth } from '../../../api';
 import { getProfileImage } from '@/lib/utils';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import LoadingScreen from '@/components/LoadingScreen';
 import {
   Form,
@@ -30,12 +33,14 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import { useRouter } from 'next/navigation';
+import Resizer from 'react-image-file-resizer';
 
 const profileSchema = z.object({
   nombre: z.string().min(1, 'Nombre obligatorio'),
   apellido: z.string().min(1, 'Apellido obligatorio'),
   documento: z.string().optional(),
-  correo: z.string().email('Correo inválido'),
+  // correo: z.string().email('Correo inválido'),
   telefono: z
     .string()
     .optional()
@@ -43,7 +48,7 @@ const profileSchema = z.object({
       message: 'El teléfono debe tener 10 dígitos y solo contener números',
     }),
   fecha_nacimiento: z.string().optional(),
-  genero: z.string().optional(),
+  direccion: z.string().optional(),
 });
 
 const passwordSchema = z
@@ -63,9 +68,11 @@ const passwordSchema = z
 
 const Profile = () => {
   const userController = new User();
-  const authController = new Auth();
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, updateProfileImage, setUser } = useAuth();
   const [selectedOption, setSelectedOption] = useState('profile');
+  const [profileImage, setProfileImage] = useState(getProfileImage(user));
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
@@ -73,10 +80,10 @@ const Profile = () => {
       nombre: user?.nombre || '',
       apellido: user?.apellido || '',
       documento: user?.documento || '',
-      correo: user?.correo || '',
+      // correo: user?.correo || '',
       telefono: user?.telefono || '',
       fecha_nacimiento: user?.fecha_nacimiento || '',
-      genero: user?.genero || '',
+      direccion: user?.direccion || '',
     },
   });
 
@@ -95,10 +102,11 @@ const Profile = () => {
         nombre: user.nombre || '',
         apellido: user.apellido || '',
         documento: user.documento || '',
-        correo: user.correo || '',
         telefono: user.telefono || '',
-        fecha_nacimiento: user.fecha_nacimiento || '',
-        genero: user.genero || '',
+        fecha_nacimiento: user.fecha_nacimiento
+          ? new Date(user.fecha_nacimiento).toISOString().split('T')[0]
+          : '',
+        direccion: user.direccion || '',
       });
     }
   }, [user, form]);
@@ -111,11 +119,25 @@ const Profile = () => {
     const data = {
       id: user.id,
       ...values,
+      fecha_nacimiento: values.fecha_nacimiento
+        ? new Date(values.fecha_nacimiento).toISOString().split('T')[0]
+        : null,
     };
-
     try {
-      await userController.updateMe(accessToken, data);
-      alert('Perfil actualizado con éxito');
+      await userController.updateUser(data);
+      setUser((prevUser: any) => ({
+        ...prevUser,
+        ...values,
+        fecha_nacimiento: values.fecha_nacimiento
+          ? new Date(values.fecha_nacimiento).toISOString().split('T')[0]
+          : null,
+      }));
+      toast.success('Perfil actualizado con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
       if (error instanceof TypeError) {
@@ -129,13 +151,6 @@ const Profile = () => {
   const handleChangePassword = async (
     values: z.infer<typeof passwordSchema>
   ) => {
-    // try {
-    //   await authController.changePassword(accessToken, values.oldPassword, values.newPassword);
-    //   alert('Contraseña actualizada con éxito');
-    // } catch (error) {
-    //   console.error('Error al cambiar la contraseña:', error);
-    //   alert('Error al cambiar la contraseña');
-    // }
     alert('Función en desarrollo');
   };
 
@@ -143,9 +158,52 @@ const Profile = () => {
     try {
       await userController.deteleMe(accessToken, user.id);
       alert('Cuenta eliminada con éxito');
+      router.push('/');
     } catch (error) {
       console.error('Error al eliminar la cuenta:', error);
       alert('Error al eliminar la cuenta');
+    }
+  };
+
+  const handleProfileImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsLoadingImage(true);
+      try {
+        const resizedImage = await new Promise<File>((resolve) => {
+          Resizer.imageFileResizer(
+            file,
+            150, // ancho máximo
+            150, // alto máximo
+            'JPEG', // formato
+            100, // calidad
+            0, // rotación
+            (uri) => {
+              resolve(uri as File);
+            },
+            'file'
+          );
+        });
+
+        const result = await userController.actualizarFotoPerfil(
+          user.id,
+          resizedImage
+        );
+        setProfileImage(result); // Assuming the API returns the new image URL
+        updateProfileImage(result); // Actualiza la imagen de perfil en el contexto
+        toast.success('Foto de perfil actualizada con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
+      } catch (error) {
+        console.error('Error al actualizar la foto de perfil:', error);
+      } finally {
+        setIsLoadingImage(false);
+      }
     }
   };
 
@@ -202,7 +260,7 @@ const Profile = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="correo"
                   render={({ field }) => (
@@ -217,8 +275,7 @@ const Profile = () => {
                       </FormControl>
                       <FormMessage className="shad-form-message" />
                     </FormItem>
-                  )}
-                />
+                  )} */}
                 <FormField
                   control={form.control}
                   name="telefono"
@@ -251,19 +308,12 @@ const Profile = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="genero"
+                  name="direccion"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Género</FormLabel>
+                      <FormLabel>Dirección</FormLabel>
                       <FormControl>
-                        <select
-                          {...field}
-                          className="w-full p-2 border border-gray-300 rounded-md"
-                        >
-                          <option value="Masculino">Masculino</option>
-                          <option value="Femenino">Femenino</option>
-                          <option value="Otro">Otro</option>
-                        </select>
+                        <Input {...field} placeholder="Dirección" />
                       </FormControl>
                       <FormMessage className="shad-form-message" />
                     </FormItem>
@@ -353,6 +403,7 @@ const Profile = () => {
 
   return (
     <section className="py-10 mx-8">
+      <Toaster />
       <div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Perfil</h1>
       </div>
@@ -361,18 +412,31 @@ const Profile = () => {
           <div className="flex flex-col items-center">
             <div className="relative">
               <Image
-                src={getProfileImage(user)}
+                src={profileImage}
                 alt="Foto de perfil"
-                className="rounded-full w-24 h-24 "
+                className="rounded-full w-28 h-28 object-cover"
                 width={100}
                 height={100}
               />
-              <button
-                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white"
-                onClick={() => alert('Función para cambiar foto en desarrollo')}
+              {isLoadingImage && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                  <FaSpinner className="animate-spin text-white h-8 w-8" />{' '}
+                  {/* Usa el spinner de react-icons */}
+                </div>
+              )}
+              <label
+                htmlFor="profileImageInput"
+                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
               >
                 <CiCamera className="h-6 w-6" />
-              </button>
+              </label>
+              <input
+                id="profileImageInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfileImageChange}
+              />
             </div>
             <h2 className="mt-4 text-xl font-semibold text-gray-800">
               {user.nombre} {user.apellido}

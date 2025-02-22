@@ -8,6 +8,7 @@ const Evento = require('./Evento');
 const Pago = require('./Pago');
 const Transaccion = require("./Transaccion");
 const Notificacion = require("./Notificacion");
+const EventoDependencia = require('./EventoDependencia');
 
 const sequelize = require('../db');
 const Invitacion = require('./invitacion');
@@ -145,13 +146,32 @@ UsuarioClub.belongsTo(Club, {
 })
 
 // Relacion: un club tiene varios tipos eventos
-Club.hasMany(Evento, {
+
+Club.hasMany(EventoDependencia, {
   foreignKey: 'club_id',
   as: 'eventos'
 })
-Evento.belongsTo(Club, {
+EventoDependencia.belongsTo(Club, {
   foreignKey: 'club_id',
   as: 'club'
+})
+
+Equipo.hasMany(EventoDependencia, {
+  foreignKey: 'equipo_id',
+  as: 'eventos'
+})
+EventoDependencia.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  as: 'equipo'
+})
+
+Evento.hasMany(EventoDependencia, {
+  foreignKey: 'evento_id',
+  as: 'dependencias'
+})
+EventoDependencia.belongsTo(Evento, {
+  foreignKey: 'evento_id',
+  as: 'evento'
 })
 
 // Relacion: un club tiene varios tipos de estadisticas
@@ -199,5 +219,6 @@ Transaccion.belongsTo(Usuario, { foreignKey: 'destinatario_id', as: 'destinatari
 
 
 
-module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, initModels, Transaccion, 
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, EventoDependencia, initModels, Transaccion, 
   Notificacion};
+

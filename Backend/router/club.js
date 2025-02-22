@@ -6,14 +6,16 @@ const md_club = require('../middleware/clubValidations')
 const upload = require("../middleware/upload");
 
 const api = express.Router()
-const md_upload = multiparty({uploadDir: './uploads/clubLogo'})
+const md_upload = multiparty({ uploadDir: './uploads/clubLogo' })
 
 
 api.get('/misclubes', clubController.buscarMisClubes) // id de cualquier usuario
 api.get('/misclubesgerente/:user_id', clubController.buscarMisClubesGerente) // id de un gerente
 
 api.post('/newclub', [md_auth.asureAuth, md_upload], clubController.createClub)
-api.patch('/updateclub/:id_club', [md_auth.asureAuth, md_upload, md_club.validateGerenteInClub], clubController.updateClub) // id del club
+//api.patch('/updateclub/:id_club', [md_auth.asureAuth, md_upload, md_club.validateGerenteInClub], clubController.updateClub) // id del club
+api.patch('/updateclub/:id_club', clubController.updateClub) // id del club
+
 api.delete('/deleteclub/:id_club', [md_auth.asureAuth, md_club.validateGerenteInClub], clubController.deleteClub) // id del club y del gerente
 
 // Ruta para encontrar un club por su ID

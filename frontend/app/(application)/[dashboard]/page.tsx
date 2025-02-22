@@ -9,6 +9,8 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { clubData } = useEquipoClub();
   console.log(clubData);
+  const selectionType = localStorage.getItem('selectionType');
+  const isTeam = selectionType === 'equipo';
 
   if (!user) {
     return (
@@ -44,7 +46,9 @@ const Dashboard: React.FC = () => {
               <div className="space-y-2 text-gray-700">
                 <p>
                   <span className="font-medium">Deporte:</span>{' '}
-                  {clubData.club.deporte}
+                  {selectionType === 'equipo'
+                    ? clubData.club.deporte
+                    : clubData.deporte}
                 </p>
                 <p>
                   <span className="font-medium">País:</span> Colombia

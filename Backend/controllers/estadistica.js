@@ -5,43 +5,50 @@ const Club = require('../models/Club')
 const Usuario = require('../models/Usuario')
 const UsuarioClub = require('../models/UsuarioClub')
 const UsuariosEquipos = require('../models/UsuariosEquipos')
+const { Op } = require('sequelize');
 
-async function getMyEstadisticas(req, res){
-    const {user_id} = req.user
+async function getMyEstadisticas(req, res) {
+    const { user_id } = req.user
 
     try {
-        const estadisticas = await Estadistica.findAll({where: {usuario_id: user_id}})
+        const estadisticas = await Estadistica.findAll({
+            where: { usuario_id: user_id }, include: {
+                model: tipoEstadistica,
+                as: "tipoEstadistica",
+                attributes: ['nombre']
+            }
+        })
         res.status(200).send(estadisticas)
     } catch (error) {
-        res.status(500).send({msg: "Error al consultar las estadisticas"})
+        res.status(500).send({ msg: "Error al consultar las estadisticas" })
     }
 }
 
-async function createEstadistica(req, res){
-    const {id_tipoestadistica, id_usuario} = req.params
-    const {user_id} = req.user
+async function createEstadistica(req, res) {
+    const { id_tipoestadistica, id_usuario } = req.params
+    const { user_id } = req.user
 
-    const {valor, fecha} = req.body
+    const { valor, fecha } = req.body
 
 
     try {
 
-        const tipEstadistica = await tipoEstadistica.findOne({where: {id: id_tipoestadistica}})
+        const tipEstadistica = await tipoEstadistica.findOne({ where: { id: id_tipoestadistica } })
 
-        if (!tipEstadistica){
-            return res.status(400).send({msg: "No se pudo encontrar el tipo de estadistica"})
+        if (!tipEstadistica) {
+            return res.status(400).send({ msg: "No se pudo encontrar el tipo de estadistica" })
         } else {
-            const usuario = await Usuario.findOne({where: {id: user_id}})
+            const usuario = await Usuario.findOne({ where: { id: user_id } })
 
-            if (usuario.rol !== 'gerente'){
-                const userClub = await UsuarioClub.findOne({where: {usuario_id: user_id, club_id: tipEstadistica.club_id}})
-                if (!userClub){
-                    return res.status(400).send({msg: "No tienes permisos para crear estadisticas en este club"})
+            if (usuario.rol !== 'gerente') {
+                const userClub = await UsuarioClub.findOne({ where: { usuario_id: user_id, club_id: tipEstadistica.club_id } })
+                if (!userClub) {
+                    return res.status(400).send({ msg: "No tienes permisos para crear estadisticas en este club" })
                 }
             } else {
-                const club = await Club.findOne({where: {id: tipEstadistica.club_id}})
-                if (club.gerente_id !== user_id){
-                    return res.status(400).send({msg: "No tienes permisos para crear estadisticas en este club"})
+                const club = await Club.findOne({ where: { id: tipEstadistica.club_id } })
+                if (club.gerente_id !== user_id) {
+                    return res.status(400).send({ msg: "No tienes permisos para crear estadisticas en este club" })
                 }
             }
         }
@@ -50,65 +57,65 @@ async function createEstadistica(req, res){
             tipoEstadistica_id: id_tipoestadistica,
             usuario_id: id_usuario,
             valor: valor,
-            fecha : fecha
+            fecha: fecha
         }).then((tipEstadistica) => {
-            if (!tipEstadistica){
-                return res.status(400).send({msg: "No se pudo crear la estadistica"})
+            if (!tipEstadistica) {
+                return res.status(400).send({ msg: "No se pudo crear la estadistica" })
             }
             return res.status(200).send(tipEstadistica)
         }).catch((err) => {
-            return res.status(500).send({msg: "Error al crear la estadistica"})
+            return res.status(500).send({ msg: "Error al crear la estadistica" })
         })
     } catch (error) {
-        return res.status(500).send({msg: "Error al crear la estadistica", error})
+        return res.status(500).send({ msg: "Error al crear la estadistica", error })
     }
 }
 
-async function updateEstadistica(req, res){
-    const {id_estadistica} = req.params
+async function updateEstadistica(req, res) {
+    const { id_estadistica } = req.params
 
     try {
         Estadistica.update({
             valor: req.body.valor,
             fecha: req.body.fecha
-        }, {where: {id: id_estadistica}}).then((estadistica) => {
-            if (!estadistica){
-                return res.status(400).send({msg: "No se pudo encontrar la estadistica"})
+        }, { where: { id: id_estadistica } }).then((estadistica) => {
+            if (!estadistica) {
+                return res.status(400).send({ msg: "No se pudo encontrar la estadistica" })
             }
             return res.status(200).send(estadistica)
         }).catch((err) => {
-            return res.status(500).send({msg: "Error al actualizar la estadistica"})
+            return res.status(500).send({ msg: "Error al actualizar la estadistica" })
         })
 
     } catch (error) {
-        return res.status(500).send({msg: "Error al actualizar la estadistica"})
+        return res.status(500).send({ msg: "Error al actualizar la estadistica" })
     }
 }
 
-async function deleteEstadistica(req, res){
-    const {id_estadistica} = req.params
+async function deleteEstadistica(req, res) {
+    const { id_estadistica } = req.params
 
     try {
-        await Estadistica.destroy({where: {id: id_estadistica}}).then((estadistica) => {
-            if (!estadistica){
-                return res.status(400).send({msg: "No se pudo encontrar la estadistica"})
+        await Estadistica.destroy({ where: { id: id_estadistica } }).then((estadistica) => {
+            if (!estadistica) {
+                return res.status(400).send({ msg: "No se pudo encontrar la estadistica" })
             }
             return res.status(200).send(estadistica)
         }).catch((err) => {
-            return res.status(500).send({msg: "Error al eliminar la estadistica"})
+            return res.status(500).send({ msg: "Error al eliminar la estadistica" })
         })
 
     } catch (error) {
-        return res.status(500).send({msg: "Error al eliminar la estadistica"})
+        return res.status(500).send({ msg: "Error al eliminar la estadistica" })
     }
 }
 
-async function getAllEstadisticas(req, res){
-    const {id_tipoestadistica} = req.params
+async function getAllEstadisticas(req, res) {
+    const { id_tipoestadistica } = req.params
 
     try {
         const usuarios = await Estadistica.findAll({
-            where: {tipoEstadistica_id: id_tipoestadistica},
+            where: { tipoEstadistica_id: id_tipoestadistica },
             include: {
                 model: Usuario,
                 as: "usuario",
@@ -117,18 +124,18 @@ async function getAllEstadisticas(req, res){
         })
 
         return res.status(200).send(usuarios)
-    }catch (error){
-        return res.status(500).send({msg: "Error al consultar las estadisticas"})
+    } catch (error) {
+        return res.status(500).send({ msg: "Error al consultar las estadisticas" })
     }
 }
 
 // TODO: Implementar la función getAllEstadisticasInTeam
-async function getAllEstadisticasInTeam(req, res){
-    const {id_tipoestadistica, id_team} = req.params
+async function getAllEstadisticasInTeam(req, res) {
+    const { id_tipoestadistica, id_team } = req.params
 
     try {
         const usuarios = await UsuariosEquipos.findAll({
-            where: {equipo_id: id_team, rol: 'deportista'},
+            where: { equipo_id: id_team, [Op.or]: [{ rol: 'deportista' }, { rol: 'miembro' }] },
             include: {
                 model: Usuario,
                 as: "usuario",
@@ -136,10 +143,12 @@ async function getAllEstadisticasInTeam(req, res){
                 include: {
                     model: Estadistica,
                     as: "estadisticas",
-                    where: {tipoEstadistica_id: id_tipoestadistica}
+                    where: { tipoEstadistica_id: id_tipoestadistica }
                 }
             }
         })
+
+        console.log(usuarios)
 
         const estadisticas = usuarios.flatMap(usuarios =>
             usuarios.usuario.estadisticas.map(estadistica => ({
@@ -159,9 +168,63 @@ async function getAllEstadisticasInTeam(req, res){
 
         return res.status(200).send(estadisticas)
     } catch (error) {
-        return res.status(500).send({msg: "Error al consultar las estadisticas", error})
+        return res.status(500).send({ msg: "Error al consultar las estadisticas", error })
     }
 }
+
+async function diagramaBarrasEstadisticaPorEquipo(req, res) {
+    const { id_tipoestadistica, id_team } = req.params;
+
+    try {
+        const usuarios = await UsuariosEquipos.findAll({
+            where: { equipo_id: id_team, rol: 'deportista' },
+            include: {
+                model: Usuario,
+                as: "usuario",
+                attributes: ['nombre', 'apellido'],
+                include: {
+                    model: Estadistica,
+                    as: "estadisticas",
+                    where: { tipoEstadistica_id: id_tipoestadistica }
+                }
+            }
+        });
+
+        const estadisticasPorMes = {};
+
+        usuarios.forEach(usuario => {
+            usuario.usuario.estadisticas.forEach(estadistica => {
+                const mes = moment(estadistica.fecha).format("MMMM");
+                if (!estadisticasPorMes[mes]) {
+                    estadisticasPorMes[mes] = [];
+                }
+                estadisticasPorMes[mes].push(estadistica.valor);
+            });
+        });
+
+        console.log("Estadisticas por mes", estadisticasPorMes);
+
+
+        const chartData = Object.keys(estadisticasPorMes).map(mes => {
+            const valores = estadisticasPorMes[mes];
+            console.log("Valores", valores);
+
+            let suma = 0
+            for (let i = 0; i < valores.length; i++) {
+                suma += parseFloat(valores[i]);
+            }
+            const promedio = suma / valores.length;
+
+            return { month: mes, average: promedio };
+        });
+
+        res.status(200).send(chartData);
+    } catch (error) {
+        return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
+    }
+}
+
+//TODO: Hacer el otro diagrama para saber que deportistas están entrando a cada equipo con las fechas
 
 module.exports = {
     getMyEstadisticas,
@@ -169,5 +232,6 @@ module.exports = {
     updateEstadistica,
     deleteEstadistica,
     getAllEstadisticas,
-    getAllEstadisticasInTeam
+    getAllEstadisticasInTeam,
+    diagramaBarrasEstadisticaPorEquipo
 }

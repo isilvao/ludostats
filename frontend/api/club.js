@@ -65,7 +65,7 @@ export class ClubAPI {
     }
   }
 
-  async editarClub(club, accessToken) {
+  async editarClub(club) {
     try {
       const url = `${this.baseApi}/updateclub/${club.id}`;
 
@@ -73,7 +73,6 @@ export class ClubAPI {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(club),
       };

@@ -29,6 +29,7 @@ interface Club {
   nombre: string;
   deporte: string;
   logo?: string;
+  rol: string;
 }
 
 interface Hijo {

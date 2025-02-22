@@ -44,9 +44,9 @@ async function updateMe(req, res) {
     delete userData.contrasena;
   }
 
-  if (req.files.foto) {
-    userData.foto = image.getFilePath(req.files.foto);
-  }
+  // if (req.files.foto) {
+  //   userData.foto = image.getFilePath(req.files.foto);
+  // }
 
   User.update(userData, { where: { id: user_id } })
     .then((response) => {
@@ -61,20 +61,20 @@ async function updateMe(req, res) {
     });
 }
 
-async function deleteMe(req, res){
+async function deleteMe(req, res) {
   const { user_id } = req.user;
 
   User.destroy({ where: { id: user_id } })
-  .then((response) => {
-    if (!response) {
-      return res.status(404).send({ msg: "No se ha encontrado el usuario" });
-    } else {
-      return res.status(200).send({ msg: "Usuario eliminado correctamente" });
-    }
-  })
-  .catch((err) => {
-    return res.status(500).send({ msg: "Error al eliminar el usuario" });
-  });
+    .then((response) => {
+      if (!response) {
+        return res.status(404).send({ msg: "No se ha encontrado el usuario" });
+      } else {
+        return res.status(200).send({ msg: "Usuario eliminado correctamente" });
+      }
+    })
+    .catch((err) => {
+      return res.status(500).send({ msg: "Error al eliminar el usuario" });
+    });
 }
 
 async function updatePassword(req, res) {
@@ -100,6 +100,37 @@ async function updatePassword(req, res) {
     .catch((err) => {
       res.status(500).send({ msg: "Error al actualizar el usuario" });
     });
+}
+
+async function updatePasswordFromProfile(req, res) {
+  const { id } = req.params;
+  const { contrasena, nuevaContrasena } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { id } });
+
+    if (!user) {
+      return res.status(404).send({ msg: "No se ha encontrado el usuario" });
+    }
+
+    const isMatch = bcrypt.compareSync(contrasena, user.contrasena);
+
+    if (!isMatch) {
+      return res.status(400).send({ msg: "La contraseña actual es incorrecta" });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedNewPassword = bcrypt.hashSync(nuevaContrasena, salt);
+
+    user.contrasena = hashedNewPassword;
+
+    await user.save();
+
+    res.status(200).send({ msg: "Contraseña actualizada correctamente" });
+    console.log("Contraseña actualizada correctamente");
+  } catch (err) {
+    res.status(500).send({ msg: "Error al actualizar la contraseña" });
+  }
 }
 
 //*********************     GENERAL ROUTES     *********************
@@ -154,6 +185,16 @@ async function updateUser(req, res) {
   const { id } = req.params;
   const userData = req.body;
 
+  delete userData.id;
+
+  if (userData.documento === "") {
+    delete userData.documento;
+  }
+
+  if (userData.fecha_nacimiento === "") {
+    delete userData.fecha_nacimiento;
+  }
+
   if (userData.contrasena) {
     const salt = bcrypt.genSaltSync(10);
     userData.contrasena = bcrypt.hashSync(userData.contrasena, salt);
@@ -161,9 +202,10 @@ async function updateUser(req, res) {
     delete userData.contrasena;
   }
 
-  if (req.files.foto) {
-    userData.foto = image.getFilePath(req.files.foto);
-  }
+  // if (req.files.foto) {
+  //   userData.foto = image.getFilePath(req.files.foto);
+  // }
+
 
   User.update(userData, { where: { id } })
     .then((response) => {
@@ -175,6 +217,7 @@ async function updateUser(req, res) {
       }
     })
     .catch((err) => {
+      console.log(err)
       res.status(500).send({ msg: "Error al actualizar el usuario" });
     });
 }
@@ -343,47 +386,47 @@ async function getUsersByClub(req, res) {
 }
 
 const buscarClubesUsuario = async (req, res) => {
-    const { usuario_id } = req.params;
-    
-    // Cambie para usar el id del usuario que viene en el token
-    const { user_id } = req.user;
-  
-    try {
-      // 📌 Obtener los equipos del usuario, excluyendo los donde su rol sea `2` (padre)
-      const registros = await UsuariosEquipos.findAll({
-        where: {
-          user_id,
-          rol: { [Op.ne]: 2 }, // 📌 Excluir equipos donde el usuario sea solo "padre"
-        },
-      });
-  
-      if (!registros.length) {
-        return res
-          .status(404)
-          .json({ msg: "El usuario no pertenece a ningún equipo válido" });
-      }
-  
-      // 📌 Extraer las `id` de los equipos
-      const idsEquipos = registros.map((registro) => registro.equipo_id);
+  const { usuario_id } = req.params;
 
-      // 📌 Buscar los clubes de esos equipos
-      const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
+  // Cambie para usar el id del usuario que viene en el token
+  const { user_id } = req.user;
 
-      // 📌 Extraer los IDs de los clubes desde los equipos (sin duplicados)
-      const idsClubesDeEquipos = [...new Set(equipos.map((equipo) => equipo.club_id))];
+  try {
+    // 📌 Obtener los equipos del usuario, excluyendo los donde su rol sea `2` (padre)
+    const registros = await UsuariosEquipos.findAll({
+      where: {
+        user_id,
+        rol: { [Op.ne]: 2 }, // 📌 Excluir equipos donde el usuario sea solo "padre"
+      },
+    });
 
-      // 📌 Buscar los clubes en los que el usuario es gerente
-      const clubesComoGerente = await Club.findAll({ where: { gerente_id: usuario_id } });
+    if (!registros.length) {
+      return res
+        .status(404)
+        .json({ msg: "El usuario no pertenece a ningún equipo válido" });
+    }
 
-      // 📌 Unir ambos conjuntos de clubes y eliminar duplicados
-      const idsClubesUnicos = [...new Set([...idsClubesDeEquipos, ...clubesComoGerente.map(c => c.id)])];
+    // 📌 Extraer las `id` de los equipos
+    const idsEquipos = registros.map((registro) => registro.equipo_id);
 
-      const clubesFinales = await Club.findAll({ where: { id: idsClubesUnicos } });
+    // 📌 Buscar los clubes de esos equipos
+    const equipos = await Equipo.findAll({ where: { id: idsEquipos } });
 
-      res.status(200).json(clubesFinales);
+    // 📌 Extraer los IDs de los clubes desde los equipos (sin duplicados)
+    const idsClubesDeEquipos = [...new Set(equipos.map((equipo) => equipo.club_id))];
+
+    // 📌 Buscar los clubes en los que el usuario es gerente
+    const clubesComoGerente = await Club.findAll({ where: { gerente_id: usuario_id } });
+
+    // 📌 Unir ambos conjuntos de clubes y eliminar duplicados
+    const idsClubesUnicos = [...new Set([...idsClubesDeEquipos, ...clubesComoGerente.map(c => c.id)])];
+
+    const clubesFinales = await Club.findAll({ where: { id: idsClubesUnicos } });
+
+    res.status(200).json(clubesFinales);
   } catch (error) {
-      console.error("Error al buscar clubes del usuario:", error);
-      res.status(500).json({ msg: "Error interno del servidor" });
+    console.error("Error al buscar clubes del usuario:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
 
@@ -447,57 +490,61 @@ const eliminarUsuarioClub = async (req, res) => {
 
 
 const actualizarUsuario = async (req, res) => {
-    const { id } = req.params;
-    const { nombre, apellido, correo } = req.body;
-    let foto = req.file ? req.file.path : null; // 📌 Obtiene la URL de Cloudinary
+  const { id } = req.params;
+  const { nombre, apellido, correo } = req.body;
+  let foto = req.file ? req.file.path : null; // 📌 Obtiene la URL de Cloudinary
 
-    try {
-        const usuario = await User.findByPk(id);
-        if (!usuario) return res.status(404).json({ msg: "Usuario no encontrado" });
+  try {
+    const usuario = await User.findByPk(id);
+    if (!usuario) return res.status(404).json({ msg: "Usuario no encontrado" });
 
-        await usuario.update({ nombre, apellido, correo, foto });
+    await usuario.update({ nombre, apellido, correo, foto });
 
-        res.status(200).json({ msg: "Usuario actualizado", usuario });
-    } catch (error) {
-        console.error("Error al actualizar usuario:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
-    }
+    res.status(200).json({ msg: "Usuario actualizado", usuario });
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
 };
 
 const actualizarFotoUsuario = async (req, res) => {
   const { id } = req.params;
-  console.log("falg")
 
   try {
-      // 📌 Verificar si el usuario existe
-      const usuarios = await User.findByPk(id);
-      if (!usuarios) {
-          return res.status(404).json({ msg: "Usuario no encontrado" });
-      }
+    // 📌 Verificar si el usuario existe
+    const usuario = await User.findByPk(id);
+    if (!usuario) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
+    }
 
-      // 📌 Verificar si se ha subido un archivo
-      if (!req.file) {
-          return res.status(400).json({ msg: "No se ha proporcionado ninguna imagen" });
-      }
+    // 📌 Verificar si se ha subido un archivo
+    if (!req.file) {
+      return res.status(400).json({ msg: "No se ha proporcionado ninguna imagen" });
+    }
 
-      // 📌 Subir la imagen a Cloudinary
-      const resultado = await cloudinary.uploader.upload(req.file.path, {
-          folder: "usuarios", // Carpeta en Cloudinary
-          public_id: `usuario_${id}`,
-          overwrite: true
-      });
+    // 📌 Subir la imagen a Cloudinary
+    const resultado = await cloudinary.uploader.upload(req.file.path, {
+      folder: "usuarios", // Carpeta en Cloudinary
+      public_id: `usuario_${id}`,
+      overwrite: true
+    });
 
-      // 📌 Guardar la URL en la base de datos
-      usuarios.foto = resultado.secure_url;
-      await usuarios.save();
+    // 📌 Guardar la URL en la base de datos
+    usuario.foto = resultado.secure_url;
+    await usuario.save();
 
-      res.status(200).json({ msg: "Foto actualizada correctamente", foto: usuarios.foto });
+    // 📌 Devolver la URL de la imagen
+    res.status(200).json({
+      msg: "Foto actualizada correctamente",
+      foto: resultado.secure_url
+    });
 
   } catch (error) {
-      console.error("❌ Error al actualizar la foto del usuario:", error);
-      res.status(500).json({ msg: "Error interno del servidor" });
+    console.error("❌ Error al actualizar la foto del usuario:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
 
 
 module.exports = {
@@ -519,5 +566,6 @@ module.exports = {
   userLeavesClub,
   actualizarUsuario,
   deleteMe,
-  actualizarFotoUsuario
+  actualizarFotoUsuario,
+  updatePasswordFromProfile
 };
