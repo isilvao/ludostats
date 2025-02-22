@@ -38,6 +38,14 @@ export const EquipoClubProvider = ({ children }) => {
     }));
   };
 
+  // 📌 Función para actualizar el nombre del club o equipo
+  const updateClubName = (newName) => {
+    setClubData((prevClubData) => ({
+      ...prevClubData,
+      nombre: newName,
+    }));
+  };
+
   return (
     <EquipoClubContext.Provider
       value={{
@@ -53,6 +61,7 @@ export const EquipoClubProvider = ({ children }) => {
         setClubSeleccionado,
         resetDatos,
         updateClubLogo, // Añadir la función al contexto
+        updateClubName, // Añadir la función al contexto
       }}
     >
       {children}

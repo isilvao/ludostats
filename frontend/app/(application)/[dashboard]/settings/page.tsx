@@ -57,6 +57,7 @@ const EditPage = () => {
     setEquipoSeleccionado,
     setClubSeleccionado,
     updateClubLogo,
+    updateClubName,
   } = useEquipoClub();
   const [selectedOption, setSelectedOption] = useState('edit');
   const [isLoadingImage, setIsLoadingImage] = useState(false);
@@ -66,7 +67,7 @@ const EditPage = () => {
   const data = clubData;
   const { accessToken } = useAuth();
   const [logo, setLogo] = useState(getClubLogo(clubData));
-  const name = clubData?.nombre;
+  const [name, setName] = useState(clubData?.nombre);
 
   const form = useForm({
     resolver: zodResolver(editSchema),
@@ -89,6 +90,7 @@ const EditPage = () => {
         nivelPractica: data.nivelPractica || '',
       });
       setLogo(getClubLogo(data));
+      setName(data.nombre); // Actualizar el nombre en el estado local
     }
   }, [data, form]);
 
@@ -113,7 +115,14 @@ const EditPage = () => {
           ...values,
         });
       }
-      toast.success('Datos actualizados con éxito');
+      updateClubName(values.nombre); // Actualizar el nombre en el contexto
+      setName(values.nombre); // Actualizar el nombre en el estado local
+      toast.success('Datos actualizados con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error) {
       console.error('Error al actualizar los datos:', error);
       toast.error('Error al actualizar los datos');
