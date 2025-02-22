@@ -134,7 +134,7 @@ const borrarEquipo = async (req, res) => {
     const { id_equipo } = req.params;
 
     try {
-        const resultado = await Equipo.destroy({ where: { id_equipo } });
+        const resultado = await Equipo.destroy({ where: { id: id_equipo } });
 
         if (!resultado) {
             return res.status(404).json({ msg: "Equipo no encontrado" });
