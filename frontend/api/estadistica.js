@@ -125,15 +125,14 @@ export class estadisticaAPI {
 
   // TIPO DE ESTADISTICAS
 
-  async createTipoEstadistica(tipoEstadistica, accessToken, id_club) {
+  async createTipoEstadistica(tipoEstadistica, id_club) {
     try {
-      const url = `${this.baseApi}/${id_club}/newtipoestadistica`; //Se pasa el id del club como parametro a la url
+      const url = `${this.baseApi}/newtipoestadistica/${id_club}`; //Se pasa el id del club como parametro a la url
 
       const params = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(tipoEstadistica),
       };
