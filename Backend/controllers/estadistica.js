@@ -6,6 +6,7 @@ const Usuario = require('../models/Usuario')
 const UsuarioClub = require('../models/UsuarioClub')
 const UsuariosEquipos = require('../models/UsuariosEquipos')
 const { Op } = require('sequelize');
+const moment = require('moment');
 
 async function getMyEstadisticas(req, res) {
     const { user_id } = req.user
@@ -202,9 +203,6 @@ async function diagramaBarrasEstadisticaPorEquipo(req, res) {
             });
         });
 
-        console.log("Estadisticas por mes", estadisticasPorMes);
-
-
         const chartData = Object.keys(estadisticasPorMes).map(mes => {
             const valores = estadisticasPorMes[mes];
             console.log("Valores", valores);
@@ -224,7 +222,71 @@ async function diagramaBarrasEstadisticaPorEquipo(req, res) {
     }
 }
 
-//TODO: Hacer el otro diagrama para saber que deportistas están entrando a cada equipo con las fechas
+async function diagramaUsuariosDeEquipos(req, res) {
+    const { id_team } = req.params;
+
+    try {
+        const usuarios = await UsuariosEquipos.findAll({
+            where: { equipo_id: id_team },
+            include: {
+                model: Usuario,
+                as: "usuario",
+                attributes: ['nombre', 'apellido', 'createdAt'],
+            }
+        });
+
+        const usuariosPorMes = {};
+
+        usuarios.forEach(usuario => {
+            const mes = moment(usuario.usuario.createdAt).format("MMMM");
+            if (!usuariosPorMes[mes]) {
+                usuariosPorMes[mes] = 0;
+            }
+            usuariosPorMes[mes]++;
+        });
+
+        const chartData = Object.keys(usuariosPorMes).map(mes => {
+            return { mes: mes, nuevosUsuarios: usuariosPorMes[mes] };
+        });
+
+        res.status(200).send(chartData);
+    } catch (error) {
+        return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
+    }
+}
+
+async function diagramaUsuariosDeClubes(req, res) {
+    const { id_club } = req.params;
+
+    try {
+        const usuarios = await UsuarioClub.findAll({
+            where: { club_id: id_club },
+            include: {
+                model: Usuario,
+                as: "usuario",
+                attributes: ['nombre', 'apellido', 'createdAt'],
+            }
+        });
+
+        const usuariosPorMes = {};
+
+        usuarios.forEach(usuario => {
+            const mes = moment(usuario.usuario.createdAt).format("MMMM");
+            if (!usuariosPorMes[mes]) {
+                usuariosPorMes[mes] = 0;
+            }
+            usuariosPorMes[mes]++;
+        });
+
+        const chartData = Object.keys(usuariosPorMes).map(mes => {
+            return { mes: mes, nuevosUsuarios: usuariosPorMes[mes] };
+        });
+
+        res.status(200).send(chartData);
+    } catch (error) {
+        return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
+    }
+}
 
 module.exports = {
     getMyEstadisticas,
@@ -233,5 +295,7 @@ module.exports = {
     deleteEstadistica,
     getAllEstadisticas,
     getAllEstadisticasInTeam,
-    diagramaBarrasEstadisticaPorEquipo
+    diagramaBarrasEstadisticaPorEquipo,
+    diagramaUsuariosDeEquipos,
+    diagramaUsuariosDeClubes
 }

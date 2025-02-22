@@ -91,8 +91,8 @@ const crearEquipo = async (req, res) => {
         }
 
         // 📌 Devolver la URL del logo si se subió
-        res.status(200).json({ 
-            msg: "Equipo creado correctamente", 
+        res.status(200).json({
+            msg: "Equipo creado correctamente",
             equipo: {
                 id: nuevoEquipo.id,
                 nombre: nuevoEquipo.nombre,

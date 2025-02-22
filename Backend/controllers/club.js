@@ -193,12 +193,6 @@ async function updateClub(req, res) {
 
   const userData = req.body;
 
-  // if (req.files.logo) {
-  //   imagePath = image.getFilePath(userData.logo);
-  // } else {
-  //   imagePath = null;
-  // }
-
   club
     .update(userData, { where: { id: id_club } })
     .then((response) => {
