@@ -102,10 +102,6 @@ const EditPage = () => {
 
   const handleSave = async (values: z.infer<typeof editSchema>) => {
     try {
-      console.log('values:', {
-        id: data.id,
-        ...values,
-      });
       if (isTeam) {
         await (api as EquipoAPI).modificarEquipo({
           id: data.id,

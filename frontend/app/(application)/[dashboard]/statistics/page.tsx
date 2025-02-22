@@ -41,11 +41,13 @@ const EstadisticaCard = ({
   onEdit,
   onDelete,
   nameTeam,
+  isTeam,
 }: {
   tipoEstadistica: TipoEstadistica;
   onEdit: (tipoEstadistica: TipoEstadistica) => void;
   onDelete: (id: string) => void;
   nameTeam: string | null;
+  isTeam: boolean;
 }) => (
   <div className="estadistica-card bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center gap-4 h-full cursor-pointer">
     <Link href={`/${nameTeam}/statistics/${tipoEstadistica.id}`} passHref>
@@ -56,42 +58,44 @@ const EstadisticaCard = ({
         <p className="text-gray-600">{tipoEstadistica.descripcion}</p>
       </div>
     </Link>
-    <div className="flex space-x-4 mt-auto">
-      <Button
-        onClick={(e) => {
-          e.stopPropagation();
-          onEdit(tipoEstadistica);
-        }}
-      >
-        Editar
-      </Button>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="destructive"
-            className="bg-red text-white hover:bg-red/90"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Eliminar
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Estás seguro de que deseas eliminar esta estadística? Esta acción
-              no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => onDelete(tipoEstadistica.id)}>
+    {!isTeam && (
+      <div className="flex space-x-4 mt-auto">
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(tipoEstadistica);
+          }}
+        >
+          Editar
+        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="destructive"
+              className="bg-red text-white hover:bg-red/90"
+              onClick={(e) => e.stopPropagation()}
+            >
               Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
+              <AlertDialogDescription>
+                ¿Estás seguro de que deseas eliminar esta estadística? Esta
+                acción no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onDelete(tipoEstadistica.id)}>
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    )}
   </div>
 );
 
@@ -110,6 +114,7 @@ const EstadisticasPage = () => {
   const [editEstadistica, setEditEstadistica] =
     useState<TipoEstadistica | null>(null);
   const selectionType = localStorage.getItem('selectionType');
+  const isTeam = selectionType === 'equipo';
   const params = useParams();
   const nameTeam: string | null =
     params && params.dashboard
@@ -122,7 +127,12 @@ const EstadisticasPage = () => {
     const fetchEstadisticas = async () => {
       try {
         const api = new estadisticaAPI();
-        const result = await api.getTipoEstadistica(clubData.id, accessToken);
+        let result;
+        if (isTeam) {
+          result = await api.getTipoEstadisticaByTeam(clubData.id, accessToken);
+        } else {
+          result = await api.getTipoEstadistica(clubData.id, accessToken);
+        }
         console.log(result);
         setEstadisticas(result);
       } catch (error: any) {
@@ -133,7 +143,7 @@ const EstadisticasPage = () => {
     };
 
     fetchEstadisticas();
-  }, [accessToken, clubData.id]);
+  }, [accessToken, clubData.id, isTeam]);
 
   const handleCreateEstadistica = async () => {
     try {
@@ -286,6 +296,7 @@ const EstadisticasPage = () => {
             }}
             onDelete={handleDeleteEstadistica}
             nameTeam={nameTeam}
+            isTeam={isTeam}
           />
         ))}
       </div>

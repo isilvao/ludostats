@@ -6,7 +6,7 @@ export class estadisticaAPI {
     try {
       const url = `${this.baseApi}/misestadisticas/${user_id}`;
 
-      const response = await fetch(url, params);
+      const response = await fetch(url);
       const result = await response.json();
 
       if (response.status !== 200) throw result;
@@ -257,7 +257,6 @@ export class estadisticaAPI {
 
   async diagramaBarras(id_tipoEstadistica, id_team) {
     try {
-
       const url = `${this.baseApi}/diagramaBarrasEstadisticaPorEquipo/${id_tipoEstadistica}/${id_team}`;
 
       const response = await fetch(url);
@@ -266,16 +265,14 @@ export class estadisticaAPI {
       if (response.status !== 200) throw result;
 
       return result;
-
     } catch (error) {
-      console.error("Error al obtener los datos", error)
-      throw error
+      console.error('Error al obtener los datos', error);
+      throw error;
     }
   }
 
   async diagramaUsuariosEquipo(id_team) {
     try {
-
       const url = `${this.baseApi}/diagramaUsuariosPorEquipo/${id_team}`;
 
       const response = await fetch(url);
@@ -284,16 +281,14 @@ export class estadisticaAPI {
       if (response.status !== 200) throw result;
 
       return result;
-
     } catch (error) {
-      console.error("Error al obtener los datos", error)
-      throw error
+      console.error('Error al obtener los datos', error);
+      throw error;
     }
   }
 
   async diagramaUsuariosPorClub(id_club) {
     try {
-
       const url = `${this.baseApi}/diagramaUsuariosPorClub/${id_club}`;
 
       const response = await fetch(url);
@@ -302,10 +297,9 @@ export class estadisticaAPI {
       if (response.status !== 200) throw result;
 
       return result;
-
     } catch (error) {
-      console.error("Error al obtener los datos", error)
-      throw error
+      console.error('Error al obtener los datos', error);
+      throw error;
     }
   }
 }
