@@ -120,14 +120,13 @@ export class ClubAPI {
     }
   }
 
-  async eliminarClub(clubId, accessToken) {
+  async eliminarClub(clubId) {
     try {
       const url = `${this.baseApi}/deleteclub/${clubId}`;
 
       const params = {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
         },
       };
 
