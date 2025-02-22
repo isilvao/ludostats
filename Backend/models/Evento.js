@@ -1,4 +1,4 @@
-const {DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
 const Evento = sequelize.define('Evento', {
@@ -25,7 +25,7 @@ const Evento = sequelize.define('Evento', {
     },
     club_id: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
     },
 })
 

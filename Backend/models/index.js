@@ -6,6 +6,9 @@ const TipoEstadistica = require('./TipoEstadistica');
 const UsuarioClub = require('./UsuarioClub');
 const Evento = require('./Evento');
 const Pago = require('./Pago');
+const Transaccion = require("./Transaccion");
+const Notificacion = require("./Notificacion");
+const EventoDependencia = require('./EventoDependencia');
 
 const sequelize = require('../db');
 const Invitacion = require('./invitacion');
@@ -15,7 +18,7 @@ const UsuariosEquipos = require('./UsuariosEquipos');
 const initModels = async () => {
   try {
     // Sincroniza los modelos con la base de datos
-    await sequelize.sync({ force: false }); // Cambia a true para reiniciar las tablas (solo en desarrollo)
+    // await sequelize.sync({ force: false }); // Cambia a true para reiniciar las tablas (solo en desarrollo)
     // await sequelize.sync({ alter: true });
     console.log('Modelos sincronizados.');
   } catch (error) {
@@ -143,13 +146,32 @@ UsuarioClub.belongsTo(Club, {
 })
 
 // Relacion: un club tiene varios tipos eventos
-Club.hasMany(Evento, {
+
+Club.hasMany(EventoDependencia, {
   foreignKey: 'club_id',
   as: 'eventos'
 })
-Evento.belongsTo(Club, {
+EventoDependencia.belongsTo(Club, {
   foreignKey: 'club_id',
   as: 'club'
+})
+
+Equipo.hasMany(EventoDependencia, {
+  foreignKey: 'equipo_id',
+  as: 'eventos'
+})
+EventoDependencia.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  as: 'equipo'
+})
+
+Evento.hasMany(EventoDependencia, {
+  foreignKey: 'evento_id',
+  as: 'dependencias'
+})
+EventoDependencia.belongsTo(Evento, {
+  foreignKey: 'evento_id',
+  as: 'evento'
 })
 
 // Relacion: un club tiene varios tipos de estadisticas
@@ -174,5 +196,32 @@ Estadistica.belongsTo(TipoEstadistica, {
 })
 
 
+// 📌 Relación de usuarios con transacciones (Usuario envía transacción)
+Usuario.hasMany(Transaccion, { foreignKey: 'usuario_id' });
+Transaccion.belongsTo(Usuario, { foreignKey: 'usuario_id' });
 
-module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, initModels };
+// 📌 Relación de transacciones con clubes
+Transaccion.belongsTo(Club, { foreignKey: 'club_id' });
+Club.hasMany(Transaccion, { foreignKey: 'club_id' });
+
+// 📌 Relación de usuarios con notificaciones
+Usuario.hasMany(Notificacion, { foreignKey: 'usuario_id' });
+Notificacion.belongsTo(Usuario, { foreignKey: 'usuario_id' });
+
+// 📌 Relación de UsuariosClub con usuarios y clubes
+Usuario.hasMany(UsuarioClub, { foreignKey: 'usuario_id' });
+Club.hasMany(UsuarioClub, { foreignKey: 'club_id' });
+UsuarioClub.belongsTo(Usuario, { foreignKey: 'usuario_id' });
+UsuarioClub.belongsTo(Club, { foreignKey: 'club_id' });
+
+// 📌 Relación de transacciones con usuario receptor
+Transaccion.belongsTo(Usuario, { foreignKey: 'destinatario_id', as: 'destinatario' });
+
+
+
+
+
+
+
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento,EventoDependencia, initModels, Transaccion, 
+  Notificacion};

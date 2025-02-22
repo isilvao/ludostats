@@ -2,6 +2,7 @@ const image = require("../utils/image");
 const Club = require("../models/Club");
 const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
+const cloudinary = require('../utils/cloudinary');
 
 const buscarMisClubes = async (req, res) => {
   const { user_id } = req.query;
@@ -64,43 +65,126 @@ const actualizarClub = async (req, res) => {
   }
 };
 
+
+const actualizarClubLogo = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const club = await Club.findByPk(id);
+    if (!club) return res.status(404).json({ msg: "Club no encontrado" });
+
+    // 📌 Verificar si se subió una nueva imagen
+    if (!req.file) {
+      return res.status(400).json({ msg: "No se ha proporcionado ninguna imagen" });
+    }
+
+    // 📌 Subir la imagen a Cloudinary
+    const resultado = await cloudinary.uploader.upload(req.file.path, {
+      folder: "clubes",
+      public_id: `club_${id}`,
+      overwrite: true
+    });
+
+    // 📌 Guardar la URL en la base de datos
+    club.logo = resultado.secure_url;
+    await club.save();
+
+    res.status(200).json({
+      msg: "Logo del club actualizado correctamente",
+      logo: resultado.secure_url, // ✅ Devuelve la URL de la imagen
+    });
+
+  } catch (error) {
+    console.error("❌ Error al actualizar el logo del club:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
+
+
+// async function createClub(req, res) {
+//   const { user_id } = req.user;
+//   const { nombre, deporte } = req.body;
+
+//   let imagePath = null;
+
+
+
+//   Club.create({
+//     nombre,
+//     deporte,
+//     logo: imagePath,
+//   })
+//     .then((clubStored) => {
+//       if (!clubStored) {
+//         return res.status(400).send({ msg: "Error al crear el club" });
+//       } else {
+
+//         UsuarioClub.create({
+//           usuario_id: user_id,
+//           club_id: clubStored.id,
+//           rol: "gerente",
+//         }).then((response => {
+//           return res.status(200).send({ msg: "Club creado correctamente", club: clubStored, success: true });
+//         })).catch((err) => {
+//           return res.status(500).send({ msg: "Error al crear el club" });
+//         })
+//       }
+//     })
+//     .catch((err) => {
+//       return res.status(500).send({ msg: "Error al crear el club" });
+//     });
+// }
+
+
+
 async function createClub(req, res) {
   const { user_id } = req.user;
   const { nombre, deporte } = req.body;
 
-  let imagePath = null;
+  try {
+    let imagePath = null;
 
-  //TODO: No funciona la subida de logo del club
-  // if (req.files.logo) {
-  //   imagePath = image.getFilePath(req.files.logo);
-  // }
+    // 📌 Si el usuario subió una imagen, guardarla en Cloudinary
+    if (req.file) {
+      const resultado = await cloudinary.uploader.upload(req.file.path, {
+        folder: "clubes", // 📌 Carpeta en Cloudinary
+        public_id: `club_${nombre.replace(/\s+/g, "_")}`, // Nombre basado en el club
+        overwrite: true
+      });
+      imagePath = resultado.secure_url;
+    }
 
-
-  Club.create({
-    nombre,
-    deporte,
-    logo: imagePath,
-  })
-    .then((clubStored) => {
-      if (!clubStored) {
-        return res.status(400).send({ msg: "Error al crear el club" });
-      } else {
-
-        UsuarioClub.create({
-          usuario_id: user_id,
-          club_id: clubStored.id,
-          rol: "gerente",
-        }).then((response => {
-          return res.status(200).send({ msg: "Club creado correctamente", club: clubStored, success: true });
-        })).catch((err) => {
-          return res.status(500).send({ msg: "Error al crear el club" });
-        })
-      }
-    })
-    .catch((err) => {
-      return res.status(500).send({ msg: "Error al crear el club" });
+    // 📌 Crear el club con la imagen (si se subió)
+    const clubStored = await Club.create({
+      nombre,
+      deporte,
+      logo: imagePath,
     });
+
+    if (!clubStored) {
+      return res.status(400).json({ msg: "Error al crear el club" });
+    }
+
+    // 📌 Asociar al creador como gerente del club
+    await UsuarioClub.create({
+      usuario_id: user_id,
+      club_id: clubStored.id,
+      rol: "gerente",
+    });
+
+    res.status(200).json({
+      msg: "Club creado correctamente",
+      club: clubStored,
+      success: true,
+      logo: imagePath, // ✅ Devuelve la URL de la imagen
+    });
+
+  } catch (error) {
+    console.error("❌ Error al crear el club:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
 }
+
 
 async function updateClub(req, res) {
   const { id_club } = req.params;
@@ -222,5 +306,6 @@ module.exports = {
   buscarMisClubes,
   actualizarClub,
   getUsersByClub,
-  buscarMisClubesGerente
+  buscarMisClubesGerente,
+  actualizarClubLogo
 };

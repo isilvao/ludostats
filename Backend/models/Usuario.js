@@ -54,6 +54,19 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.UUID,
         allowNull: true
     },
+    tipo_suscripcion: {
+        type: DataTypes.ENUM('gratis', 'basica', 'premium'),
+        defaultValue: 'gratis',
+    },
+    fecha_fin_suscripcion: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    ultima_transaccion_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    }
+
 });
 
 module.exports = Usuario;

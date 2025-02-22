@@ -5,12 +5,19 @@ const Club = require('../models/Club')
 const Usuario = require('../models/Usuario')
 const UsuarioClub = require('../models/UsuarioClub')
 const UsuariosEquipos = require('../models/UsuariosEquipos')
+const { Op } = require('sequelize');
 
 async function getMyEstadisticas(req, res) {
     const { user_id } = req.user
 
     try {
-        const estadisticas = await Estadistica.findAll({ where: { usuario_id: user_id } })
+        const estadisticas = await Estadistica.findAll({
+            where: { usuario_id: user_id }, include: {
+                model: tipoEstadistica,
+                as: "tipoEstadistica",
+                attributes: ['nombre']
+            }
+        })
         res.status(200).send(estadisticas)
     } catch (error) {
         res.status(500).send({ msg: "Error al consultar las estadisticas" })
@@ -128,7 +135,7 @@ async function getAllEstadisticasInTeam(req, res) {
 
     try {
         const usuarios = await UsuariosEquipos.findAll({
-            where: { equipo_id: id_team, rol: 'deportista' },
+            where: { equipo_id: id_team, [Op.or]: [{ rol: 'deportista' }, { rol: 'miembro' }] },
             include: {
                 model: Usuario,
                 as: "usuario",
@@ -140,6 +147,8 @@ async function getAllEstadisticasInTeam(req, res) {
                 }
             }
         })
+
+        console.log(usuarios)
 
         const estadisticas = usuarios.flatMap(usuarios =>
             usuarios.usuario.estadisticas.map(estadistica => ({
@@ -164,8 +173,7 @@ async function getAllEstadisticasInTeam(req, res) {
 }
 
 async function diagramaBarrasEstadisticaPorEquipo(req, res) {
-
-    const { id_tipoestadistica, id_team } = req.params
+    const { id_tipoestadistica, id_team } = req.params;
 
     try {
         const usuarios = await UsuariosEquipos.findAll({
@@ -180,23 +188,43 @@ async function diagramaBarrasEstadisticaPorEquipo(req, res) {
                     where: { tipoEstadistica_id: id_tipoestadistica }
                 }
             }
-        })
+        });
 
-        usuarios.map(usuario => {
-            usuario.usuario.estadisticas.map(estadistica => {
-                console.log(estadistica.valor)
-                console.log(estadistica.fecha)
-            })
-        })
+        const estadisticasPorMes = {};
 
-        let chartData = []
+        usuarios.forEach(usuario => {
+            usuario.usuario.estadisticas.forEach(estadistica => {
+                const mes = moment(estadistica.fecha).format("MMMM");
+                if (!estadisticasPorMes[mes]) {
+                    estadisticasPorMes[mes] = [];
+                }
+                estadisticasPorMes[mes].push(estadistica.valor);
+            });
+        });
 
-        res.status(200).send(usuarios)
+        console.log("Estadisticas por mes", estadisticasPorMes);
+
+
+        const chartData = Object.keys(estadisticasPorMes).map(mes => {
+            const valores = estadisticasPorMes[mes];
+            console.log("Valores", valores);
+
+            let suma = 0
+            for (let i = 0; i < valores.length; i++) {
+                suma += parseFloat(valores[i]);
+            }
+            const promedio = suma / valores.length;
+
+            return { month: mes, average: promedio };
+        });
+
+        res.status(200).send(chartData);
     } catch (error) {
-        return res.status(500).send({ msg: "Error al consultar las estadisticas", error })
+        return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
     }
-
 }
+
+//TODO: Hacer el otro diagrama para saber que deportistas están entrando a cada equipo con las fechas
 
 module.exports = {
     getMyEstadisticas,

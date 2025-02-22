@@ -35,6 +35,37 @@ export class ClubAPI {
     }
   }
 
+  // async crearClub(club, accessToken) {
+  //   try {
+  //     const url = `${this.baseApi}/newclub`;
+
+  //     const data = new FormData();
+  //     data.append('nombre', club.nombre);
+  //     data.append('deporte', club.deporte);
+  //     if (club.telefono) data.append('telefono', club.telefono);
+  //     if (club.logo) data.append('logo', club.logo); // Agregar el logo si existe
+
+  //     const params = {
+  //       method: 'POST',
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //       body: data, // Se envía como FormData
+  //     };
+
+  //     const response = await fetch(url, params);
+  //     const result = await response.json();
+
+  //     if (response.status !== 200) throw result;
+
+  //     return result;
+  //   } catch (error) {
+  //     console.error('Error al crear el club:', error);
+  //     throw error;
+  //   }
+  // }
+
+
   async crearClub(club, accessToken) {
     try {
       const url = `${this.baseApi}/newclub`;
@@ -43,14 +74,14 @@ export class ClubAPI {
       data.append('nombre', club.nombre);
       data.append('deporte', club.deporte);
       if (club.telefono) data.append('telefono', club.telefono);
-      if (club.logo) data.append('logo', club.logo); // Agregar el logo si existe
+      if (club.logo) data.append('logo', club.logo); // 📌 Agregar el logo si existe
 
       const params = {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        body: data, // Se envía como FormData
+        body: data, // 📌 Se envía como FormData
       };
 
       const response = await fetch(url, params);
@@ -58,12 +89,12 @@ export class ClubAPI {
 
       if (response.status !== 200) throw result;
 
-      return result;
+      return result; // ✅ Devuelve el objeto del club con la URL del logo
     } catch (error) {
-      console.error('Error al crear el club:', error);
+      console.error('❌ Error al crear el club:', error);
       throw error;
     }
-  }
+}
 
   async editarClub(club) {
     try {
@@ -135,6 +166,28 @@ export class ClubAPI {
       throw error;
     }
   }
+  // async actualizarLogoClub(clubId, file) {
+  //   try {
+  //     const url = `${this.baseApi}/club_logo/${clubId}`;
+  //     const formData = new FormData();
+  //     formData.append('logo', file);
+
+  //     const params = {
+  //       method: 'PATCH',
+  //       body: formData,
+  //     };
+
+  //     const response = await fetch(url, params);
+  //     const result = await response.json();
+
+  //     if (response.status !== 200) throw result;
+
+  //     return result;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
+
   async actualizarLogoClub(clubId, file) {
     try {
       const url = `${this.baseApi}/club_logo/${clubId}`;
@@ -151,7 +204,8 @@ export class ClubAPI {
 
       if (response.status !== 200) throw result;
 
-      return result;
+      return result.logo; // ✅ Devuelve solo la URL del logo actualizado
+
     } catch (error) {
       throw error;
     }

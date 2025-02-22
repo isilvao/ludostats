@@ -1,3 +1,6 @@
+require('./cronjobs'); // 📌 Importa y ejecuta los cron jobs
+
+
 const { IP_SERVER, API_VERSION } = require('./constants')
 const sequelize = require('./db');
 
