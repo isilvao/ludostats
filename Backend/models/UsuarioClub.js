@@ -19,6 +19,19 @@ const UsuarioClub = sequelize.define('UsuarioClub', {
         type: DataTypes.ENUM('gerente', 'entrenador', 'deportista', 'acudiente', 'miembro'),
         allowNull: false,
     },
+    activado: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    fecha_fin_matricula: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    transaccion_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    }
+
 });
 
 module.exports = UsuarioClub;

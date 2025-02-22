@@ -6,6 +6,8 @@ const TipoEstadistica = require('./TipoEstadistica');
 const UsuarioClub = require('./UsuarioClub');
 const Evento = require('./Evento');
 const Pago = require('./Pago');
+const Transaccion = require("./Transaccion");
+const Notificacion = require("./Notificacion");
 
 const sequelize = require('../db');
 const Invitacion = require('./invitacion');
@@ -15,7 +17,7 @@ const UsuariosEquipos = require('./UsuariosEquipos');
 const initModels = async () => {
   try {
     // Sincroniza los modelos con la base de datos
-    await sequelize.sync({ force: false }); // Cambia a true para reiniciar las tablas (solo en desarrollo)
+    // await sequelize.sync({ force: false }); // Cambia a true para reiniciar las tablas (solo en desarrollo)
     // await sequelize.sync({ alter: true });
     console.log('Modelos sincronizados.');
   } catch (error) {
@@ -174,5 +176,28 @@ Estadistica.belongsTo(TipoEstadistica, {
 })
 
 
+// 📌 Relación de usuarios con transacciones (Usuario envía transacción)
+Usuario.hasMany(Transaccion, { foreignKey: 'usuario_id' });
+Transaccion.belongsTo(Usuario, { foreignKey: 'usuario_id' });
 
-module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, initModels };
+// 📌 Relación de transacciones con clubes
+Transaccion.belongsTo(Club, { foreignKey: 'club_id' });
+Club.hasMany(Transaccion, { foreignKey: 'club_id' });
+
+// 📌 Relación de usuarios con notificaciones
+Usuario.hasMany(Notificacion, { foreignKey: 'usuario_id' });
+Notificacion.belongsTo(Usuario, { foreignKey: 'usuario_id' });
+
+// 📌 Relación de UsuariosClub con usuarios y clubes
+Usuario.hasMany(UsuarioClub, { foreignKey: 'usuario_id' });
+Club.hasMany(UsuarioClub, { foreignKey: 'club_id' });
+UsuarioClub.belongsTo(Usuario, { foreignKey: 'usuario_id' });
+UsuarioClub.belongsTo(Club, { foreignKey: 'club_id' });
+
+// 📌 Relación de transacciones con usuario receptor
+Transaccion.belongsTo(Usuario, { foreignKey: 'destinatario_id', as: 'destinatario' });
+
+
+
+module.exports = { Usuario, Club, Equipo,Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, initModels, Transaccion, 
+  Notificacion};
