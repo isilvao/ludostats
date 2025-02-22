@@ -13,4 +13,7 @@ api.get('/estadisticas/:id_tipoestadistica', estadisticasController.getAllEstadi
 api.get('/estadisticas/:id_tipoestadistica/:id_team', estadisticasController.getAllEstadisticasInTeam) // id del usuario
 
 api.get('/diagramaBarrasEstadisticaPorEquipo/:id_tipoestadistica/:id_team', estadisticasController.diagramaBarrasEstadisticaPorEquipo) // id del usuario
+api.get('/diagramaUsuariosPorEquipo/:id_team', estadisticasController.diagramaUsuariosDeEquipos) // id del usuario
+api.get('/diagramaUsuariosPorClub/:id_club', estadisticasController.diagramaUsuariosDeClubes) // id del usuario
+
 module.exports = api
