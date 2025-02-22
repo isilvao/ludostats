@@ -35,10 +35,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Link from 'next/link';
-// import { useParams } from 'next/navigation';
 import { useEquipoClub } from '@/hooks/useEquipoClub';
-// import { EquipoAPI } from '@/api/equipo';
-// import { ClubAPI } from '@/api/club';
 import * as XLSX from 'xlsx';
 import { BiExport } from 'react-icons/bi';
 import {
@@ -81,14 +78,12 @@ const StatisticDetail: React.FC = () => {
             clubData.id,
             statisticID
           );
-          console.log('result:', result);
-          console.log('clubData', clubData);
           const statistics = result.map((item: any) => ({
             id: item.id,
             nombre: item.usuario.nombre,
             apellido: item.usuario.apellido,
             valor: item.valor,
-            fecha: item.fecha,
+            fecha: new Date(item.fecha).toLocaleDateString(),
           }));
           setData(statistics);
         } else if (selectionType === 'club') {
@@ -99,7 +94,7 @@ const StatisticDetail: React.FC = () => {
             nombre: item.usuario.nombre,
             apellido: item.usuario.apellido,
             valor: item.valor,
-            fecha: item.fecha,
+            fecha: new Date(item.fecha).toLocaleDateString(),
           }));
           setData(statistics);
         }
@@ -157,90 +152,56 @@ const StatisticDetail: React.FC = () => {
     },
     {
       accessorKey: 'nombre',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Nombre
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Nombre
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('nombre')}</div>,
     },
     {
       accessorKey: 'apellido',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Apellido
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Apellido
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('apellido')}</div>,
     },
     {
       accessorKey: 'valor',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Valor
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Valor
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('valor')}</div>,
     },
     {
       accessorKey: 'fecha',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Fecha
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Fecha
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('fecha')}</div>,
     },
-    // {
-    //   id: 'actions',
-    //   enableHiding: false,
-    //   header: 'Acciones',
-    //   cell: ({ row }: { row: any }) => {
-    //     const member = row.original;
-
-    //     return (
-    //       <DropdownMenu>
-    //         <DropdownMenuTrigger asChild>
-    //           <Button variant="outline" className="h-8 w-8 p-0">
-    //             <span className="sr-only">Open menu</span>
-    //             <MoreHorizontal />
-    //           </Button>
-    //         </DropdownMenuTrigger>
-    //         <DropdownMenuContent align="end">
-    //           <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-    //           <DropdownMenuItem asChild>
-    //             <Link href={`/${member.id}/edit`}>Editar</Link>
-    //           </DropdownMenuItem>
-    //           <DropdownMenuItem>Borrar</DropdownMenuItem>
-    //         </DropdownMenuContent>
-    //       </DropdownMenu>
-    //     );
-    //   },
-    // },
   ];
 
   const table = useReactTable({

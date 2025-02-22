@@ -128,37 +128,45 @@ const Sidebar = () => {
               }
               return false;
             })
-            .map(({ url, name, icon }) => (
-              <Link
-                key={name}
-                href={url.replace('[dashboard]', nameTeam ?? '')}
-                className="lg:w-full"
-              >
-                <li
-                  className={cn(
-                    'sidebar-nav-item hover:bg-gray-100',
-                    pathname.startsWith(
-                      url.replace('[dashboard]', nameTeam ?? '')
-                    ) && 'shad-active'
-                  )}
+            .map(({ url, name, icon }) => {
+              const finalUrl =
+                (rolClub === 'deportista' || rolClub === 'miembro') &&
+                url === '/[dashboard]/statistics'
+                  ? '/[dashboard]/mystatistics'
+                  : url;
+              return (
+                <Link
+                  key={name}
+                  href={finalUrl.replace('[dashboard]', nameTeam ?? '')}
+                  className="lg:w-full"
                 >
-                  <span
+                  <li
                     className={cn(
-                      'nav-icon',
+                      'sidebar-nav-item hover:bg-gray-100',
                       pathname.startsWith(
-                        url.replace('[dashboard]', nameTeam ?? '')
-                      ) && 'nav-icon-active'
+                        finalUrl.replace('[dashboard]', nameTeam ?? '')
+                      ) && 'shad-active'
                     )}
                   >
-                    {icon({ size: 24 })}
-                  </span>
-                  <p className="hidden lg:block">{name}</p>
-                </li>
-              </Link>
-            ))}
+                    <span
+                      className={cn(
+                        'nav-icon',
+                        pathname.startsWith(
+                          finalUrl.replace('[dashboard]', nameTeam ?? '')
+                        ) && 'nav-icon-active'
+                      )}
+                    >
+                      {icon({ size: 24 })}
+                    </span>
+                    <p className="hidden lg:block">{name}</p>
+                  </li>
+                </Link>
+              );
+            })}
         </ul>
       </nav>
     </aside>
   );
 };
+
 export default Sidebar;

@@ -10,12 +10,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet';
-import { usePathname, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { FaCalendarAlt, FaUsers, FaChartBar } from 'react-icons/fa';
 import { GiLaurelsTrophy } from 'react-icons/gi';
 import { IoMdSettings } from 'react-icons/io';
 import { MdPayments } from 'react-icons/md';
-import Header from './Header';
 
 const navItems = [
   {
@@ -120,7 +119,6 @@ const HeaderMovile = () => {
                 alt="menu"
                 className="select-item"
               />
-              {/* <span>{name}</span> */}
             </div>
           </SheetTrigger>
           <SheetContent side="top">
@@ -155,17 +153,24 @@ const HeaderMovile = () => {
                     }
                     return false;
                   })
-                  .map(({ url, name, icon }) => (
-                    <SheetClose asChild key={name}>
-                      <Link
-                        href={url.replace('[dashboard]', nameTeam ?? '')}
-                        className="hover:text-gray-700 flex items-center gap-2"
-                      >
-                        {icon({ size: 24 })}
-                        {name}
-                      </Link>
-                    </SheetClose>
-                  ))}
+                  .map(({ url, name, icon }) => {
+                    const finalUrl =
+                      (rolClub === 'deportista' || rolClub === 'miembro') &&
+                      url === '/[dashboard]/statistics'
+                        ? '/[dashboard]/mystatistics'
+                        : url;
+                    return (
+                      <SheetClose asChild key={name}>
+                        <Link
+                          href={finalUrl.replace('[dashboard]', nameTeam ?? '')}
+                          className="hover:text-gray-700 flex items-center gap-2"
+                        >
+                          {icon({ size: 24 })}
+                          {name}
+                        </Link>
+                      </SheetClose>
+                    );
+                  })}
               </ul>
             </div>
           </SheetContent>
