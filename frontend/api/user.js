@@ -1,5 +1,4 @@
-import { apiVersion, basePath } from './config';
-import jwtDecode from 'jwt-decode';
+import { apiVersion, basePath } from '../utils/config';
 
 let storedOtp = null;
 

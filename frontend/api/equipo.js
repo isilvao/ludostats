@@ -1,4 +1,4 @@
-import { basePath, apiVersion } from './config';
+import { basePath, apiVersion } from '../utils/config';
 import jwtDecode from 'jwt-decode';
 export class EquipoAPI {
   baseApi = `${basePath}/${apiVersion}`;
@@ -54,14 +54,14 @@ export class EquipoAPI {
   async crearEquipo(equipo, accessToken) {
     try {
       const url = `${this.baseApi}/nuevoequipo`;
-  
+
       const data = new FormData();
       data.append('nombre', equipo.nombre);
       data.append('club_id', equipo.club_id);
       data.append('nivelPractica', equipo.nivelPractica);
       if (equipo.descripcion) data.append('descripcion', equipo.descripcion);
       if (equipo.logo) data.append('logo', equipo.logo); // 📌 Agregar el logo si existe
-  
+
       const params = {
         method: 'POST',
         headers: {
@@ -69,19 +69,19 @@ export class EquipoAPI {
         },
         body: data, // 📌 Se envía como FormData
       };
-  
+
       const response = await fetch(url, params);
       const result = await response.json();
-  
+
       if (response.status !== 200) throw result;
-  
+
       return result;
     } catch (error) {
       console.error('❌ Error al crear el equipo:', error);
       throw error;
     }
   }
-  
+
 
   async modificarEquipo(equipo) {
     try {

@@ -1,5 +1,5 @@
-import { basePath, apiVersion } from "./config";
-import { JWT } from './config'
+import { basePath, apiVersion } from "../utils/config";
+import { JWT } from '../utils/config'
 
 export class Auth {
     baseApiUrl = `${basePath}/${apiVersion}`;

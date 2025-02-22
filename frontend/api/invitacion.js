@@ -1,4 +1,4 @@
-import { apiVersion, basePath } from './config';
+import { apiVersion, basePath } from '../utils/config';
 
 export class InvitacionesAPI {
   baseApi = `${basePath}/${apiVersion}`;

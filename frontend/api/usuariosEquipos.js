@@ -1,4 +1,4 @@
-import { apiVersion, basePath } from './config';
+import { apiVersion, basePath } from '../utils/config';
 
 export class UsuariosEquipos {
   baseApi = `${basePath}/${apiVersion}`;
