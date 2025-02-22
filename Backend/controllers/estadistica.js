@@ -149,10 +149,11 @@ async function getAllEstadisticasInTeam(req, res) {
             }
         })
 
-        console.log(usuarios)
-
-        const estadisticas = usuarios.flatMap(usuarios =>
-            usuarios.usuario.estadisticas.map(estadistica => ({
+        const estadisticas = usuarios.flatMap(usuario => {
+            if (!usuario.usuario || usuario.usuario.estadisticas.length === 0) {
+                return [];
+            }
+            return usuario.usuario.estadisticas.map(estadistica => ({
                 id: estadistica.id,
                 usuario_id: estadistica.usuario_id,
                 tipoEstadistica_id: estadistica.tipoEstadistica_id,
@@ -161,11 +162,13 @@ async function getAllEstadisticasInTeam(req, res) {
                 createdAt: estadistica.createdAt,
                 updatedAt: estadistica.updatedAt,
                 usuario: {
-                    nombre: usuarios.usuario.nombre,
-                    apellido: usuarios.usuario.apellido
+                    nombre: usuario.usuario.nombre,
+                    apellido: usuario.usuario.apellido
                 }
-            }))
-        );
+            }));
+        });
+
+        console.log(estadisticas);
 
         return res.status(200).send(estadisticas)
     } catch (error) {
