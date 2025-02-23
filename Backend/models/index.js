@@ -157,6 +157,17 @@ Estadistica.belongsTo(Equipo, {
   as: 'equipo'
 })
 
+// Relacion: Equipo tiene varias estadisticas
+Equipo.hasMany(Estadistica, {
+  foreignKey: 'equipo_id',
+  as: 'estadisticas',
+  onDelete: 'CASCADE'
+})
+Estadistica.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  as: 'equipo'
+})
+
 // Relacion: un club tiene varios usuarios con diferente rol
 Club.hasMany(UsuarioClub, {
   foreignKey: 'club_id',
