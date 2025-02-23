@@ -12,13 +12,17 @@ const buscarMisClubes = async (req, res) => {
       where: { usuario_id: user_id },
       include: [{ model: Club, as: "club" }],
     });
-    const clubesResponse = clubes.map((club) => {
-      return {
-        id: club.club.id,
-        nombre: club.club.nombre,
-        deporte: club.club.deporte,
-        logo: club.club.logo,
-        rol: club.rol,
+
+    const clubesUnicos = {};
+    clubes.forEach((club) => {
+      if (!clubesUnicos[club.club.id]) {
+        clubesUnicos[club.club.id] = {
+          id: club.club.id,
+          nombre: club.club.nombre,
+          deporte: club.club.deporte,
+          logo: club.club.logo,
+          rol: club.rol,
+        };
       }
     });
 
