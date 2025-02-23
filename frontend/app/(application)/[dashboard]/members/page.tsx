@@ -13,7 +13,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -39,6 +38,7 @@ import { useParams } from 'next/navigation';
 import { useEquipoClub } from '@/hooks/useEquipoClub';
 import { EquipoAPI } from '@/api/equipo';
 import { ClubAPI } from '@/api/club';
+import { UsuariosEquipos } from '@/api/usuariosEquipos';
 import * as XLSX from 'xlsx';
 import { BiExport } from 'react-icons/bi';
 import {
@@ -49,6 +49,19 @@ import {
 } from '@/components/ui/tooltip';
 import { IoPersonAdd } from 'react-icons/io5';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 type Member = {
   id: string;
@@ -118,13 +131,25 @@ const DataTableDemo: React.FC = () => {
   }, [clubData.id]);
 
   const handleDelete = async (id: string) => {
-    // try {
-    //   const equipoAPI = new EquipoAPI();
-    //   await equipoAPI.deleteUser(id);
-    //   setData((prevData) => prevData.filter((member) => member.id !== id));
-    // } catch (error) {
-    //   console.error('Error deleting user:', error);
-    // }
+    try {
+      const equipoAPI = new UsuariosEquipos();
+      await equipoAPI.eliminarUsuarioEquipo(id, clubData.id);
+      setData((prevData) => prevData.filter((member) => member.id !== id));
+      toast.success('Usuario eliminado con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Error al eliminar el usuario', {
+        style: {
+          background: '#FF0000', // Fondo rojo
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    }
   };
 
   const handleDownloadExcel = () => {
@@ -242,9 +267,41 @@ const DataTableDemo: React.FC = () => {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                      <Link href={`/${member.id}/edit`}>Editar</Link>
+                      <Link
+                        href={`/${nameTeam}/members/${member.id}`}
+                        className="w-full justify-center cursor-pointer"
+                      >
+                        Editar
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>Borrar</DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" className="w-full">
+                            Borrar
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Confirmar eliminación
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              ¿Estás seguro de que deseas eliminar este miembro?
+                              Esta acción no se puede deshacer.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(member.id)}
+                            >
+                              Eliminar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               );
@@ -289,6 +346,7 @@ const DataTableDemo: React.FC = () => {
 
   return (
     <div className="w-full">
+      <Toaster />
       <div className="flex items-center py-4 justify-between">
         <h1 className="h2">Miembros</h1>
         <div className="flex items-center space-x-5 h-10">

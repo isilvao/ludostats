@@ -16,10 +16,10 @@ const JoinClubPage: React.FC = () => {
     <div className="py-6 px-6 items-center max-w-7xl mx-auto flex flex-col justify-center sm:px-6 lg:px-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-[#4D4D4D] mb-4">
-          Unirse a un club
+          Unirse a un equipo
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Hay 2 maneras de unirse a tu club en LudoStats, ya sea utilizando el
+          Hay 2 maneras de unirse a tu equipo en LudoStats, ya sea utilizando el
           código secreto o utilizando el enlace de invitación.
         </p>
       </div>
@@ -54,8 +54,8 @@ const JoinClubPage: React.FC = () => {
             <FaEnvelope className="mr-2 text-blue-500" /> Enlace de invitación
           </h2>
           <p className="text-gray-600 text-sm">
-            El responsable del club te ha enviado un enlace de invitación. Por
-            favor, haz clic en el enlace para unirse al club
+            El responsable del equipo te ha enviado un enlace de invitación. Por
+            favor, haz clic en el enlace para unirse al equipo
           </p>
         </div>
       </div>
