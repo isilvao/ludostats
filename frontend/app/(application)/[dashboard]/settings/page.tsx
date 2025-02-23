@@ -134,9 +134,9 @@ const EditPage = () => {
   const handleDelete = async () => {
     try {
       if (isTeam) {
-        await (api as EquipoAPI).eliminarEquipo(data.id, accessToken);
+        await (api as EquipoAPI).eliminarEquipo(data.id);
       } else {
-        await (api as ClubAPI).eliminarClub(data.id, accessToken);
+        await (api as ClubAPI).eliminarClub(data.id);
       }
       toast.success('Eliminado con éxito');
     } catch (error) {
