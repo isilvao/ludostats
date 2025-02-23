@@ -127,5 +127,6 @@ module.exports = {
     createTipoEstadistica,
     updateTipoEstadistica,
     deleteTipoEstadistica,
-    getTypeStadisticByTeam
+    getTypeStadisticByTeam,
+    getTipoEstadisticaById
 }

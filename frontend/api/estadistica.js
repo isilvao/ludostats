@@ -252,6 +252,23 @@ export class estadisticaAPI {
     throw error;
   }
 
+  async getTipoEstadisticaById(id_tipoEstadistica) {
+    try {
+      const url = `${this.baseApi}/tipoestadistica/${id_tipoEstadistica}`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200)
+        throw new Error('Tipo de estadistica no encontrado.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener el tipo de estadistica:', error);
+    }
+    throw error;
+  }
+
   async diagramaBarras(id_tipoEstadistica, id_team) {
     try {
       const url = `${this.baseApi}/diagramaBarrasEstadisticaPorEquipo/${id_tipoEstadistica}/${id_team}`;
