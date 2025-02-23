@@ -229,61 +229,63 @@ const EstadisticasPage = () => {
       <Toaster />
       <div className="flex items-center py-4 justify-between">
         <h1 className="h2">Tipos de Estadística</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
-              <span>Agregar Nueva</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Crear nueva estadística</DialogTitle>
-              <DialogDescription>
-                Ingresa los detalles de la nueva estadística. Haz clic en
-                guardar cuando termines.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="nombre" className="text-right">
-                  Nombre
-                </Label>
-                <Input
-                  id="nombre"
-                  value={newEstadistica.nombre}
-                  onChange={(e) =>
-                    setNewEstadistica({
-                      ...newEstadistica,
-                      nombre: e.target.value,
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="descripcion" className="text-right">
-                  Descripción
-                </Label>
-                <Input
-                  id="descripcion"
-                  value={newEstadistica.descripcion}
-                  onChange={(e) =>
-                    setNewEstadistica({
-                      ...newEstadistica,
-                      descripcion: e.target.value,
-                    })
-                  }
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" onClick={handleCreateEstadistica}>
-                Guardar
+        {!isTeam && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+                <span>Agregar Nueva</span>
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Crear nueva estadística</DialogTitle>
+                <DialogDescription>
+                  Ingresa los detalles de la nueva estadística. Haz clic en
+                  guardar cuando termines.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="nombre" className="text-right">
+                    Nombre
+                  </Label>
+                  <Input
+                    id="nombre"
+                    value={newEstadistica.nombre}
+                    onChange={(e) =>
+                      setNewEstadistica({
+                        ...newEstadistica,
+                        nombre: e.target.value,
+                      })
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="descripcion" className="text-right">
+                    Descripción
+                  </Label>
+                  <Input
+                    id="descripcion"
+                    value={newEstadistica.descripcion}
+                    onChange={(e) =>
+                      setNewEstadistica({
+                        ...newEstadistica,
+                        descripcion: e.target.value,
+                      })
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" onClick={handleCreateEstadistica}>
+                  Guardar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
       <div className="estadisticas-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {estadisticas.map((tipoEstadistica) => (

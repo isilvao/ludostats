@@ -11,6 +11,7 @@ import { ClubAPI } from '@/api/club';
 import { useAuth } from '@/hooks';
 import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 import {
   Form,
   FormControl,
@@ -65,7 +66,7 @@ const EditPage = () => {
   const isTeam = selectionType === 'equipo';
   const api = isTeam ? new EquipoAPI() : new ClubAPI();
   const data = clubData;
-  const { accessToken } = useAuth();
+  const router = useRouter();
   const [logo, setLogo] = useState(getClubLogo(clubData));
   const [name, setName] = useState(clubData?.nombre);
   const [nivelPractica, setNivelPractica] = useState(data?.nivelPractica || '');
@@ -139,6 +140,7 @@ const EditPage = () => {
         await (api as ClubAPI).eliminarClub(data.id);
       }
       toast.success('Eliminado con éxito');
+      router.push('/home');
     } catch (error) {
       console.error('Error al eliminar:', error);
       toast.error('Error al eliminar');
