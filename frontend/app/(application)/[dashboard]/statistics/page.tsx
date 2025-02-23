@@ -133,7 +133,6 @@ const EstadisticasPage = () => {
         } else {
           result = await api.getTipoEstadistica(clubData.id, accessToken);
         }
-        console.log(result);
         setEstadisticas(result);
       } catch (error: any) {
         setError(error);
@@ -152,7 +151,6 @@ const EstadisticasPage = () => {
         newEstadistica,
         clubData.id
       );
-      console.log(result);
       const nuevaEstadistica = {
         id: result.id,
         nombre: newEstadistica.nombre,
@@ -182,7 +180,6 @@ const EstadisticasPage = () => {
     try {
       const api = new estadisticaAPI();
       const result = await api.updateTipoEstadistica(editEstadistica);
-      console.log(result);
       setEstadisticas((prevEstadisticas) =>
         prevEstadisticas.map((estadistica) =>
           estadistica.id === editEstadistica.id ? editEstadistica : estadistica

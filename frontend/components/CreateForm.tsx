@@ -35,7 +35,7 @@ const createFormSchema = (formType: FormType) => {
       })
       .optional(),
     // Cambiado a File para ser más explícitos
-       logo: z.instanceof(File).optional(),
+    logo: z.instanceof(File).optional(),
     ...(formType === 'team' && {
       description: z.string().optional(),
       level: z.string().min(1, 'Nivel obligatorio'),
@@ -72,7 +72,6 @@ const CreateForm = ({ type }: { type: FormType }) => {
     const fetchClubs = async () => {
       try {
         const clubs = await clubcreate.buscarMisClubesGerente(user.id);
-        console.log(clubs);
         setClubs(clubs);
       } catch (error) {
         console.error('Error al obtener los clubes:', error);
@@ -106,7 +105,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
             descripcion: values.description || '',
             telefono: values.phone || '',
             nivelPractica: values.level,
-            club_id: values.club, 
+            club_id: values.club,
             logo: values.logo || '',
           },
           accessToken
