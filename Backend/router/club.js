@@ -15,9 +15,9 @@ api.get('/misclubesgerente/:user_id', clubController.buscarMisClubesGerente) // 
 
 api.post("/newclub", [md_auth.asureAuth, upload.single("logo")], clubController.createClub);
 //api.patch('/updateclub/:id_club', [md_auth.asureAuth, md_upload, md_club.validateGerenteInClub], clubController.updateClub) // id del club
-api.patch('/updateclub/:id_club', clubController.actualizarClub) // id del club
+api.patch('/updateclub/:id_club', clubController.updateClub) // id del club
 
-api.delete('/deleteclub/:id_club', [md_auth.asureAuth, md_club.validateGerenteInClub], clubController.deleteClub) // id del club y del gerente
+api.delete('/deleteclub/:id_club', clubController.deleteClub) // id del club y del gerente
 
 // Ruta para encontrar un club por su ID
 api.get('/club/:id', clubController.encontrarClubPorId);

@@ -107,7 +107,7 @@ export class EquipoAPI {
     }
   }
 
-  async eliminarEquipo(equipoId, accessToken) {
+  async eliminarEquipo(equipoId) {
     try {
       const url = `${this.baseApi}/eliminarequipo/${equipoId}`;
 
@@ -115,7 +115,6 @@ export class EquipoAPI {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
       };
 

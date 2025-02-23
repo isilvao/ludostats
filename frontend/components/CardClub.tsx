@@ -38,7 +38,6 @@ const ClubCard: React.FC<ClubCardProps> = ({ club, userId }) => {
     setShowConfirmation(false);
     try {
       // Lógica para abandonar el club
-      console.log(`Usuario ${userId} ha abandonado el club ${club.id}`);
     } catch (error) {
       console.error(error);
     }

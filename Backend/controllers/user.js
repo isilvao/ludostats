@@ -369,22 +369,6 @@ async function userJoinsClub(req, res) {
   }
 }
 
-async function getUsersByClub(req, res) {
-  const { id_club } = req.params;
-
-  try {
-    const registros = await UsuarioClub.findAll({
-      where: { club_id: id_club },
-      include: [{ model: User, as: "usuario" }]
-    });
-
-    res.status(200).send(registros);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Error al obtener los usuarios del club" });
-  }
-}
-
 const buscarClubesUsuario = async (req, res) => {
   const { usuario_id } = req.params;
 
@@ -553,7 +537,6 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  getUsersByClub,
   updateMe,
   userJoinsClub,
   getOneChild,

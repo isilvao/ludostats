@@ -2,11 +2,11 @@ import { basePath, apiVersion } from '../utils/config';
 export class estadisticaAPI {
   baseApi = `${basePath}/${apiVersion}`;
 
-  async getMyEstadisticas(user_id) {
+  async getMyEstadisticas(user_id, team_id) {
     try {
-      const url = `${this.baseApi}/misestadisticas/${user_id}`;
+      const url = `${this.baseApi}/misestadisticas/${team_id}/${user_id}`;
 
-      const response = await fetch(url, params);
+      const response = await fetch(url);
       const result = await response.json();
 
       if (response.status !== 200) throw result;
@@ -17,7 +17,7 @@ export class estadisticaAPI {
     }
   }
 
-  async updateEstadistica(estadistica, accessToken) {
+  async updateEstadistica(estadistica) {
     // El usuario que hace la modificación se recibe por el accessToken
 
     try {
@@ -27,7 +27,6 @@ export class estadisticaAPI {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(estadistica),
       };
@@ -43,20 +42,18 @@ export class estadisticaAPI {
     }
   }
 
-  async createEstadistica(tipoEstadistica, accessToken, id_usuario) {
+  async createEstadistica(id_tipoEstadistica, id_usuario, data, team_id) {
     // El id_usuario es el id del usuario que se quiere modificar.
-    // El usuario que crea la estadistica se recibe por el accessToken
 
     try {
-      const url = `${this.baseApi}/${tipoEstadistica.id}/${id_usuario}`;
+      const url = `${this.baseApi}/nuevaestadistica/${team_id}/${id_tipoEstadistica}/${id_usuario}`;
 
       const params = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(tipoEstadistica),
+        body: JSON.stringify(data),
       };
 
       const response = await fetch(url, params);
@@ -71,14 +68,14 @@ export class estadisticaAPI {
     }
   }
 
-  async deleteEstadistica(id, accessToken) {
+  async deleteEstadistica(id) {
     try {
       const url = `${this.baseApi}/eliminarestadistica/${id}`;
 
       const params = {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
         },
       };
 
@@ -89,7 +86,7 @@ export class estadisticaAPI {
 
       return result;
     } catch (error) {
-      console.error('Error al crear la estadistica:', error);
+      console.error('Error al eliminar la estadistica:', error);
       throw error;
     }
   }
@@ -255,9 +252,25 @@ export class estadisticaAPI {
     throw error;
   }
 
+  async getTipoEstadisticaById(id_tipoEstadistica) {
+    try {
+      const url = `${this.baseApi}/tipoestadistica/${id_tipoEstadistica}`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200)
+        throw new Error('Tipo de estadistica no encontrado.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener el tipo de estadistica:', error);
+    }
+    throw error;
+  }
+
   async diagramaBarras(id_tipoEstadistica, id_team) {
     try {
-
       const url = `${this.baseApi}/diagramaBarrasEstadisticaPorEquipo/${id_tipoEstadistica}/${id_team}`;
 
       const response = await fetch(url);
@@ -266,16 +279,14 @@ export class estadisticaAPI {
       if (response.status !== 200) throw result;
 
       return result;
-
     } catch (error) {
-      console.error("Error al obtener los datos", error)
-      throw error
+      console.error('Error al obtener los datos', error);
+      throw error;
     }
   }
 
   async diagramaUsuariosEquipo(id_team) {
     try {
-
       const url = `${this.baseApi}/diagramaUsuariosPorEquipo/${id_team}`;
 
       const response = await fetch(url);
@@ -284,16 +295,14 @@ export class estadisticaAPI {
       if (response.status !== 200) throw result;
 
       return result;
-
     } catch (error) {
-      console.error("Error al obtener los datos", error)
-      throw error
+      console.error('Error al obtener los datos', error);
+      throw error;
     }
   }
 
   async diagramaUsuariosPorClub(id_club) {
     try {
-
       const url = `${this.baseApi}/diagramaUsuariosPorClub/${id_club}`;
 
       const response = await fetch(url);
@@ -302,10 +311,9 @@ export class estadisticaAPI {
       if (response.status !== 200) throw result;
 
       return result;
-
     } catch (error) {
-      console.error("Error al obtener los datos", error)
-      throw error
+      console.error('Error al obtener los datos', error);
+      throw error;
     }
   }
 }

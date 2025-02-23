@@ -9,11 +9,11 @@ const { Op } = require('sequelize');
 const moment = require('moment');
 
 async function getMyEstadisticas(req, res) {
-    const { id } = req.params
+    const { id_team, id_user } = req.params
 
     try {
         const estadisticas = await Estadistica.findAll({
-            where: { usuario_id: id }, include: {
+            where: { usuario_id: id_user, equipo_id: id_team }, include: {
                 model: tipoEstadistica,
                 as: "tipoEstadistica",
                 attributes: ['nombre']
@@ -26,44 +26,23 @@ async function getMyEstadisticas(req, res) {
 }
 
 async function createEstadistica(req, res) {
-    const { id_tipoestadistica, id_usuario } = req.params
-    const { user_id } = req.user
+    const { id_tipoestadistica, id_usuario, id_team } = req.params
 
     const { valor, fecha } = req.body
 
-
     try {
-
-        const tipEstadistica = await tipoEstadistica.findOne({ where: { id: id_tipoestadistica } })
-
-        if (!tipEstadistica) {
-            return res.status(400).send({ msg: "No se pudo encontrar el tipo de estadistica" })
-        } else {
-            const usuario = await Usuario.findOne({ where: { id: user_id } })
-
-            if (usuario.rol !== 'gerente') {
-                const userClub = await UsuarioClub.findOne({ where: { usuario_id: user_id, club_id: tipEstadistica.club_id } })
-                if (!userClub) {
-                    return res.status(400).send({ msg: "No tienes permisos para crear estadisticas en este club" })
-                }
-            } else {
-                const club = await Club.findOne({ where: { id: tipEstadistica.club_id } })
-                if (club.gerente_id !== user_id) {
-                    return res.status(400).send({ msg: "No tienes permisos para crear estadisticas en este club" })
-                }
-            }
-        }
 
         await Estadistica.create({
             tipoEstadistica_id: id_tipoestadistica,
             usuario_id: id_usuario,
+            equipo_id: id_team,
             valor: valor,
             fecha: fecha
-        }).then((tipEstadistica) => {
-            if (!tipEstadistica) {
+        }).then((estadisticaStored) => {
+            if (!estadisticaStored) {
                 return res.status(400).send({ msg: "No se pudo crear la estadistica" })
             }
-            return res.status(200).send(tipEstadistica)
+            return res.status(200).send(estadisticaStored)
         }).catch((err) => {
             return res.status(500).send({ msg: "Error al crear la estadistica" })
         })
@@ -97,15 +76,13 @@ async function deleteEstadistica(req, res) {
     const { id_estadistica } = req.params
 
     try {
-        await Estadistica.destroy({ where: { id: id_estadistica } }).then((estadistica) => {
-            if (!estadistica) {
-                return res.status(400).send({ msg: "No se pudo encontrar la estadistica" })
-            }
-            return res.status(200).send(estadistica)
+        const estadistica = await Estadistica.findByPk(id_estadistica)
+
+        estadistica.destroy().then(() => {
+            return res.status(200).send({ msg: "Estadistica eliminada correctamente" })
         }).catch((err) => {
             return res.status(500).send({ msg: "Error al eliminar la estadistica" })
         })
-
     } catch (error) {
         return res.status(500).send({ msg: "Error al eliminar la estadistica" })
     }
@@ -240,14 +217,22 @@ async function diagramaUsuariosDeEquipos(req, res) {
 
         usuarios.forEach(usuario => {
             const mes = moment(usuario.usuario.createdAt).format("MMMM");
+
             if (!usuariosPorMes[mes]) {
                 usuariosPorMes[mes] = 0;
             }
             usuariosPorMes[mes]++;
         });
 
-        const chartData = Object.keys(usuariosPorMes).map(mes => {
-            return { mes: mes, nuevosUsuarios: usuariosPorMes[mes] };
+        let totalUsuarios = 0
+        for (const key in usuariosPorMes) {
+            console.log(key)
+            totalUsuarios += usuariosPorMes[key];
+            usuariosPorMes[key] = totalUsuarios;
+        }
+
+        chartData = Object.keys(usuariosPorMes).map(mes => {
+            return { mes: mes, totalUsuarios: usuariosPorMes[mes] };
         });
 
         res.status(200).send(chartData);
@@ -270,18 +255,24 @@ async function diagramaUsuariosDeClubes(req, res) {
         });
 
         const usuariosPorMes = {};
-        let totalUsuarios = 0
 
         usuarios.forEach(usuario => {
             const mes = moment(usuario.usuario.createdAt).format("MMMM");
-            totalUsuarios++;
+
             if (!usuariosPorMes[mes]) {
                 usuariosPorMes[mes] = 0;
             }
-            usuariosPorMes[mes] = totalUsuarios;
+            usuariosPorMes[mes]++;
         });
 
-        const chartData = Object.keys(usuariosPorMes).map(mes => {
+        let totalUsuarios = 0
+        for (const key in usuariosPorMes) {
+            console.log(key)
+            totalUsuarios += usuariosPorMes[key];
+            usuariosPorMes[key] = totalUsuarios;
+        }
+
+        chartData = Object.keys(usuariosPorMes).map(mes => {
             return { mes: mes, totalUsuarios: usuariosPorMes[mes] };
         });
 

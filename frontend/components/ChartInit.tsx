@@ -51,6 +51,46 @@ export function ChartInit() {
         const data = await apiEstadisticas.diagramaUsuariosEquipo(id_team)
 
         //TODO: Cambiar los datos de mes a espanol
+        data.forEach((element: any) => {
+          switch (element.mes) {
+            case "January":
+              element.mes = "Enero"
+              break
+            case "February":
+              element.mes = "Febrero"
+              break
+            case "March":
+              element.mes = "Marzo"
+              break
+            case "April":
+              element.mes = "Abril"
+              break
+            case "May":
+              element.mes = "Mayo"
+              break
+            case "June":
+              element.mes = "Junio"
+              break
+            case "July":
+              element.mes = "Julio"
+              break
+            case "August":
+              element.mes = "Agosto"
+              break
+            case "September":
+              element.mes = "Septiembre"
+              break
+            case "October":
+              element.mes = "Octubre"
+              break
+            case "November":
+              element.mes = "Noviembre"
+              break
+            case "December":
+              element.mes = "Diciembre"
+              break
+          }
+        })
 
         setFirstMonth(data[0].mes)
         setLastMonth(data[data.length - 1].mes)
@@ -91,6 +131,7 @@ export function ChartInit() {
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
+              name='Mes'
             />
             <ChartTooltip
               cursor={false}
@@ -102,6 +143,7 @@ export function ChartInit() {
               fill="var(--color-desktop)"
               fillOpacity={0.4}
               stroke="var(--color-desktop)"
+              name='Total de Usuarios: '
             />
           </AreaChart>
         </ChartContainer>

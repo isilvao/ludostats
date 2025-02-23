@@ -39,8 +39,7 @@ const Mystatistics: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { user } = useAuth();
-  const { clubData } = useEquipoClub();
-
+  const { clubData, rolClub } = useEquipoClub();
 
   useEffect(() => {
     const fetchEstadisticas = async () => {

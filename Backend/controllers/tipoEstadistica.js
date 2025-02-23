@@ -7,9 +7,6 @@ async function getTipoEstadisticas(req, res) {
 
     const response = await TipoEstadistica.findAll({ where: { club_id: id_club } })
 
-    console.log("Llega a getTipoEstadisticas")
-    console.log(response)
-
     if (!response) {
         return res.status(404).send({ msg: "No se han encontrado los tipos de estadistica" })
     } else {
@@ -27,8 +24,6 @@ async function createTipoEstadistica(req, res) {
 
     const data = req.body;
     delete data.id;
-
-    console.log(data)
 
     TipoEstadistica.create({
         ...data,
@@ -127,5 +122,6 @@ module.exports = {
     createTipoEstadistica,
     updateTipoEstadistica,
     deleteTipoEstadistica,
-    getTypeStadisticByTeam
+    getTypeStadisticByTeam,
+    getTipoEstadisticaById
 }

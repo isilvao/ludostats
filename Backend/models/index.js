@@ -10,7 +10,6 @@ const Transaccion = require("./Transaccion");
 const Notificacion = require("./Notificacion");
 const EventoDependencia = require('./EventoDependencia');
 
-const sequelize = require('../db');
 const Invitacion = require('./invitacion');
 const UsuariosEquipos = require('./UsuariosEquipos');
 
@@ -111,7 +110,8 @@ Invitacion.belongsTo(Equipo, {
 });
 Equipo.hasMany(Invitacion, {
   foreignKey: 'equipo_id',
-  as: 'invitaciones'
+  as: 'invitaciones',
+  onDelete: 'CASCADE'
 })
 
 // Relacion: un equipo tiene varios usuarios con diferente rol
@@ -132,7 +132,18 @@ Equipo.belongsTo(Club, {
 })
 Club.hasMany(Equipo, {
   foreignKey: 'club_id',
-  as: 'equipos'
+  as: 'equipos',
+  onDelete: 'CASCADE'
+})
+
+Equipo.hasMany(Estadistica, {
+  foreignKey: 'equipo_id',
+  as: 'estadisticas',
+  onDelete: 'CASCADE'
+})
+Estadistica.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  as: 'equipo'
 })
 
 // Relacion: Equipo tiene varias estadisticas
@@ -150,7 +161,8 @@ Estadistica.belongsTo(Equipo, {
 // Relacion: un club tiene varios usuarios con diferente rol
 Club.hasMany(UsuarioClub, {
   foreignKey: 'club_id',
-  as: 'usuarios'
+  as: 'usuarios',
+  onDelete: 'CASCADE'
 })
 UsuarioClub.belongsTo(Club, {
   foreignKey: 'club_id',
@@ -161,7 +173,8 @@ UsuarioClub.belongsTo(Club, {
 
 Club.hasMany(EventoDependencia, {
   foreignKey: 'club_id',
-  as: 'eventos'
+  as: 'eventos',
+  onDelete: 'CASCADE'
 })
 EventoDependencia.belongsTo(Club, {
   foreignKey: 'club_id',
@@ -170,7 +183,8 @@ EventoDependencia.belongsTo(Club, {
 
 Equipo.hasMany(EventoDependencia, {
   foreignKey: 'equipo_id',
-  as: 'eventos'
+  as: 'eventos',
+  onDelete: 'CASCADE'
 })
 EventoDependencia.belongsTo(Equipo, {
   foreignKey: 'equipo_id',
@@ -179,7 +193,8 @@ EventoDependencia.belongsTo(Equipo, {
 
 Evento.hasMany(EventoDependencia, {
   foreignKey: 'evento_id',
-  as: 'dependencias'
+  as: 'dependencias',
+  onDelete: 'CASCADE'
 })
 EventoDependencia.belongsTo(Evento, {
   foreignKey: 'evento_id',
@@ -189,7 +204,8 @@ EventoDependencia.belongsTo(Evento, {
 // Relacion: un club tiene varios tipos de estadisticas
 Club.hasMany(TipoEstadistica, {
   foreignKey: 'club_id',
-  as: 'tiposEstadistica'
+  as: 'tiposEstadistica',
+  onDelete: 'CASCADE'
 })
 TipoEstadistica.belongsTo(Club, {
   foreignKey: 'club_id',

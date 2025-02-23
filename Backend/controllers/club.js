@@ -3,6 +3,7 @@ const Club = require("../models/Club");
 const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
 const cloudinary = require('../utils/cloudinary');
+const User = require("../models/Usuario");
 
 const buscarMisClubes = async (req, res) => {
   const { user_id } = req.query;
@@ -12,15 +13,21 @@ const buscarMisClubes = async (req, res) => {
       where: { usuario_id: user_id },
       include: [{ model: Club, as: "club" }],
     });
-    const clubesResponse = clubes.map((club) => {
-      return {
-        id: club.club.id,
-        nombre: club.club.nombre,
-        deporte: club.club.deporte,
-        logo: club.club.logo,
-        rol: club.rol,
+
+    const clubesUnicos = {};
+    clubes.forEach((club) => {
+      if (!clubesUnicos[club.club.id]) {
+        clubesUnicos[club.club.id] = {
+          id: club.club.id,
+          nombre: club.club.nombre,
+          deporte: club.club.deporte,
+          logo: club.club.logo,
+          rol: club.rol,
+        };
       }
     });
+
+    const clubesResponse = Object.values(clubesUnicos);
 
     res.status(200).json(clubesResponse);
   } catch (error) {
@@ -189,7 +196,7 @@ async function createClub(req, res) {
 async function updateClub(req, res) {
   const { id_club } = req.params;
 
-  const club = req.club;
+  const club = await Club.findByPk(id_club);
 
   const userData = req.body;
 
@@ -212,7 +219,7 @@ async function updateClub(req, res) {
 async function deleteClub(req, res) {
   const { id_club } = req.params;
 
-  const club = req.club;
+  const club = await Club.findByPk(id_club);
 
   club
     .destroy({ where: { id: id_club } })
@@ -280,11 +287,37 @@ const getUsersByClub = async (req, res) => {
   const { id_club } = req.params;
 
   try {
-    const usuarios = await UsuarioClub.findAll({
+    const registros = await UsuarioClub.findAll({
       where: { club_id: id_club },
+      include: [{ model: User, as: "usuario" }]
     });
 
-    res.status(200).json(usuarios);
+    const usuariosUnicos = {};
+    for (const registro of registros) {
+      const usuario = registro.usuario;
+      let correo = null;
+      if (usuario.acudiente_id) {
+        const usuarioAcudiente = await User.findByPk(usuario.acudiente_id);
+        correo = usuarioAcudiente.correo;
+      } else {
+        correo = usuario.correo;
+      }
+
+      if (!usuariosUnicos[usuario.id]) {
+        usuariosUnicos[usuario.id] = {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          apellido: usuario.apellido,
+          correo: correo,
+          rol: registro.rol,
+          activo: usuario.activo,
+        };
+      }
+    }
+
+    const usuariosResponse = Object.values(usuariosUnicos);
+
+    res.status(200).json(usuariosResponse);
   } catch (error) {
     console.error("Error al buscar los usuarios del club:", error);
     res.status(500).json({ msg: "Error interno del servidor" });

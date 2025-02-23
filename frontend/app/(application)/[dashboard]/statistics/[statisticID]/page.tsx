@@ -35,10 +35,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Link from 'next/link';
-// import { useParams } from 'next/navigation';
 import { useEquipoClub } from '@/hooks/useEquipoClub';
-// import { EquipoAPI } from '@/api/equipo';
-// import { ClubAPI } from '@/api/club';
 import * as XLSX from 'xlsx';
 import { BiExport } from 'react-icons/bi';
 import {
@@ -51,6 +48,29 @@ import { IoPersonAdd } from 'react-icons/io5';
 import { useAuth } from '@/hooks/useAuth';
 import { estadisticaAPI } from '@/api/estadistica';
 import { useParams } from 'next/navigation';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Toaster, toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+import { Label } from '@/components/ui/label';
+import { EquipoAPI } from '@/api/equipo';
 
 type statistic = {
   id: string;
@@ -60,9 +80,16 @@ type statistic = {
   fecha: string;
 };
 
+type Member = {
+  id: string;
+  nombre: string;
+  apellido: string;
+};
+
 const StatisticDetail: React.FC = () => {
   const [data, setData] = useState<statistic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [members, setMembers] = useState<Member[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -70,9 +97,29 @@ const StatisticDetail: React.FC = () => {
   const { accesToken } = useAuth();
   const selectionType = localStorage.getItem('selectionType');
   const { statisticID } = useParams();
-  const { clubData } = useEquipoClub();
+  const { clubData, rolClub } = useEquipoClub();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newStatistic, setNewStatistic] = useState({
+    memberId: '',
+    valor: '',
+    fecha: '',
+  });
+  const [editStatistic, setEditStatistic] = useState<statistic | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [tipoEstadisticaNombre, setTipoEstadisticaNombre] = useState('');
 
   useEffect(() => {
+    const fetchTipoEstadisticaNombre = async () => {
+      try {
+        const api = new estadisticaAPI();
+        const result = await api.getTipoEstadisticaById(statisticID);
+        setTipoEstadisticaNombre(result.nombre);
+      } catch (error) {
+        console.error('Error fetching tipo de estadística:', error);
+      }
+    };
+
     const fetchEstadisticas = async () => {
       try {
         if (selectionType === 'equipo') {
@@ -81,14 +128,12 @@ const StatisticDetail: React.FC = () => {
             clubData.id,
             statisticID
           );
-          console.log('result:', result);
-          console.log('clubData', clubData);
           const statistics = result.map((item: any) => ({
             id: item.id,
             nombre: item.usuario.nombre,
             apellido: item.usuario.apellido,
             valor: item.valor,
-            fecha: item.fecha,
+            fecha: new Date(item.fecha).toLocaleDateString(),
           }));
           setData(statistics);
         } else if (selectionType === 'club') {
@@ -99,7 +144,7 @@ const StatisticDetail: React.FC = () => {
             nombre: item.usuario.nombre,
             apellido: item.usuario.apellido,
             valor: item.valor,
-            fecha: item.fecha,
+            fecha: new Date(item.fecha).toLocaleDateString(),
           }));
           setData(statistics);
         }
@@ -110,26 +155,121 @@ const StatisticDetail: React.FC = () => {
       }
     };
 
-    if (statisticID) {
-      fetchEstadisticas();
-    }
-  }, [statisticID, accesToken]);
+    const fetchMembers = async () => {
+      try {
+        const api = new EquipoAPI();
+        const result = await api.getUsersByTeam(clubData.id);
+        const members = result
+          .filter(
+            (item: any) => item.rol === 'deportista' || item.rol === 'miembro'
+          )
+          .map((item: any) => ({
+            id: item.usuario.id,
+            nombre: item.usuario.nombre,
+            apellido: item.usuario.apellido,
+          }));
+        setMembers(members);
+      } catch (error) {
+        console.error('Error fetching members:', error);
+      }
+    };
 
-  const handleDelete = async (id: string) => {
-    // try {
-    //   const equipoAPI = new EquipoAPI();
-    //   await equipoAPI.deleteUser(id);
-    //   setData((prevData) => prevData.filter((member) => member.id !== id));
-    // } catch (error) {
-    //   console.error('Error deleting user:', error);
-    // }
+    if (statisticID) {
+      fetchTipoEstadisticaNombre();
+      fetchEstadisticas();
+      fetchMembers();
+    }
+  }, [statisticID, accesToken, clubData.id]);
+
+  const handleCreateStatistic = async () => {
+    if (!newStatistic.memberId || !newStatistic.valor || !newStatistic.fecha) {
+      toast.error('Todos los campos son obligatorios');
+      return;
+    }
+
+    const valorNumerico = parseFloat(newStatistic.valor);
+    if (isNaN(valorNumerico)) {
+      toast.error('El valor debe ser un número');
+      return;
+    }
+
+    try {
+      const api = new estadisticaAPI();
+      const result = await api.createEstadistica(
+        statisticID,
+        newStatistic.memberId,
+        {
+          valor: valorNumerico,
+          fecha: newStatistic.fecha,
+        },
+        clubData.id
+      );
+
+      // Find the member details
+      const member = members.find((m) => m.id === newStatistic.memberId);
+
+      // Add the new statistic with member details
+      setData((prevData) => [
+        ...prevData,
+        {
+          id: result.id,
+          nombre: member?.nombre || '',
+          apellido: member?.apellido || '',
+          valor: valorNumerico.toString(),
+          fecha: new Date(newStatistic.fecha).toLocaleDateString(),
+        },
+      ]);
+
+      setNewStatistic({ memberId: '', valor: '', fecha: '' });
+      setIsDialogOpen(false);
+      toast.success('Estadística creada con éxito');
+    } catch (error) {
+      console.error('Error creating statistic:', error);
+      toast.error('Error al crear la estadística');
+    }
   };
 
-  const handleDownloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Estadisticas');
-    XLSX.writeFile(workbook, 'Estadisticas.xlsx');
+  const handleEditStatistic = async () => {
+    if (!editStatistic) return;
+
+    const valorNumerico = parseFloat(editStatistic.valor);
+    if (isNaN(valorNumerico)) {
+      toast.error('El valor debe ser un número');
+      return;
+    }
+
+    try {
+      const api = new estadisticaAPI();
+      const result = await api.updateEstadistica({
+        id: editStatistic.id,
+        valor: valorNumerico,
+      });
+      setData((prevData) =>
+        prevData.map((stat) =>
+          stat.id === editStatistic.id
+            ? { ...stat, valor: valorNumerico.toString() }
+            : stat
+        )
+      );
+      setEditStatistic(null);
+      setIsEditDialogOpen(false);
+      toast.success('Estadística actualizada con éxito');
+    } catch (error) {
+      console.error('Error updating statistic:', error);
+      toast.error('Error al actualizar la estadística');
+    }
+  };
+
+  const handleDeleteStatistic = async (id: string) => {
+    try {
+      const api = new estadisticaAPI();
+      await api.deleteEstadistica(id);
+      setData((prevData) => prevData.filter((stat) => stat.id !== id));
+      toast.success('Estadística eliminada con éxito');
+    } catch (error) {
+      console.error('Error deleting statistic:', error);
+      toast.error('Error al eliminar la estadística');
+    }
   };
 
   const columns: ColumnDef<statistic>[] = [
@@ -157,90 +297,148 @@ const StatisticDetail: React.FC = () => {
     },
     {
       accessorKey: 'nombre',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Nombre
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Nombre
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('nombre')}</div>,
     },
     {
       accessorKey: 'apellido',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Apellido
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Apellido
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('apellido')}</div>,
     },
     {
       accessorKey: 'valor',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Valor
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Valor
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('valor')}</div>,
+      sortingFn: (rowA, rowB) => {
+        const valorA = parseFloat(rowA.getValue('valor'));
+        const valorB = parseFloat(rowB.getValue('valor'));
+        return valorA - valorB;
+      },
     },
     {
       accessorKey: 'fecha',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Fecha
-            <ArrowUpDown />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Fecha
+          <ArrowUpDown />
+        </Button>
+      ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('fecha')}</div>,
     },
-    // {
-    //   id: 'actions',
-    //   enableHiding: false,
-    //   header: 'Acciones',
-    //   cell: ({ row }: { row: any }) => {
-    //     const member = row.original;
+    ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
+      ? [
+        {
+          id: 'actions',
+          header: 'Acciones',
+          cell: ({ row }: { row: any }) => {
+            const statistic = row.original;
+            const [statisticToDelete, setStatisticToDelete] =
+              useState<statistic | null>(null);
 
-    //     return (
-    //       <DropdownMenu>
-    //         <DropdownMenuTrigger asChild>
-    //           <Button variant="outline" className="h-8 w-8 p-0">
-    //             <span className="sr-only">Open menu</span>
-    //             <MoreHorizontal />
-    //           </Button>
-    //         </DropdownMenuTrigger>
-    //         <DropdownMenuContent align="end">
-    //           <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-    //           <DropdownMenuItem asChild>
-    //             <Link href={`/${member.id}/edit`}>Editar</Link>
-    //           </DropdownMenuItem>
-    //           <DropdownMenuItem>Borrar</DropdownMenuItem>
-    //         </DropdownMenuContent>
-    //       </DropdownMenu>
-    //     );
-    //   },
-    // },
+            return (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Button
+                        onClick={() => {
+                          setEditStatistic(statistic);
+                          setIsEditDialogOpen(true);
+                        }}
+                        className="w-full bg-transparent hover:bg-gray-100 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
+                      >
+                        Editar
+                      </Button>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setStatisticToDelete(statistic);
+                      }}
+                      className="justify-center w-full bg-red/40 hover:bg-red/50 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
+                    >
+                      Borrar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* AlertDialog separado */}
+                {statisticToDelete &&
+                  statisticToDelete.id === statistic.id && (
+                    <AlertDialog
+                      open
+                      onOpenChange={(open) => {
+                        if (!open) setStatisticToDelete(null);
+                      }}
+                    >
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Confirmar eliminación
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            ¿Estás seguro de que deseas eliminar esta
+                            estadística? Esta acción no se puede deshacer.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel
+                            onClick={() => setStatisticToDelete(null)}
+                          >
+                            Cancelar
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              handleDeleteStatistic(statistic.id);
+                              setStatisticToDelete(null);
+                            }}
+                          >
+                            Eliminar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+              </>
+            );
+          },
+        },
+      ]
+      : []),
   ];
 
   const table = useReactTable({
@@ -276,10 +474,18 @@ const StatisticDetail: React.FC = () => {
     );
   }
 
+  const handleDownloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Estadísticas');
+    XLSX.writeFile(workbook, 'estadisticas.xlsx');
+  };
+
   return (
     <div className="w-full">
+      <Toaster />
       <div className="flex items-center py-4 justify-between">
-        <h1 className="h2">Estadística</h1>
+        <h1 className="h2">{tipoEstadisticaNombre}</h1>
         <div className="flex items-center space-x-5 h-10">
           <TooltipProvider delayDuration={200}>
             <Tooltip>
@@ -296,6 +502,87 @@ const StatisticDetail: React.FC = () => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          {selectionType === 'equipo' && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+                  <span>Agregar Nueva</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Crear nueva estadística</DialogTitle>
+                  <DialogDescription>
+                    Ingresa los detalles de la nueva estadística. Haz clic en
+                    guardar cuando termines.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="member" className="text-right">
+                      Miembro
+                    </Label>
+                    <select
+                      id="member"
+                      value={newStatistic.memberId}
+                      onChange={(e) =>
+                        setNewStatistic({
+                          ...newStatistic,
+                          memberId: e.target.value,
+                        })
+                      }
+                      className="col-span-3 py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                    >
+                      <option value="">Seleccionar miembro</option>
+                      {members.map((member) => (
+                        <option key={member.id} value={member.id}>
+                          {member.nombre} {member.apellido}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="valor" className="text-right">
+                      Valor
+                    </Label>
+                    <Input
+                      id="valor"
+                      value={newStatistic.valor}
+                      onChange={(e) =>
+                        setNewStatistic({
+                          ...newStatistic,
+                          valor: e.target.value,
+                        })
+                      }
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="fecha" className="text-right">
+                      Fecha
+                    </Label>
+                    <Input
+                      id="fecha"
+                      type="date"
+                      value={newStatistic.fecha}
+                      onChange={(e) =>
+                        setNewStatistic({
+                          ...newStatistic,
+                          fecha: e.target.value,
+                        })
+                      }
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" onClick={handleCreateStatistic}>
+                    Guardar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
       <div className="flex items-center py-4 justify-between">
@@ -345,9 +632,9 @@ const StatisticDetail: React.FC = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
@@ -408,6 +695,42 @@ const StatisticDetail: React.FC = () => {
           </Button>
         </div>
       </div>
+      {editStatistic && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Editar estadística</DialogTitle>
+              <DialogDescription>
+                Modifica el valor de la estadística. Haz clic en guardar cuando
+                termines.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-valor" className="text-right">
+                  Valor
+                </Label>
+                <Input
+                  id="edit-valor"
+                  value={editStatistic.valor}
+                  onChange={(e) =>
+                    setEditStatistic({
+                      ...editStatistic,
+                      valor: e.target.value,
+                    })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={handleEditStatistic}>
+                Guardar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
