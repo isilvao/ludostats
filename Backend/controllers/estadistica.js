@@ -2,6 +2,7 @@
 const Estadistica = require('../models/Estadistica');
 const tipoEstadistica = require('../models/TipoEstadistica')
 const Club = require('../models/Club')
+const Equipo = require('../models/Equipo')
 const Usuario = require('../models/Usuario')
 const UsuarioClub = require('../models/UsuarioClub')
 const UsuariosEquipos = require('../models/UsuariosEquipos')
@@ -94,11 +95,17 @@ async function getAllEstadisticas(req, res) {
     try {
         const usuarios = await Estadistica.findAll({
             where: { tipoEstadistica_id: id_tipoestadistica },
-            include: {
+            include: [{
                 model: Usuario,
                 as: "usuario",
                 attributes: ['nombre', 'apellido']
+            },
+            {
+                model: Equipo,
+                as: "equipo",
+                attributes: ['nombre']
             }
+            ]
         })
 
         return res.status(200).send(usuarios)

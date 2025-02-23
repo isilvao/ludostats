@@ -78,6 +78,7 @@ type statistic = {
   apellido: string;
   valor: string;
   fecha: string;
+  equipo?: string;
 };
 
 type Member = {
@@ -145,6 +146,7 @@ const StatisticDetail: React.FC = () => {
             apellido: item.usuario.apellido,
             valor: item.valor,
             fecha: new Date(item.fecha).toLocaleDateString(),
+            equipo: item.equipo.nombre,
           }));
           setData(statistics);
         }
@@ -352,6 +354,15 @@ const StatisticDetail: React.FC = () => {
       ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('fecha')}</div>,
     },
+    ...(selectionType !== 'equipo'
+      ? [
+        {
+          accessorKey: 'equipo',
+          header: 'Equipo',
+          cell: ({ row }: { row: any }) => <div className="ml-4">{row.getValue('equipo')}</div>,
+        },
+      ]
+      : []),
     ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
       ? [
         {
