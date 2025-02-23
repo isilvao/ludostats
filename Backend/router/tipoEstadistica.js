@@ -18,5 +18,6 @@ api.post('/newtipoestadistica/:id_club', tipoEstadisticasController.createTipoEs
 api.patch('/updatetipoestadistica/:id_tipoestadistica', tipoEstadisticasController.updateTipoEstadistica) // id del club y del tipo de estadistica
 api.delete('/deletetipoestadistica/:id_tipoestadistica', tipoEstadisticasController.deleteTipoEstadistica) // id del club y del tipo de estadistica
 api.get('/tipoestadistica/equipo/:id_equipo', [md_auth.asureAuth], tipoEstadisticasController.getTypeStadisticByTeam) // id del tipo de estadistica
+api.get('/tipoestadistica/:id', tipoEstadisticasController.getTipoEstadisticaById) // id del tipo de estadistica
 
 module.exports = api
