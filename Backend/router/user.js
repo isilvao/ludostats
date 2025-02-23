@@ -37,8 +37,8 @@ api.get("/usuarios/:usuario_id/equipos", userController.buscarEquiposUsuario);
 
 // Club Routes
 api.post("/joinClub/:id_club", [md_auth.asureAuth], userController.userJoinsClub);
-api.delete(":id_club/leaveclub/", [md_auth.asureAuth], userController.userLeavesClub);
-api.delete(":id_club/removeuserfromclub/:id_user", [md_auth.asureAuth, md_clubOwn.validateAdminOrGerenteInClub], userController.eliminarUsuarioClub);
+api.delete("/leaveclub/:id_club", [md_auth.asureAuth], userController.userLeavesClub);
+api.delete("/removeuserfromclub/:id_club/:id_user", userController.eliminarUsuarioClub);
 
 api.get("/usuarios/:usuario_id/clubs", [md_auth.asureAuth], userController.buscarClubesUsuario);
 

@@ -271,4 +271,5 @@ export class User {
       throw error;
     }
   }
+
 }

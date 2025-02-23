@@ -468,8 +468,6 @@ const eliminarUsuarioClub = async (req, res) => {
   }
 };
 
-
-
 const actualizarUsuario = async (req, res) => {
   const { id } = req.params;
   const { nombre, apellido, correo } = req.body;

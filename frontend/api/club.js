@@ -275,4 +275,23 @@ export class ClubAPI {
     }
   }
 
+  async eliminarUsuarioDeClub(clubId, userId) {
+    try {
+      const url = `${this.baseApi}/removeuserfromclub/${clubId}/${userId}`;
+
+      const params = {
+        method: 'DELETE',
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.error('Error al eliminar el usuario del club:', error);
+      throw error;
+    }
+  }
 }
