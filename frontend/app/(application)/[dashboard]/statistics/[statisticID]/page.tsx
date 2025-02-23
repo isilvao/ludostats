@@ -70,7 +70,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
-import { ClubAPI } from '@/api/club';
+import { EquipoAPI } from '@/api/equipo';
 
 type statistic = {
   id: string;
@@ -97,7 +97,7 @@ const StatisticDetail: React.FC = () => {
   const { accesToken } = useAuth();
   const selectionType = localStorage.getItem('selectionType');
   const { statisticID } = useParams();
-  const { clubData } = useEquipoClub();
+  const { clubData, rolClub } = useEquipoClub();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newStatistic, setNewStatistic] = useState({
     memberId: '',
@@ -107,8 +107,19 @@ const StatisticDetail: React.FC = () => {
   const [editStatistic, setEditStatistic] = useState<statistic | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [tipoEstadisticaNombre, setTipoEstadisticaNombre] = useState('');
 
   useEffect(() => {
+    const fetchTipoEstadisticaNombre = async () => {
+      try {
+        const api = new estadisticaAPI();
+        const result = await api.getTipoEstadisticaById(statisticID);
+        setTipoEstadisticaNombre(result.nombre);
+      } catch (error) {
+        console.error('Error fetching tipo de estadística:', error);
+      }
+    };
+
     const fetchEstadisticas = async () => {
       try {
         if (selectionType === 'equipo') {
@@ -146,8 +157,8 @@ const StatisticDetail: React.FC = () => {
 
     const fetchMembers = async () => {
       try {
-        const api = new ClubAPI();
-        const result = await api.getUsersByClub(clubData.id);
+        const api = new EquipoAPI();
+        const result = await api.getUsersByTeam(clubData.id);
         const members = result
           .filter(
             (item: any) => item.rol === 'deportista' || item.rol === 'miembro'
@@ -164,6 +175,7 @@ const StatisticDetail: React.FC = () => {
     };
 
     if (statisticID) {
+      fetchTipoEstadisticaNombre();
       fetchEstadisticas();
       fetchMembers();
     }
@@ -339,86 +351,93 @@ const StatisticDetail: React.FC = () => {
       ),
       cell: ({ row }) => <div className="ml-4">{row.getValue('fecha')}</div>,
     },
-    {
-      id: 'actions',
-      header: 'Acciones',
-      cell: ({ row }) => {
-        const statistic = row.original;
-        const [statisticToDelete, setStatisticToDelete] =
-          useState<statistic | null>(null);
+    ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
+      ? [
+          {
+            id: 'actions',
+            header: 'Acciones',
+            cell: ({ row }: { row: any }) => {
+              const statistic = row.original;
+              const [statisticToDelete, setStatisticToDelete] =
+                useState<statistic | null>(null);
 
-        return (
-          <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                <DropdownMenuItem asChild>
-                  <Button
-                    onClick={() => {
-                      setEditStatistic(statistic);
-                      setIsEditDialogOpen(true);
-                    }}
-                    className="w-full bg-transparent hover:bg-gray-100 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
-                  >
-                    Editar
-                  </Button>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setStatisticToDelete(statistic);
-                  }}
-                  className="justify-center w-full bg-red/40 hover:bg-red/50 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
-                >
-                  Borrar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              return (
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Button
+                          onClick={() => {
+                            setEditStatistic(statistic);
+                            setIsEditDialogOpen(true);
+                          }}
+                          className="w-full bg-transparent hover:bg-gray-100 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
+                        >
+                          Editar
+                        </Button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStatisticToDelete(statistic);
+                        }}
+                        className="justify-center w-full bg-red/40 hover:bg-red/50 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
+                      >
+                        Borrar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
-            {/* AlertDialog separado */}
-            {statisticToDelete && statisticToDelete.id === statistic.id && (
-              <AlertDialog
-                open
-                onOpenChange={(open) => {
-                  if (!open) setStatisticToDelete(null);
-                }}
-              >
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      ¿Estás seguro de que deseas eliminar esta estadística?
-                      Esta acción no se puede deshacer.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel
-                      onClick={() => setStatisticToDelete(null)}
-                    >
-                      Cancelar
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => {
-                        handleDeleteStatistic(statistic.id);
-                        setStatisticToDelete(null);
-                      }}
-                    >
-                      Eliminar
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </>
-        );
-      },
-    },
+                  {/* AlertDialog separado */}
+                  {statisticToDelete &&
+                    statisticToDelete.id === statistic.id && (
+                      <AlertDialog
+                        open
+                        onOpenChange={(open) => {
+                          if (!open) setStatisticToDelete(null);
+                        }}
+                      >
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Confirmar eliminación
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              ¿Estás seguro de que deseas eliminar esta
+                              estadística? Esta acción no se puede deshacer.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel
+                              onClick={() => setStatisticToDelete(null)}
+                            >
+                              Cancelar
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                handleDeleteStatistic(statistic.id);
+                                setStatisticToDelete(null);
+                              }}
+                            >
+                              Eliminar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                </>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 
   const table = useReactTable({
@@ -465,7 +484,7 @@ const StatisticDetail: React.FC = () => {
     <div className="w-full">
       <Toaster />
       <div className="flex items-center py-4 justify-between">
-        <h1 className="h2">Estadística</h1>
+        <h1 className="h2">{tipoEstadisticaNombre}</h1>
         <div className="flex items-center space-x-5 h-10">
           <TooltipProvider delayDuration={200}>
             <Tooltip>
@@ -482,85 +501,87 @@ const StatisticDetail: React.FC = () => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
-                <span>Agregar Nueva</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Crear nueva estadística</DialogTitle>
-                <DialogDescription>
-                  Ingresa los detalles de la nueva estadística. Haz clic en
-                  guardar cuando termines.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="member" className="text-right">
-                    Miembro
-                  </Label>
-                  <select
-                    id="member"
-                    value={newStatistic.memberId}
-                    onChange={(e) =>
-                      setNewStatistic({
-                        ...newStatistic,
-                        memberId: e.target.value,
-                      })
-                    }
-                    className="col-span-3 py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-                  >
-                    <option value="">Seleccionar miembro</option>
-                    {members.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.nombre} {member.apellido}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="valor" className="text-right">
-                    Valor
-                  </Label>
-                  <Input
-                    id="valor"
-                    value={newStatistic.valor}
-                    onChange={(e) =>
-                      setNewStatistic({
-                        ...newStatistic,
-                        valor: e.target.value,
-                      })
-                    }
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="fecha" className="text-right">
-                    Fecha
-                  </Label>
-                  <Input
-                    id="fecha"
-                    type="date"
-                    value={newStatistic.fecha}
-                    onChange={(e) =>
-                      setNewStatistic({
-                        ...newStatistic,
-                        fecha: e.target.value,
-                      })
-                    }
-                    className="col-span-3"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="button" onClick={handleCreateStatistic}>
-                  Guardar
+          {selectionType === 'equipo' && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+                  <span>Agregar Nueva</span>
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Crear nueva estadística</DialogTitle>
+                  <DialogDescription>
+                    Ingresa los detalles de la nueva estadística. Haz clic en
+                    guardar cuando termines.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="member" className="text-right">
+                      Miembro
+                    </Label>
+                    <select
+                      id="member"
+                      value={newStatistic.memberId}
+                      onChange={(e) =>
+                        setNewStatistic({
+                          ...newStatistic,
+                          memberId: e.target.value,
+                        })
+                      }
+                      className="col-span-3 py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                    >
+                      <option value="">Seleccionar miembro</option>
+                      {members.map((member) => (
+                        <option key={member.id} value={member.id}>
+                          {member.nombre} {member.apellido}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="valor" className="text-right">
+                      Valor
+                    </Label>
+                    <Input
+                      id="valor"
+                      value={newStatistic.valor}
+                      onChange={(e) =>
+                        setNewStatistic({
+                          ...newStatistic,
+                          valor: e.target.value,
+                        })
+                      }
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="fecha" className="text-right">
+                      Fecha
+                    </Label>
+                    <Input
+                      id="fecha"
+                      type="date"
+                      value={newStatistic.fecha}
+                      onChange={(e) =>
+                        setNewStatistic({
+                          ...newStatistic,
+                          fecha: e.target.value,
+                        })
+                      }
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" onClick={handleCreateStatistic}>
+                    Guardar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
       <div className="flex items-center py-4 justify-between">

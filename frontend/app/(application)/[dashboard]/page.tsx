@@ -8,7 +8,6 @@ import { useEquipoClub } from '@/hooks/useEquipoClub';
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { clubData } = useEquipoClub();
-  console.log(clubData);
   const selectionType = localStorage.getItem('selectionType');
   const isTeam = selectionType === 'equipo';
 

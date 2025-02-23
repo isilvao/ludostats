@@ -96,11 +96,11 @@ const DataTableDemo: React.FC = () => {
           const clubAPI = new ClubAPI();
           const result = await clubAPI.getUsersByClub(clubData.id);
           const members = result.map((item: any) => ({
-            id: item.usuario.id,
-            nombre: item.usuario.nombre,
-            apellido: item.usuario.apellido,
-            activo: item.usuario.activo,
-            correo: item.usuario.correo,
+            id: item.id,
+            nombre: item.nombre,
+            apellido: item.apellido,
+            activo: item.activo,
+            correo: item.correo,
             rol: item.rol,
           }));
           setData(members);
