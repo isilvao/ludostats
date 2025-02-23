@@ -28,16 +28,14 @@ async function getMyEstadisticas(req, res) {
 async function createEstadistica(req, res) {
     const { id_tipoestadistica, id_usuario } = req.params
 
-    const { data } = req.body
-
-    const fecha = new Date(data.fecha)
+    const { valor, fecha } = req.body
 
     try {
 
         await Estadistica.create({
             tipoEstadistica_id: id_tipoestadistica,
             usuario_id: id_usuario,
-            valor: data.valor,
+            valor: valor,
             fecha: fecha
         }).then((estadisticaStored) => {
             if (!estadisticaStored) {
