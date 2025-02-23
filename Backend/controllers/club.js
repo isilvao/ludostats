@@ -285,6 +285,8 @@ const encontrarClubPorEquipoId = async (req, res) => {
 const getUsersByClub = async (req, res) => {
   const { id_club } = req.params;
 
+  console.log("id_club", id_club);
+
   try {
     const usuarios = await UsuarioClub.findAll({
       where: { club_id: id_club },
@@ -292,6 +294,8 @@ const getUsersByClub = async (req, res) => {
 
     const usuariosUnicos = {};
     usuarios.forEach((usuario) => {
+      console.log(usuario.usuario_id);
+
       if (!usuariosUnicos[usuario.usuario_id]) {
         usuariosUnicos[usuario.usuario_id] = usuario;
       }
