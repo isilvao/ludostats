@@ -3,6 +3,7 @@ const Club = require("../models/Club");
 const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
 const cloudinary = require('../utils/cloudinary');
+const User = require("../models/Usuario");
 
 const buscarMisClubes = async (req, res) => {
   const { user_id } = req.query;
@@ -285,15 +286,14 @@ const encontrarClubPorEquipoId = async (req, res) => {
 const getUsersByClub = async (req, res) => {
   const { id_club } = req.params;
 
-  console.log("id_club", id_club);
-
   try {
-    const usuarios = await UsuarioClub.findAll({
+    const registros = await UsuarioClub.findAll({
       where: { club_id: id_club },
+      include: [{ model: User, as: "usuario" }]
     });
 
     const usuariosUnicos = {};
-    usuarios.forEach((usuario) => {
+    registros.forEach((usuario) => {
       console.log(usuario.usuario_id);
 
       if (!usuariosUnicos[usuario.usuario_id]) {
