@@ -307,8 +307,10 @@ const getUsersByClub = async (req, res) => {
         usuariosUnicos[usuario.id] = {
           id: usuario.id,
           nombre: usuario.nombre,
+          apellido: usuario.apellido,
           correo: correo,
-          rol: registro.rol
+          rol: registro.rol,
+          activo: usuario.activo,
         };
       }
     }
