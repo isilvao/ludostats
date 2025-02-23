@@ -293,13 +293,25 @@ const getUsersByClub = async (req, res) => {
     });
 
     const usuariosUnicos = {};
-    registros.forEach((usuario) => {
-      console.log(usuario.usuario_id);
-
-      if (!usuariosUnicos[usuario.usuario_id]) {
-        usuariosUnicos[usuario.usuario_id] = usuario;
+    for (const registro of registros) {
+      const usuario = registro.usuario;
+      let correo = null;
+      if (usuario.acudiente_id) {
+        const usuarioAcudiente = await User.findByPk(usuario.acudiente_id);
+        correo = usuarioAcudiente.correo;
+      } else {
+        correo = usuario.correo;
       }
-    });
+
+      if (!usuariosUnicos[usuario.id]) {
+        usuariosUnicos[usuario.id] = {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          correo: correo,
+          rol: registro.rol
+        };
+      }
+    }
 
     const usuariosResponse = Object.values(usuariosUnicos);
 
