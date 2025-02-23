@@ -86,7 +86,7 @@ export class estadisticaAPI {
 
       return result;
     } catch (error) {
-      console.error('Error al crear la estadistica:', error);
+      console.error('Error al eliminar la estadistica:', error);
       throw error;
     }
   }
