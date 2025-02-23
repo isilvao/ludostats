@@ -263,6 +263,23 @@ async function getUserByEmail(req, res) {
   }
 }
 
+async function getUserById(req, res) {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).send({ msg: "Usuario no encontrado" });
+    }
+
+    res.status(200).send(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ msg: "Error en el servidor" });
+  }
+}
+
 //*********************     ACUDIENTE ROUTES     *********************
 
 async function getMyChildren(req, res) {
@@ -550,5 +567,6 @@ module.exports = {
   actualizarUsuario,
   deleteMe,
   actualizarFotoUsuario,
-  updatePasswordFromProfile
+  updatePasswordFromProfile,
+  getUserById
 };
