@@ -26,6 +26,8 @@ const buscarMisClubes = async (req, res) => {
       }
     });
 
+    const clubesResponse = Object.values(clubesUnicos);
+
     res.status(200).json(clubesResponse);
   } catch (error) {
     console.error("Error al buscar los clubes del usuario:", error);
