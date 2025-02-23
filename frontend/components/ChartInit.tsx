@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { TrendingUp } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { estadisticaAPI } from "@/api/estadistica"
+import { useEquipoClub } from '@/hooks/useEquipoClub';
+
 
 import {
   Card,
@@ -40,15 +42,26 @@ export function ChartInit() {
   const [firstMonth, setFirstMonth] = useState<string>("");
   const [lastMonth, setLastMonth] = useState<string>("");
 
+  const { clubData } = useEquipoClub()
+
+  const selectionType = localStorage.getItem('selectionType');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const apiEstadisticas = new estadisticaAPI()
 
-        const id_team = "837ebb9f-64ce-46e9-9c6d-31307331afa7"
+        const id_team = clubData.id
+        let data
 
-        const data = await apiEstadisticas.diagramaUsuariosEquipo(id_team)
+        console.log("selectionType", selectionType)
+        console.log("clubData", clubData)
+
+        if (selectionType === "club") {
+          data = await apiEstadisticas.diagramaUsuariosPorClub(id_team)
+        } else {
+          data = await apiEstadisticas.diagramaUsuariosEquipo(id_team)
+        }
 
         //TODO: Cambiar los datos de mes a espanol
         data.forEach((element: any) => {
@@ -111,7 +124,7 @@ export function ChartInit() {
       <CardHeader>
         <CardTitle>Nuevos Usuarios</CardTitle>
         <CardDescription>
-          Se muestra el recuento de los nuevos usuarios
+          Se muestra la cantidad de usuarios registrados por cada mes
         </CardDescription>
       </CardHeader>
       <CardContent>

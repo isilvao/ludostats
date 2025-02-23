@@ -60,13 +60,13 @@ const registrarHijo = async (nombre, apellido, acudiente_id) => {
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(PASSWORD_HIJOS, salt);
 
-    const nuevoHijo = await Usuario.create({
-        nombre,
-        apellido,
-        correo: correoGenerado,
-        contrasena: hashPassword,
-        acudiente_id
-    });
+  const nuevoHijo = await Usuario.create({
+    nombre,
+    apellido,
+    correo: correoGenerado,
+    contrasena: hashPassword,
+    acudiente_id
+  });
 
   console.log(
     `📌 Hijo registrado en Usuarios: ${nuevoHijo.id} - Correo: ${correoGenerado}`
@@ -77,7 +77,7 @@ const registrarHijo = async (nombre, apellido, acudiente_id) => {
 // 📌 Asigna el entrenador al equipo
 const asignarEntrenadorAEquipo = async (equipoId, usuario_id) => {
   const equipo = await UsuariosEquipos.findOne({
-    where: { equipo_id: equipoId, usuario_id},
+    where: { equipo_id: equipoId, usuario_id },
   });
   if (!equipo) {
     UsuariosEquipos.create({
@@ -160,15 +160,15 @@ const crearUsuarioEquipo = async (req, res) => {
   }
 
   let nuevoRol = ''
-  if (rol === 1){
+  if (rol === 1) {
     nuevoRol = 'deportista'
-  } else if (rol === 2){
+  } else if (rol === 2) {
     nuevoRol = 'acudiente'
-  } else if (rol === 3){
+  } else if (rol === 3) {
     nuevoRol = 'entrenador'
-  } else if (rol === 4){
+  } else if (rol === 4) {
     nuevoRol = 'administrador'
-  } else if (rol === 5){
+  } else if (rol === 5) {
     nuevoRol = 'miembro'
   }
 
@@ -209,9 +209,6 @@ const crearUsuarioEquipo = async (req, res) => {
       }
     }
 
-    console.log(nuevoRol)
-
-
     // 📌 Si no es acudiente, registrar normalmente en `UsuariosEquipos`
     const nuevoRegistro = await UsuariosEquipos.create({
       usuario_id,
@@ -221,11 +218,19 @@ const crearUsuarioEquipo = async (req, res) => {
 
     const equipo = await Equipo.findByPk(equipo_id);
 
-    await UsuarioClub.create({
-      usuario_id,
-      club_id: equipo.club_id,
-      rol: nuevoRol
-    })
+    const registroEnClub = await UsuarioClub.findOne({
+      where: { usuario_id, club_id: equipo.club_id }
+    });
+
+    if (!registroEnClub) {
+      await UsuarioClub.create({
+        usuario_id,
+        club_id: equipo.club_id,
+        rol: nuevoRol
+      })
+    } else {
+      await registroEnClub.update({ rol: nuevoRol });
+    }
 
     console.log(
       `📌 Usuario ${usuario_id} asignado al equipo ${equipo_id} con rol ${rol}`
@@ -247,30 +252,30 @@ const crearUsuarioEquipo = async (req, res) => {
 
 
 const modificarRolUsuarioEquipo = async (req, res) => {
-    const { usuario_id, equipo_id } = req.params;
-    const { nuevo_rol } = req.body;
+  const { usuario_id, equipo_id } = req.params;
+  const { nuevo_rol } = req.body;
 
-    if (!nuevo_rol || typeof nuevo_rol !== "string") {
-        return res.status(400).json({ msg: "El nuevo rol es obligatorio y debe ser un string" });
+  if (!nuevo_rol || typeof nuevo_rol !== "string") {
+    return res.status(400).json({ msg: "El nuevo rol es obligatorio y debe ser un string" });
+  }
+
+  try {
+    const registro = await UsuariosEquipos.findOne({
+      where: { usuario_id, equipo_id }
+    });
+
+    if (!registro) {
+      return res.status(404).json({ msg: "Usuario no encontrado en el equipo" });
     }
 
-    try {
-        const registro = await UsuariosEquipos.findOne({ 
-            where: { usuario_id, equipo_id } 
-        });
+    registro.rol = nuevo_rol; // 📌 Guardar el rol como string
+    await registro.save();
 
-        if (!registro) {
-            return res.status(404).json({ msg: "Usuario no encontrado en el equipo" });
-        }
-
-        registro.rol = nuevo_rol; // 📌 Guardar el rol como string
-        await registro.save();
-
-        res.status(200).json({ msg: "Rol actualizado correctamente", registro });
-    } catch (error) {
-        console.error("❌ Error al modificar el rol del usuario en el equipo:", error);
-        res.status(500).json({ msg: "Error interno del servidor" });
-    }
+    res.status(200).json({ msg: "Rol actualizado correctamente", registro });
+  } catch (error) {
+    console.error("❌ Error al modificar el rol del usuario en el equipo:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
 };
 
 

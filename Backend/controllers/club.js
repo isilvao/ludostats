@@ -330,7 +330,7 @@ const getUserByIdInClub = async (req, res) => {
       where: { club_id: id_club, usuario_id: id_usuario },
       include: [
         {
-          model: Usuario,
+          model: User,
           as: "usuario",
         }
       ]

@@ -21,12 +21,9 @@ async function getMe(req, res) {
     res.status(404).send({ msg: "No se ha encontrado el usuario" });
   } else if (response.rol === "deportista") {
     res.status(200).send(response);
-    console.log(response);
   } else {
     response.acudiente = null;
     res.status(200).send(response);
-
-    console.log(response);
   }
 }
 
