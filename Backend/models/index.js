@@ -19,7 +19,7 @@ const initModels = async () => {
   try {
     // Sincroniza los modelos con la base de datos
     // await sequelize.sync({ force: false }); // Cambia a true para reiniciar las tablas (solo en desarrollo)
-    // await sequelize.sync({ alter: true });
+    await sequelize.sync({ alter: true });
     console.log('Modelos sincronizados.');
   } catch (error) {
     console.error('Error al sincronizar los modelos:', error.message);
@@ -133,6 +133,17 @@ Equipo.belongsTo(Club, {
 Club.hasMany(Equipo, {
   foreignKey: 'club_id',
   as: 'equipos'
+})
+
+// Relacion: Equipo tiene varias estadisticas
+Equipo.hasMany(Estadistica, {
+  foreignKey: 'equipo_id',
+  as: 'estadisticas',
+  onDelete: 'CASCADE'
+})
+Estadistica.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  as: 'equipo'
 })
 
 // Relacion: un club tiene varios usuarios con diferente rol

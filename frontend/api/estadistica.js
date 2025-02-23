@@ -2,9 +2,9 @@ import { basePath, apiVersion } from '../utils/config';
 export class estadisticaAPI {
   baseApi = `${basePath}/${apiVersion}`;
 
-  async getMyEstadisticas(user_id) {
+  async getMyEstadisticas(user_id, team_id) {
     try {
-      const url = `${this.baseApi}/misestadisticas/${user_id}`;
+      const url = `${this.baseApi}/misestadisticas/${team_id}/${user_id}`;
 
       const response = await fetch(url, params);
       const result = await response.json();
@@ -43,12 +43,13 @@ export class estadisticaAPI {
     }
   }
 
-  async createEstadistica(tipoEstadistica, accessToken, id_usuario) {
+  //TODO: Que @Diego Leandro Rodriguez Diaz mande el id del equipo en el que se va a crear la nueva estadistica
+  async createEstadistica(id_tipoEstadistica, id_usuario, data, id_team) {
     // El id_usuario es el id del usuario que se quiere modificar.
     // El usuario que crea la estadistica se recibe por el accessToken
 
     try {
-      const url = `${this.baseApi}/${tipoEstadistica.id}/${id_usuario}`;
+      const url = `${this.baseApi}/nuevaestadistica/${id_team}/${id_tipoEstadistica}/${id_usuario}`;
 
       const params = {
         method: 'POST',
