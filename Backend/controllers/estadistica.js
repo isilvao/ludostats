@@ -75,15 +75,13 @@ async function deleteEstadistica(req, res) {
     const { id_estadistica } = req.params
 
     try {
-        await Estadistica.destroy({ where: { id: id_estadistica } }).then((estadistica) => {
-            if (!estadistica) {
-                return res.status(400).send({ msg: "No se pudo encontrar la estadistica" })
-            }
-            return res.status(200).send(estadistica)
+        const estadistica = await Estadistica.findByPk(id_estadistica)
+
+        estadistica.destroy().then(() => {
+            return res.status(200).send({ msg: "Estadistica eliminada correctamente" })
         }).catch((err) => {
             return res.status(500).send({ msg: "Error al eliminar la estadistica" })
         })
-
     } catch (error) {
         return res.status(500).send({ msg: "Error al eliminar la estadistica" })
     }
