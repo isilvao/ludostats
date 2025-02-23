@@ -132,15 +132,28 @@ const DataTableDemo: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const equipoAPI = new UsuariosEquipos();
-      await equipoAPI.eliminarUsuarioEquipo(id, clubData.id);
-      setData((prevData) => prevData.filter((member) => member.id !== id));
-      toast.success('Usuario eliminado con éxito', {
-        style: {
-          background: '#4CAF50', // Fondo verde
-          color: '#FFFFFF', // Texto blanco
-        },
-      });
+      if (selectionType === 'equipo') {
+        const equipoAPI = new UsuariosEquipos();
+        await equipoAPI.eliminarUsuarioEquipo(id, clubData.id);
+        setData((prevData) => prevData.filter((member) => member.id !== id));
+        toast.success('Usuario eliminado con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
+      }
+      if (selectionType === 'club') {
+        const clubAPI = new ClubAPI();
+        await clubAPI.eliminarUsuarioDeClub(id, clubData.id);
+        setData((prevData) => prevData.filter((member) => member.id !== id));
+        toast.success('Usuario eliminado con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
+      }
     } catch (error) {
       console.error('Error deleting user:', error);
       toast.error('Error al eliminar el usuario', {

@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { FaSpinner } from 'react-icons/fa6';
 import { CiCamera } from 'react-icons/ci';
+import { UsuariosEquipos } from '@/api/usuariosEquipos';
 
 interface User {
   id: string;
@@ -45,6 +46,7 @@ interface User {
   fecha_nacimiento?: string;
   direccion?: string;
   documento?: string;
+  rol?: string; // Add rol to the User interface
 }
 
 const memberSchema = z.object({
@@ -60,6 +62,10 @@ const memberSchema = z.object({
   fecha_nacimiento: z.string().optional(),
   direccion: z.string().optional(),
   documento: z.string().optional(),
+});
+
+const roleSchema = z.object({
+  role: z.enum(['gerente', 'entrenador', 'deportista', 'admin', 'miembro']),
 });
 
 const EditMember = () => {
@@ -86,13 +92,19 @@ const EditMember = () => {
     },
   });
 
+  const roleForm = useForm({
+    resolver: zodResolver(roleSchema),
+    defaultValues: {
+      role: 'miembro',
+    },
+  });
+
   useEffect(() => {
     const fetchMember = async () => {
       try {
         if (isTeam) {
           const teamAPI = new EquipoAPI();
           const result = await teamAPI.getUserByIdInTeam(clubData.id, memberID);
-
           setMember(result.usuario);
           setProfileImage(result.usuario.foto);
           form.reset({
@@ -107,6 +119,9 @@ const EditMember = () => {
               : '',
             direccion: result.usuario.direccion,
             documento: result.usuario.documento,
+          });
+          roleForm.reset({
+            role: result.rol, // Set the role in the role form
           });
         } else {
           const clubAPI = new ClubAPI();
@@ -126,6 +141,9 @@ const EditMember = () => {
             direccion: result.usuario.direccion,
             documento: result.usuario.documento,
           });
+          roleForm.reset({
+            role: result.rol, // Set the role in the role form
+          });
         }
       } catch (error) {
         console.error('Error fetching member:', error);
@@ -135,7 +153,7 @@ const EditMember = () => {
     if (memberID) {
       fetchMember();
     }
-  }, [memberID, form]);
+  }, [memberID, form, roleForm]);
 
   const handleSave = async (values: z.infer<typeof memberSchema>) => {
     try {
@@ -163,19 +181,64 @@ const EditMember = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handleRoleChange = async (values: { role: string }) => {
     try {
-      const memberAPI = new UserAPI();
-      await memberAPI.deteleMe(null, memberID); // Assuming no accessToken is needed for this call
-      toast.success('Cuenta eliminada con éxito', {
+      const usuariosEquiposAPI = new UsuariosEquipos();
+      await usuariosEquiposAPI.modificarRolUsuarioEquipo(
+        memberID,
+        clubData.id,
+        values.role
+      );
+      toast.success('Rol actualizado con éxito', {
         style: {
           background: '#4CAF50', // Fondo verde
           color: '#FFFFFF', // Texto blanco
         },
       });
     } catch (error) {
-      console.error('Error al eliminar la cuenta:', error);
-      toast.error('Error al eliminar la cuenta', {
+      console.error('Error al actualizar el rol:', error);
+      toast.error('Error al actualizar el rol', {
+        style: {
+          background: '#FF0000', // Fondo rojo
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      if (isTeam) {
+        const teamAPI = new UsuariosEquipos();
+        if (typeof memberID === 'string') {
+          await teamAPI.eliminarUsuarioEquipo(memberID, clubData.id);
+          toast.success('Cuenta eliminada con éxito', {
+            style: {
+              background: '#4CAF50', // Fondo verde
+              color: '#FFFFFF', // Texto blanco
+            },
+          });
+        } else {
+          throw new Error('Invalid memberID');
+        }
+      } else {
+        const clubAPI = new ClubAPI();
+        if (typeof memberID === 'string') {
+          await clubAPI.eliminarUsuarioDeClub(memberID, clubData.id);
+          toast.success('Cuenta eliminada con éxito', {
+            style: {
+              background: '#4CAF50', // Fondo verde
+              color: '#FFFFFF', // Texto blanco
+            },
+          });
+        } else {
+          throw new Error('Invalid memberID');
+        }
+      }
+      router.push('/dashboard/members');
+    } catch (error) {
+      console.error('Error al eliminar al miembro:', error);
+      toast.error('Error al eliminar al miembro', {
         style: {
           background: '#FF0000', // Fondo rojo
           color: '#FFFFFF', // Texto blanco
@@ -230,84 +293,10 @@ const EditMember = () => {
     return <div>Cargando...</div>;
   }
 
-  return (
-    <section className="py-10">
-      <Toaster />
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Editar Miembro
-        </h1>
-      </div>
-      <div className="flex flex-col lg:flex-row lg:space-x-4">
-        <div className="bg-white px-0 py-10 border border-gray-300 rounded-md lg:w-1/4 mb-4 lg:mb-0 h-full">
-          <div className="flex flex-col items-center">
-            <div className="relative">
-              <Image
-                src={profileImage || '/default-profile.png'}
-                alt="Foto de perfil"
-                className="rounded-full w-28 h-28 object-cover"
-                width={100}
-                height={100}
-              />
-              {isLoadingImage && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
-                  <FaSpinner className="animate-spin text-white h-8 w-8" />
-                </div>
-              )}
-              <label
-                htmlFor="profileImageInput"
-                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
-              >
-                <CiCamera className="h-6 w-6" />
-              </label>
-              <input
-                id="profileImageInput"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleProfileImageChange}
-              />
-            </div>
-            <h2 className="mt-4 text-xl font-semibold text-gray-800">
-              {member.nombre} {member.apellido}
-            </h2>
-            <p className="text-gray-600">{member.correo}</p>
-          </div>
-          <ul className="mt-6">
-            <li
-              className={`pl-6 cursor-pointer p-3 border-l-4 ${selectedOption === 'edit' ? 'bg-gray-200 border-l-green' : 'hover:bg-gray-100 border-l-transparent'}`}
-              onClick={() => setSelectedOption('edit')}
-            >
-              Editar Miembro
-            </li>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <li className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-red/20">
-                  Borrar cuenta del miembro
-                </li>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    ¿Estás seguro de que deseas eliminar esta cuenta? Esta
-                    acción no se puede deshacer.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAccount}>
-                    Confirmar
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </ul>
-        </div>
-        <div className="bg-white p-6 border border-gray-300 rounded-md lg:w-[75%] w-full">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
-            Editar información del miembro
-          </h1>
+  const renderContent = () => {
+    switch (selectedOption) {
+      case 'edit':
+        return (
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSave)}
@@ -405,6 +394,134 @@ const EditMember = () => {
               </Button>
             </form>
           </Form>
+        );
+      case 'preferences':
+        return (
+          <Form {...roleForm}>
+            <form
+              onSubmit={roleForm.handleSubmit(handleRoleChange)}
+              className="space-y-4"
+            >
+              <FormField
+                control={roleForm.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rol</FormLabel>
+                    <FormControl>
+                      <select {...field} className="input">
+                        <option value="gerente">Gerente</option>
+                        <option value="entrenador">Entrenador</option>
+                        <option value="deportista">Deportista</option>
+                        <option value="admin">Admin</option>
+                        <option value="miembro">Miembro</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
+              >
+                Guardar
+              </Button>
+            </form>
+          </Form>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <section className="py-10">
+      <Toaster />
+      <div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          Editar Miembro
+        </h1>
+      </div>
+      <div className="flex flex-col lg:flex-row lg:space-x-4">
+        <div className="bg-white px-0 py-10 border border-gray-300 rounded-md lg:w-1/4 mb-4 lg:mb-0 h-full">
+          <div className="flex flex-col items-center">
+            <div className="relative">
+              <Image
+                src={profileImage || '/default-profile.png'}
+                alt="Foto de perfil"
+                className="rounded-full w-28 h-28 object-cover"
+                width={100}
+                height={100}
+              />
+              {isLoadingImage && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                  <FaSpinner className="animate-spin text-white h-8 w-8" />
+                </div>
+              )}
+              <label
+                htmlFor="profileImageInput"
+                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
+              >
+                <CiCamera className="h-6 w-6" />
+              </label>
+              <input
+                id="profileImageInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfileImageChange}
+              />
+            </div>
+            <h2 className="mt-4 text-xl font-semibold text-gray-800 text-center">
+              {member.nombre} {member.apellido}
+            </h2>
+            <p className="text-gray-600">{member.correo}</p>
+          </div>
+          <ul className="mt-6">
+            <li
+              className={`pl-6 cursor-pointer p-3 border-l-4 ${selectedOption === 'edit' ? 'bg-gray-200 border-l-green' : 'hover:bg-gray-100 border-l-transparent'}`}
+              onClick={() => setSelectedOption('edit')}
+            >
+              Editar Miembro
+            </li>
+            <li
+              className={`pl-6 cursor-pointer p-3 border-l-4 ${selectedOption === 'preferences' ? 'bg-gray-200 border-l-green' : 'hover:bg-gray-100 border-l-transparent'}`}
+              onClick={() => setSelectedOption('preferences')}
+            >
+              Preferencias
+            </li>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <li className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-red/20">
+                  Eliminar miembro
+                </li>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    ¿Estás seguro de que deseas eliminar a este miembro? Esta
+                    acción no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteAccount}>
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </ul>
+        </div>
+        <div className="bg-white p-6 border border-gray-300 rounded-md lg:w-[75%] w-full">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            {selectedOption === 'edit'
+              ? 'Editar información del miembro'
+              : 'Preferencias'}
+          </h1>
+          {renderContent()}
         </div>
       </div>
     </section>
