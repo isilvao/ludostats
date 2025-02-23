@@ -9,11 +9,11 @@ const { Op } = require('sequelize');
 const moment = require('moment');
 
 async function getMyEstadisticas(req, res) {
-    const { id } = req.params
+    const { id_team, id_user } = req.params
 
     try {
         const estadisticas = await Estadistica.findAll({
-            where: { usuario_id: id }, include: {
+            where: { usuario_id: id_user, equipo_id: id_team }, include: {
                 model: tipoEstadistica,
                 as: "tipoEstadistica",
                 attributes: ['nombre']
@@ -26,7 +26,7 @@ async function getMyEstadisticas(req, res) {
 }
 
 async function createEstadistica(req, res) {
-    const { id_tipoestadistica, id_usuario } = req.params
+    const { id_tipoestadistica, id_usuario, id_team } = req.params
 
     const { valor, fecha } = req.body
 
@@ -35,6 +35,7 @@ async function createEstadistica(req, res) {
         await Estadistica.create({
             tipoEstadistica_id: id_tipoestadistica,
             usuario_id: id_usuario,
+            equipo_id: id_team,
             valor: valor,
             fecha: fecha
         }).then((estadisticaStored) => {

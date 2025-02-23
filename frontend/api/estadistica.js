@@ -2,9 +2,9 @@ import { basePath, apiVersion } from '../utils/config';
 export class estadisticaAPI {
   baseApi = `${basePath}/${apiVersion}`;
 
-  async getMyEstadisticas(user_id) {
+  async getMyEstadisticas(user_id, team_id) {
     try {
-      const url = `${this.baseApi}/misestadisticas/${user_id}`;
+      const url = `${this.baseApi}/misestadisticas/${team_id}/${user_id}`;
 
       const response = await fetch(url);
       const result = await response.json();
@@ -42,11 +42,11 @@ export class estadisticaAPI {
     }
   }
 
-  async createEstadistica(id_tipoEstadistica, id_usuario, data) {
+  async createEstadistica(id_tipoEstadistica, id_usuario, data, team_id) {
     // El id_usuario es el id del usuario que se quiere modificar.
 
     try {
-      const url = `${this.baseApi}/nuevaestadistica/${id_tipoEstadistica}/${id_usuario}`;
+      const url = `${this.baseApi}/nuevaestadistica/${team_id}/${id_tipoEstadistica}/${id_usuario}`;
 
       const params = {
         method: 'POST',

@@ -15,6 +15,10 @@ const Estadistica = sequelize.define('Estadistica', {
         type: DataTypes.UUID,
         allowNull: false,
     },
+    equipo_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
     valor: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -149,7 +149,7 @@ const EstadisticasPage = () => {
       const api = new estadisticaAPI();
       const result = await api.createTipoEstadistica(
         newEstadistica,
-        clubData.id
+        clubData.id,
       );
       const nuevaEstadistica = {
         id: result.id,

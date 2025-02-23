@@ -201,7 +201,8 @@ const StatisticDetail: React.FC = () => {
         {
           valor: valorNumerico,
           fecha: newStatistic.fecha,
-        }
+        },
+        clubData.id
       );
 
       // Find the member details
@@ -353,90 +354,90 @@ const StatisticDetail: React.FC = () => {
     },
     ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
       ? [
-          {
-            id: 'actions',
-            header: 'Acciones',
-            cell: ({ row }: { row: any }) => {
-              const statistic = row.original;
-              const [statisticToDelete, setStatisticToDelete] =
-                useState<statistic | null>(null);
+        {
+          id: 'actions',
+          header: 'Acciones',
+          cell: ({ row }: { row: any }) => {
+            const statistic = row.original;
+            const [statisticToDelete, setStatisticToDelete] =
+              useState<statistic | null>(null);
 
-              return (
-                <>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal />
+            return (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Button
+                        onClick={() => {
+                          setEditStatistic(statistic);
+                          setIsEditDialogOpen(true);
+                        }}
+                        className="w-full bg-transparent hover:bg-gray-100 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
+                      >
+                        Editar
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Button
-                          onClick={() => {
-                            setEditStatistic(statistic);
-                            setIsEditDialogOpen(true);
-                          }}
-                          className="w-full bg-transparent hover:bg-gray-100 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
-                        >
-                          Editar
-                        </Button>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setStatisticToDelete(statistic);
-                        }}
-                        className="justify-center w-full bg-red/40 hover:bg-red/50 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
-                      >
-                        Borrar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setStatisticToDelete(statistic);
+                      }}
+                      className="justify-center w-full bg-red/40 hover:bg-red/50 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
+                    >
+                      Borrar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-                  {/* AlertDialog separado */}
-                  {statisticToDelete &&
-                    statisticToDelete.id === statistic.id && (
-                      <AlertDialog
-                        open
-                        onOpenChange={(open) => {
-                          if (!open) setStatisticToDelete(null);
-                        }}
-                      >
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Confirmar eliminación
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              ¿Estás seguro de que deseas eliminar esta
-                              estadística? Esta acción no se puede deshacer.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel
-                              onClick={() => setStatisticToDelete(null)}
-                            >
-                              Cancelar
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => {
-                                handleDeleteStatistic(statistic.id);
-                                setStatisticToDelete(null);
-                              }}
-                            >
-                              Eliminar
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
-                </>
-              );
-            },
+                {/* AlertDialog separado */}
+                {statisticToDelete &&
+                  statisticToDelete.id === statistic.id && (
+                    <AlertDialog
+                      open
+                      onOpenChange={(open) => {
+                        if (!open) setStatisticToDelete(null);
+                      }}
+                    >
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Confirmar eliminación
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            ¿Estás seguro de que deseas eliminar esta
+                            estadística? Esta acción no se puede deshacer.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel
+                            onClick={() => setStatisticToDelete(null)}
+                          >
+                            Cancelar
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              handleDeleteStatistic(statistic.id);
+                              setStatisticToDelete(null);
+                            }}
+                          >
+                            Eliminar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+              </>
+            );
           },
-        ]
+        },
+      ]
       : []),
   ];
 
@@ -631,9 +632,9 @@ const StatisticDetail: React.FC = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}

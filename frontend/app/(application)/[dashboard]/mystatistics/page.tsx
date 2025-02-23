@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
 import { estadisticaAPI } from '@/api/estadistica';
+import { useEquipoClub } from '@/hooks/useEquipoClub';
 
 type Statistic = {
   id: string;
@@ -38,12 +39,13 @@ const Mystatistics: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { user } = useAuth();
+  const { clubData, rolClub } = useEquipoClub();
 
   useEffect(() => {
     const fetchEstadisticas = async () => {
       try {
         const api = new estadisticaAPI();
-        const result = await api.getMyEstadisticas(user.id);
+        const result = await api.getMyEstadisticas(user.id, clubData.id);
         const statistics = result.map((item: any) => ({
           id: item.id,
           nombre: item.tipoEstadistica.nombre,
@@ -155,9 +157,9 @@ const Mystatistics: React.FC = () => {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
