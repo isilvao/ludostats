@@ -290,7 +290,16 @@ const getUsersByClub = async (req, res) => {
       where: { club_id: id_club },
     });
 
-    res.status(200).json(usuarios);
+    const usuariosUnicos = {};
+    usuarios.forEach((usuario) => {
+      if (!usuariosUnicos[usuario.usuario_id]) {
+        usuariosUnicos[usuario.usuario_id] = usuario;
+      }
+    });
+
+    const usuariosResponse = Object.values(usuariosUnicos);
+
+    res.status(200).json(usuariosResponse);
   } catch (error) {
     console.error("Error al buscar los usuarios del club:", error);
     res.status(500).json({ msg: "Error interno del servidor" });
