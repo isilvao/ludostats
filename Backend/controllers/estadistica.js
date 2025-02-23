@@ -27,43 +27,22 @@ async function getMyEstadisticas(req, res) {
 
 async function createEstadistica(req, res) {
     const { id_tipoestadistica, id_usuario } = req.params
-    const { user_id } = req.user
 
-    const { valor, fecha } = req.body
+    const { data } = req.body
 
 
     try {
 
-        const tipEstadistica = await tipoEstadistica.findOne({ where: { id: id_tipoestadistica } })
-
-        if (!tipEstadistica) {
-            return res.status(400).send({ msg: "No se pudo encontrar el tipo de estadistica" })
-        } else {
-            const usuario = await Usuario.findOne({ where: { id: user_id } })
-
-            if (usuario.rol !== 'gerente') {
-                const userClub = await UsuarioClub.findOne({ where: { usuario_id: user_id, club_id: tipEstadistica.club_id } })
-                if (!userClub) {
-                    return res.status(400).send({ msg: "No tienes permisos para crear estadisticas en este club" })
-                }
-            } else {
-                const club = await Club.findOne({ where: { id: tipEstadistica.club_id } })
-                if (club.gerente_id !== user_id) {
-                    return res.status(400).send({ msg: "No tienes permisos para crear estadisticas en este club" })
-                }
-            }
-        }
-
         await Estadistica.create({
             tipoEstadistica_id: id_tipoestadistica,
             usuario_id: id_usuario,
-            valor: valor,
-            fecha: fecha
-        }).then((tipEstadistica) => {
-            if (!tipEstadistica) {
+            valor: data.valor,
+            fecha: data.fecha
+        }).then((estadisticaStored) => {
+            if (!estadisticaStored) {
                 return res.status(400).send({ msg: "No se pudo crear la estadistica" })
             }
-            return res.status(200).send(tipEstadistica)
+            return res.status(200).send(estadisticaStored)
         }).catch((err) => {
             return res.status(500).send({ msg: "Error al crear la estadistica" })
         })

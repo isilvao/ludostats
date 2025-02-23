@@ -17,7 +17,7 @@ export class estadisticaAPI {
     }
   }
 
-  async updateEstadistica(estadistica, accessToken) {
+  async updateEstadistica(estadistica) {
     // El usuario que hace la modificación se recibe por el accessToken
 
     try {
@@ -27,7 +27,6 @@ export class estadisticaAPI {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(estadistica),
       };
@@ -43,20 +42,18 @@ export class estadisticaAPI {
     }
   }
 
-  async createEstadistica(tipoEstadistica, accessToken, id_usuario) {
+  async createEstadistica(id_tipoEstadistica, id_usuario, data) {
     // El id_usuario es el id del usuario que se quiere modificar.
-    // El usuario que crea la estadistica se recibe por el accessToken
 
     try {
-      const url = `${this.baseApi}/${tipoEstadistica.id}/${id_usuario}`;
+      const url = `${this.baseApi}/nuevaestadistica/${id_tipoEstadistica}/${id_usuario}`;
 
       const params = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(tipoEstadistica),
+        body: JSON.stringify(data),
       };
 
       const response = await fetch(url, params);
@@ -71,14 +68,14 @@ export class estadisticaAPI {
     }
   }
 
-  async deleteEstadistica(id, accessToken) {
+  async deleteEstadistica(id) {
     try {
       const url = `${this.baseApi}/eliminarestadistica/${id}`;
 
       const params = {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
         },
       };
 
