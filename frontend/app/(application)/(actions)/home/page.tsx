@@ -163,7 +163,7 @@ const Page: React.FC = () => {
                       href={'/join'}
                       className="w-full bg-brand text-white py-2 rounded-lg hover:bg-brand/80 transition mt-auto"
                     >
-                      Unirse a un club
+                      Unirse a un equipo
                     </Link>
                   </div>
                 </div>

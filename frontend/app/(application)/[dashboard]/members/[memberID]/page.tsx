@@ -1,0 +1,414 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useParams, useRouter } from 'next/navigation';
+import { User as UserAPI } from '@/api/user';
+import { ClubAPI } from '@/api/club';
+import { EquipoAPI } from '@/api/equipo';
+import { toast } from 'sonner';
+import Image from 'next/image';
+import Resizer from 'react-image-file-resizer';
+import { Toaster } from '@/components/ui/sonner';
+import { useEquipoClub } from '@/hooks';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+import { FaSpinner } from 'react-icons/fa6';
+import { CiCamera } from 'react-icons/ci';
+
+interface User {
+  id: string;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  telefono?: string;
+  fecha_nacimiento?: string;
+  direccion?: string;
+  documento?: string;
+}
+
+const memberSchema = z.object({
+  nombre: z.string().min(1, 'Nombre obligatorio'),
+  apellido: z.string().min(1, 'Apellido obligatorio'),
+  correo: z.string().email('Correo inválido'),
+  telefono: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^[0-9]{10}$/.test(val), {
+      message: 'El teléfono debe tener 10 dígitos y solo contener números',
+    }),
+  fecha_nacimiento: z.string().optional(),
+  direccion: z.string().optional(),
+  documento: z.string().optional(),
+});
+
+const EditMember = () => {
+  const { memberID } = useParams();
+  const { clubData } = useEquipoClub();
+  const router = useRouter();
+  const [member, setMember] = useState<User | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('edit');
+  const selectionType = localStorage.getItem('selectionType');
+  const isTeam = selectionType === 'equipo';
+
+  const form = useForm({
+    resolver: zodResolver(memberSchema),
+    defaultValues: {
+      nombre: '',
+      apellido: '',
+      correo: '',
+      telefono: '',
+      fecha_nacimiento: '',
+      direccion: '',
+      documento: '',
+    },
+  });
+
+  useEffect(() => {
+    const fetchMember = async () => {
+      try {
+        if (isTeam) {
+          const teamAPI = new EquipoAPI();
+          const result = await teamAPI.getUserByIdInTeam(clubData.id, memberID);
+
+          setMember(result.usuario);
+          setProfileImage(result.usuario.foto);
+          form.reset({
+            nombre: result.usuario.nombre,
+            apellido: result.usuario.apellido,
+            correo: result.usuario.correo,
+            telefono: result.usuario.telefono,
+            fecha_nacimiento: result.usuario.fecha_nacimiento
+              ? new Date(result.usuario.fecha_nacimiento)
+                  .toISOString()
+                  .split('T')[0]
+              : '',
+            direccion: result.usuario.direccion,
+            documento: result.usuario.documento,
+          });
+        } else {
+          const clubAPI = new ClubAPI();
+          const result = await clubAPI.getUserByIdInClub(clubData.id, memberID);
+          setMember(result.usuario);
+          setProfileImage(result.usuario.foto);
+          form.reset({
+            nombre: result.usuario.nombre,
+            apellido: result.usuario.apellido,
+            correo: result.usuario.correo,
+            telefono: result.usuario.telefono,
+            fecha_nacimiento: result.usuario.fecha_nacimiento
+              ? new Date(result.usuario.fecha_nacimiento)
+                  .toISOString()
+                  .split('T')[0]
+              : '',
+            direccion: result.usuario.direccion,
+            documento: result.usuario.documento,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching member:', error);
+      }
+    };
+
+    if (memberID) {
+      fetchMember();
+    }
+  }, [memberID, form]);
+
+  const handleSave = async (values: z.infer<typeof memberSchema>) => {
+    try {
+      const memberAPI = new UserAPI();
+      await memberAPI.updateUser({ id: memberID, ...values });
+      setMember((prevMember) => ({
+        ...prevMember!,
+        ...values,
+        id: prevMember!.id, // Ensure id is always defined
+      }));
+      toast.success('Perfil actualizado con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    } catch (error) {
+      console.error('Error al actualizar el perfil:', error);
+      toast.error('Error al actualizar el perfil', {
+        style: {
+          background: '#FF0000', // Fondo rojo
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const memberAPI = new UserAPI();
+      await memberAPI.deteleMe(null, memberID); // Assuming no accessToken is needed for this call
+      toast.success('Cuenta eliminada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    } catch (error) {
+      console.error('Error al eliminar la cuenta:', error);
+      toast.error('Error al eliminar la cuenta', {
+        style: {
+          background: '#FF0000', // Fondo rojo
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    }
+  };
+
+  const handleProfileImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsLoadingImage(true);
+      try {
+        const resizedImage = await new Promise<File>((resolve) => {
+          Resizer.imageFileResizer(
+            file,
+            150, // ancho máximo
+            150, // alto máximo
+            'JPEG', // formato
+            100, // calidad
+            0, // rotación
+            (uri) => {
+              resolve(uri as File);
+            },
+            'file'
+          );
+        });
+
+        const memberAPI = new UserAPI();
+        const result = await memberAPI.actualizarFotoPerfil(
+          memberID,
+          resizedImage
+        );
+        setProfileImage(result); // Assuming the API returns the new image URL
+        toast.success('Foto de perfil actualizada con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
+      } catch (error) {
+        console.error('Error al actualizar la foto de perfil:', error);
+      } finally {
+        setIsLoadingImage(false);
+      }
+    }
+  };
+
+  if (!member) {
+    return <div>Cargando...</div>;
+  }
+
+  return (
+    <section className="py-10">
+      <Toaster />
+      <div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          Editar Miembro
+        </h1>
+      </div>
+      <div className="flex flex-col lg:flex-row lg:space-x-4">
+        <div className="bg-white px-0 py-10 border border-gray-300 rounded-md lg:w-1/4 mb-4 lg:mb-0 h-full">
+          <div className="flex flex-col items-center">
+            <div className="relative">
+              <Image
+                src={profileImage || '/default-profile.png'}
+                alt="Foto de perfil"
+                className="rounded-full w-28 h-28 object-cover"
+                width={100}
+                height={100}
+              />
+              {isLoadingImage && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                  <FaSpinner className="animate-spin text-white h-8 w-8" />
+                </div>
+              )}
+              <label
+                htmlFor="profileImageInput"
+                className="absolute bottom-0 right-0 bg-gray-200 p-1 rounded-full hover:bg-gray-300 h-10 w-10 flex items-center justify-center border border-spacing-1 border-white cursor-pointer"
+              >
+                <CiCamera className="h-6 w-6" />
+              </label>
+              <input
+                id="profileImageInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfileImageChange}
+              />
+            </div>
+            <h2 className="mt-4 text-xl font-semibold text-gray-800">
+              {member.nombre} {member.apellido}
+            </h2>
+            <p className="text-gray-600">{member.correo}</p>
+          </div>
+          <ul className="mt-6">
+            <li
+              className={`pl-6 cursor-pointer p-3 border-l-4 ${selectedOption === 'edit' ? 'bg-gray-200 border-l-green' : 'hover:bg-gray-100 border-l-transparent'}`}
+              onClick={() => setSelectedOption('edit')}
+            >
+              Editar Miembro
+            </li>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <li className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-red/20">
+                  Borrar cuenta del miembro
+                </li>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    ¿Estás seguro de que deseas eliminar esta cuenta? Esta
+                    acción no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteAccount}>
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </ul>
+        </div>
+        <div className="bg-white p-6 border border-gray-300 rounded-md lg:w-[75%] w-full">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            Editar información del miembro
+          </h1>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSave)}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="nombre"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombres *</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Nombres" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="apellido"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Apellidos *</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Apellidos" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="documento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Documento</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Documento" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="telefono"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teléfono</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="tel" placeholder="Teléfono" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="fecha_nacimiento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha de Nacimiento</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="date"
+                          placeholder="Fecha de Nacimiento"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="direccion"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dirección</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Dirección" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button
+                type="submit"
+                className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
+              >
+                Guardar
+              </Button>
+            </form>
+          </Form>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default EditMember;
