@@ -306,6 +306,31 @@ const getUsersByTeam = async (req, res) => {
     }
 };
 
+const getUserByIdInTeam = async (req, res) => {
+    const { id_equipo, id_usuario } = req.params;
+
+    try {
+
+        const user = await UsuariosEquipos.findOne({
+            where: { equipo_id: id_equipo, usuario_id: id_usuario },
+            include: [
+                {
+                    model: Usuario,
+                    as: "usuario",
+                }
+            ]
+        })
+
+        if (!user) {
+            return res.status(404).json({ msg: "Usuario no encontrado en el equipo" });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error("Error al obtener el usuario del equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+}
 
 module.exports = {
     crearEquipo,
@@ -315,4 +340,5 @@ module.exports = {
     obtenerMisEquipos,
     actualizarLogoEquipo,
     getUsersByTeam,
+    getUserByIdInTeam
 };

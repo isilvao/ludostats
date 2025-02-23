@@ -11,7 +11,6 @@ const upload = require("../middleware/upload"); // 📌 Importamos el middleware
 
 // Personal Routes
 api.get('/user/me', [md_auth.asureAuth], userController.getMe)
-api.get('/user/:id', userController.getUserById)
 
 //api.patch('/user/updateMe', [md_auth.asureAuth, md_upload], userController.updateMe)
 api.patch('/user/updateMe', [md_upload], userController.updateMe)

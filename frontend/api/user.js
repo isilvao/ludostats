@@ -271,21 +271,4 @@ export class User {
       throw error;
     }
   }
-
-  async getUserById(userId) {
-    try {
-
-      const url = `${this.baseApi}/user/${userId}`;
-
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (response.status !== 200)
-        throw new Error('El usuario no existe en la plataforma.');
-
-      return result;
-    } catch (error) {
-      throw new Error('El usuario no existe en la plataforma.');
-    }
-  }
 }

@@ -39,5 +39,7 @@ api.patch(
 
 // Obtener todos los usuarios de un equipo pasado por params
 api.get('/equipo/users/:id_equipo', equipoController.getUsersByTeam);
+api.get('/equipo/user/:id_equipo/:id_usuario', equipoController.getUserByIdInTeam);
+
 
 module.exports = api;

@@ -253,4 +253,26 @@ export class ClubAPI {
       throw error;
     }
   }
+
+  async getUserByIdInClub(clubId, userId) {
+    try {
+      const url = `${this.baseApi}/club/user/${clubId}/${userId}`;
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener el usuario del club:', error);
+      throw error;
+    }
+  }
+
 }
