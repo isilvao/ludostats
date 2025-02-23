@@ -30,6 +30,7 @@ async function createEstadistica(req, res) {
 
     const { data } = req.body
 
+    const fecha = new Date(data.fecha)
 
     try {
 
@@ -37,7 +38,7 @@ async function createEstadistica(req, res) {
             tipoEstadistica_id: id_tipoestadistica,
             usuario_id: id_usuario,
             valor: data.valor,
-            fecha: data.fecha
+            fecha: fecha
         }).then((estadisticaStored) => {
             if (!estadisticaStored) {
                 return res.status(400).send({ msg: "No se pudo crear la estadistica" })
