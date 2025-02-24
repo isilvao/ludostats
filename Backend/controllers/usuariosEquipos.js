@@ -3,7 +3,6 @@ const Equipo = require("../models/Equipo");
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcryptjs");
 const { UsuarioClub } = require("../models");
-const UsuarioClub = require("../models/UsuarioClub");
 
 const borrarUsuarioEquipo = async (req, res) => {
   const { usuarioId, equipoId } = req.params;
