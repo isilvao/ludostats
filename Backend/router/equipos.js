@@ -31,6 +31,10 @@ api.get("/equipo/:id_equipo", [md_auth.asureAuth], equipoController.obtenerEquip
 // Obtener los equipos de un gerente
 api.get("/misequipos", equipoController.obtenerMisEquipos);
 
+// Obtener los equipos de un club
+api.get("/equiposclub/:id_club", equipoController.obtenerEquiposClub);
+
+
 api.patch(
   "/equipo_logo/:id",
   upload.single("logo"),

@@ -33,5 +33,4 @@ api.get('/eventos/club/:club_id', eventoController.obtenerEventosPorClub);
 // 📌 Obtener eventos por equipo
 api.get('/eventos/equipo/:equipo_id', eventoController.obtenerEventosPorEquipo);
 
-
 module.exports = api;

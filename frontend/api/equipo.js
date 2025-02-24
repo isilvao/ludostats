@@ -218,5 +218,25 @@ export class EquipoAPI {
     }
   }
 
+  async obtenerEquiposClub(clubId) {
+    try {
+      const url = `${this.baseApi}/equiposclub/${clubId}`;
+      const params = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener los equipos del club:', error);
+      throw error;
+    }
+  }
 
 }
