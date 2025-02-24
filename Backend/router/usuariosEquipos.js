@@ -33,5 +33,6 @@ api.get(
 
 // 📌 Ruta para modificar el rol de un usuario en un equipo
 api.patch('/usuario_equipo/rol/:usuario_id/:equipo_id', usuariosEquiposController.modificarRolUsuarioEquipo);
+api.patch('/usuario_club/rol/:usuario_id/:club_id', usuariosEquiposController.modificarRolUsuarioClub);
 
 module.exports = api;

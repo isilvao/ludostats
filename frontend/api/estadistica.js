@@ -285,6 +285,22 @@ export class estadisticaAPI {
     }
   }
 
+  async diagramaBarrasPorClub(id_tipoEstadistica) {
+    try {
+      const url = `${this.baseApi}/diagramaBarrasEstadisticaPorClub/${id_tipoEstadistica}`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener los datos', error);
+      throw error;
+    }
+  }
+
   async diagramaUsuariosEquipo(id_team) {
     try {
       const url = `${this.baseApi}/diagramaUsuariosPorEquipo/${id_team}`;

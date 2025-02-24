@@ -1,77 +1,197 @@
-'use client';
+"use client"
 
-import { TrendingUp } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { TrendingUp, TrendingDown } from "lucide-react"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts"
+import { useEffect, useState } from "react"
+import { estadisticaAPI } from "@/api/estadistica"
+import { useEquipoClub } from "@/hooks/useEquipoClub"
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-const chartData = [
-  { month: 'January', desktop: 186, mobile: 80 },
-  { month: 'February', desktop: 305, mobile: 200 },
-  { month: 'March', desktop: 237, mobile: 120 },
-  { month: 'April', desktop: 73, mobile: 190 },
-  { month: 'May', desktop: 209, mobile: 130 },
-  { month: 'June', desktop: 214, mobile: 140 },
-];
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
-const chartConfig = {
-  desktop: {
-    label: 'Desktop',
-    color: 'hsl(var(--chart-1))',
-  },
-  mobile: {
-    label: 'Mobile',
-    color: 'hsl(var(--chart-2))',
-  },
-} satisfies ChartConfig;
+interface ChartBarProps {
+  tipoEstadisticaNombre: string
+  tipoEstadisticaId: string
+}
 
-export function ChartBar() {
+interface ChartData {
+  mes: string
+  [key: string]: number | string
+}
+
+export function ChartBar({ tipoEstadisticaNombre, tipoEstadisticaId }: ChartBarProps) {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  const [estadisticas, setEstadisticas] = useState<ChartData[]>([])
+  const [firstMonth, setFirstMonth] = useState<string>("")
+  const [lastMonth, setLastMonth] = useState<string>("")
+  const [trend, setTrend] = useState<number | null>(null)
+  const { clubData } = useEquipoClub()
+
+  const selectionType = localStorage.getItem("selectionType")
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const apiEstadisticas = new estadisticaAPI()
+        const id_team = clubData.id
+        let data
+
+        if (selectionType === "club") {
+          data = await apiEstadisticas.diagramaBarrasPorClub(tipoEstadisticaId)
+          const formattedData = formatClubData(data)
+          setEstadisticas(formattedData)
+        } else {
+          data = await apiEstadisticas.diagramaBarras(tipoEstadisticaId, id_team)
+          setEstadisticas(formatEquipoData(data))
+        }
+
+        const months = estadisticas.map((item) => item.mes)
+        setFirstMonth(months[0])
+        setLastMonth(months[months.length - 1])
+
+        if (estadisticas.length >= 2) {
+          const lastMonthData = estadisticas[estadisticas.length - 1]
+          const secondLastMonthData = estadisticas[estadisticas.length - 2]
+          const lastTotal =
+            Object.values(lastMonthData).reduce((sum: number, value) => sum + (typeof value === "number" ? value : 0), 0) - 1 // Subtract 1 to account for the 'mes' property
+          const secondLastTotal =
+            Object.values(secondLastMonthData).reduce(
+              (sum: number, value) => sum + (typeof value === "number" ? value : 0),
+              0,
+            ) - 1
+          const trendValue = ((lastTotal - secondLastTotal) / secondLastTotal) * 100
+          setTrend(trendValue)
+        }
+      } catch (error: any) {
+        setError(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [tipoEstadisticaId, clubData.id, estadisticas.length, estadisticas[estadisticas.length - 1], selectionType])
+
+  const formatClubData = (data: any): ChartData[] => {
+    const allMonths = new Set<string>()
+    Object.values(data).forEach((teamData: any) => {
+      Object.keys(teamData).forEach((month) => {
+        allMonths.add(month)
+      })
+    })
+
+    const sortedMonths = Array.from(allMonths).sort(
+      (a, b) => new Date(`01 ${a} 2025`).getTime() - new Date(`01 ${b} 2025`).getTime(),
+    )
+
+    return sortedMonths.map((month) => {
+      const monthData: ChartData = { mes: translateMonth(month) }
+      Object.entries(data).forEach(([team, teamData]: [string, any]) => {
+        monthData[team] = teamData[month] || 0
+      })
+      return monthData
+    })
+  }
+
+  const formatEquipoData = (data: any): ChartData[] => {
+    return data.map((item: any) => ({
+      mes: translateMonth(item.mes),
+      total: item.total,
+    }))
+  }
+
+  const translateMonth = (month: string): string => {
+    const translations: { [key: string]: string } = {
+      January: "Enero",
+      February: "Febrero",
+      March: "Marzo",
+      April: "Abril",
+      May: "Mayo",
+      June: "Junio",
+      July: "Julio",
+      August: "Agosto",
+      September: "Septiembre",
+      October: "Octubre",
+      November: "Noviembre",
+      December: "Diciembre",
+    }
+    return translations[month] || month
+  }
+
+  const chartConfig: ChartConfig = {}
+  const colors = [
+    "hsl(120, 53.30%, 58.80%)",
+    "hsl(200, 53.30%, 58.80%)",
+    "hsl(280, 53.30%, 58.80%)",
+    "hsl(40, 53.30%, 58.80%)",
+    "hsl(320, 53.30%, 58.80%)",
+  ]
+
+  if (selectionType === "club") {
+    Object.keys(estadisticas[0] || {}).forEach((key, index) => {
+      if (key !== "mes") {
+        chartConfig[key] = {
+          label: key,
+          color: colors[index % colors.length],
+        }
+      }
+    })
+  } else {
+    chartConfig.total = {
+      label: tipoEstadisticaNombre,
+      color: colors[0],
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Multiple</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>{tipoEstadisticaNombre}</CardTitle>
+        <CardDescription>
+          {firstMonth} - {lastMonth} 2025
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={estadisticas}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="mes"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
               tickFormatter={(value) => value.slice(0, 3)}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
-            />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+            <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${value}`} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
+            {selectionType === "club" ? (
+              Object.keys(chartConfig).map((key, index) => (
+                <Bar key={key} dataKey={key} fill={colors[index % colors.length]} radius={4} name={key} />
+              ))
+            ) : (
+              <Bar dataKey="total" fill={colors[0]} radius={4} name={tipoEstadisticaNombre} />
+            )}
+            <Legend />
           </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          {trend !== null ? (
+            <>
+              Trending {trend > 0 ? "up" : "down"} by {trend.toFixed(2)}% this month
+              {trend > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            </>
+          ) : (
+            "No hay datos suficientes para mostrar la tendencia"
+          )}
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Los datos se muestran desde {firstMonth} hasta {lastMonth}
         </div>
       </CardFooter>
     </Card>
-  );
+  )
 }
+

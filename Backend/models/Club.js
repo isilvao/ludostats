@@ -11,6 +11,10 @@ const Club = sequelize.define('Club', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    descripcion: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     deporte: {
         type: DataTypes.STRING,
         allowNull: false,

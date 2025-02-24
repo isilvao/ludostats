@@ -155,4 +155,27 @@ export class UsuariosEquipos {
       throw error;
     }
   }
+
+  async modificarRolUsuarioClub(usuarioId, clubId, nuevoRol) {
+    try {
+      const url = `${this.baseApi}/usuarioclub/rol/${usuarioId}/${clubId}`;
+
+      const params = {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nuevo_rol: nuevoRol }) // 📌 Ahora enviamos un string
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw result;
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

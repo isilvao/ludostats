@@ -3,6 +3,7 @@ const Equipo = require("../models/Equipo");
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcryptjs");
 const { UsuarioClub } = require("../models");
+const UsuarioClub = require("../models/UsuarioClub");
 
 const borrarUsuarioEquipo = async (req, res) => {
   const { usuarioId, equipoId } = req.params;
@@ -278,7 +279,32 @@ const modificarRolUsuarioEquipo = async (req, res) => {
   }
 };
 
+const modificarRolUsuarioClub = async (req, res) => {
+  const { usuario_id, club_id } = req.params;
+  const { nuevo_rol } = req.body;
 
+  if (!nuevo_rol || typeof nuevo_rol !== "string") {
+    return res.status(400).json({ msg: "El nuevo rol es obligatorio y debe ser un string" });
+  }
+
+  try {
+    const registro = await UsuarioClub.findOne({
+      where: { usuario_id, club_id }
+    });
+
+    if (!registro) {
+      return res.status(404).json({ msg: "Usuario no encontrado en el club" });
+    }
+
+    registro.rol = nuevo_rol; // 📌 Guardar el rol como string
+    await registro.save();
+
+    res.status(200).json({ msg: "Rol actualizado correctamente", registro });
+  } catch (error) {
+    console.error("❌ Error al modificar el rol del usuario en el club:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+}
 
 
 module.exports = {
@@ -287,4 +313,5 @@ module.exports = {
   borrarUsuarioEquipo,
   asignarEntrenadorAEquipo,
   modificarRolUsuarioEquipo,
+  modificarRolUsuarioClub
 };
