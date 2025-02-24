@@ -1,33 +1,57 @@
 "use client";
 
 import { loadStripe } from '@stripe/stripe-js';
-import { useEffect } from 'react';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
-const CheckoutButton = () => {
-  useEffect(() => {
-    fetch('/api/check-secret-key?route=check-secret-key')
-      .then(response => response.json())
-      .then(data => console.log(data.message))
-      .catch(error => console.error('Error:', error));
-  }, []);
+interface CheckoutButtonProps {
+  priceId: string;
+}
+
+const CheckoutButton = ({ priceId }: CheckoutButtonProps) => {
+  console.log("🛒 ID recibido en CheckoutButton:", priceId); // ✅ Verificar que el ID llega correctamente al renderizar
 
   const handleCheckout = async () => {
-    const stripe = await stripePromise;
+    console.log("✅ Botón presionado. ID de pago:", priceId); // ✅ Verificar que el ID llega al hacer clic
 
-    const response = await fetch('/api/check-secret-key?route=checkout', {
-      method: 'POST',
-    });
+    try {
+      const res = await fetch('/api/send', { 
+        method: 'POST',
+        body: JSON.stringify({ priceId }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-    const { id } = await response.json();
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('❌ Respuesta de la API de checkout:', errorText);
+        throw new Error('Error en la solicitud de checkout');
+      }
 
-    await stripe?.redirectToCheckout({ sessionId: id });
+      const data = await res.json();
+      console.log("✅ URL de checkout recibida:", data.url);
+      window.location.href = data.url;
+    } catch (error) {
+      console.error('❌ Error en el proceso de checkout:', error);
+      alert('Hubo un error al procesar el pago. Por favor, inténtalo de nuevo.');
+    }
   };
 
-  return <button onClick={handleCheckout}>Pagar con Stripe</button>;
-};
+  if (!priceId) {
+    return <p className="text-red-500 text-sm">Error: No se encontró ID para el pago</p>;
+  }
 
-console.log("🔑 Clave pública de Stripe (Frontend):", process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+  return (
+    <div className="flex justify-center items-center py-10">
+      <button
+        className="bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand/90 transition-colors"
+        onClick={handleCheckout} // ✅ Llamar la función de prueba al hacer clic
+      >
+        Renovar suscripción
+      </button>
+    </div>
+  );
+};
 
 export default CheckoutButton;

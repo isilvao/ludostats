@@ -1,15 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
+import Stripe from 'stripe';
+import fetch from 'node-fetch';
 import CheckoutButton from '@/components/CheckoutButton';
 
-
 interface PlanProps {
-  name: string;
+  name: string | null;
   price: string;
   features: { name: string; included: boolean }[];
   buttonText: string;
   recommended?: boolean;
   clubType: string;
+ 
 }
 
 const PlanCard: React.FC<PlanProps> = ({
@@ -57,11 +59,30 @@ const PlanCard: React.FC<PlanProps> = ({
   </div>
 );
 
-const Pricing: React.FC = () => {
+async function getConversionRate() {
+  const response = await fetch(`https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_RATE_API_KEY}/latest/USD`);
+  const data = await response.json();
+  return (data as { conversion_rates: { COP: number } }).conversion_rates.COP;
+}
+
+function formatPrice(price: number): string {
+  // Redondear hacia arriba a la unidad de mil más cercana
+  const roundedPrice = Math.ceil(price / 1000) * 1000;
+  // Formatear con el signo $
+  return `$${roundedPrice.toLocaleString('es-CO')}`;
+}
+
+async function getPricingData() {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  const prices = await stripe.prices.list();
+  const conversionRate = await getConversionRate();
+
+  
+
   const plans = [
     {
       name: 'Básico',
-      price: '$38,000',
+      price: 38000,
       features: [
         { name: 'Gestión de miembros', included: true },
         { name: 'Control de pagos', included: true },
@@ -76,7 +97,7 @@ const Pricing: React.FC = () => {
     },
     {
       name: 'Premium',
-      price: '$79,900',
+      price: 79900,
       features: [
         { name: 'Gestión de miembros', included: true },
         { name: 'Control de pagos', included: true },
@@ -92,7 +113,7 @@ const Pricing: React.FC = () => {
     },
     {
       name: 'Pro',
-      price: '$119,900',
+      price: 119900,
       features: [
         { name: 'Gestión de miembros', included: true },
         { name: 'Control de pagos', included: true },
@@ -107,35 +128,52 @@ const Pricing: React.FC = () => {
     },
   ];
 
+  // Combinar los datos de prices y plans
+  const combinedPlans = plans.map((plan) => {
+    const matchingPrice = prices.data.find((price) => price.nickname === plan.name);
+    if (matchingPrice) {
+
+      return {
+        ...plan,
+        name: matchingPrice.nickname,
+        price: matchingPrice.unit_amount ? formatPrice((matchingPrice.unit_amount / 100) * conversionRate) : '$0', // Convertir de USD a COP y formatear
+        id: matchingPrice.id, // Añadir el id del precio
+      };
+    }
+    
+
+    return { ...plan, id: null }; 
+
+  });
+
+  return combinedPlans;
+}
+
+export default async function PricingPage() {
+  const combinedPlans = await getPricingData();
+
   return (
     <div className="pt-10 pb-32">
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-4xl font-bold text-center text-[#4D4D4D] mb-5">
           Planes y precios
         </h2>
-        
-
-
-        <div>
-          <h1>Compra un producto</h1>
-          <CheckoutButton />
-        </div>
-    
- 
-
-
         <p className="text-center text-gray-600 mb-12">
-          Escoge el plan que mejor se ajuste a las necesidades de tu club
-          deportivo.
+          Escoge el plan que mejor se ajuste a las necesidades de tu club deportivo.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans.map((plan, idx) => (
-            <PlanCard key={idx} {...plan} />
+          {combinedPlans.map((plan, idx) => (
+            <div key={idx}>
+              <PlanCard {...plan} price={typeof plan.price === 'number' ? plan.price.toString() : plan.price} />
+              {plan.id ? (
+                <CheckoutButton priceId={plan.id} /> 
+              ) : (
+                <p className="text-red-500 text-sm">Error: No se encontró ID para este plan</p>
+              )}
+            </div>
           ))}
         </div>
       </div>
     </div>
   );
-};
-
-export default Pricing;
+}
