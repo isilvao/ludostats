@@ -1,11 +1,10 @@
-"use client"
+'use client';
 
 import React, { useEffect, useState } from 'react';
-import { TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { estadisticaAPI } from "@/api/estadistica"
+import { TrendingUp } from 'lucide-react';
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { estadisticaAPI } from '@/api/estadistica';
 import { useEquipoClub } from '@/hooks/useEquipoClub';
-
 
 import {
   Card,
@@ -14,110 +13,109 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card';
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from '@/components/ui/chart';
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
-    color: "hsl(120, 100%, 50%)",
+    label: 'Desktop',
+    color: 'hsl(120, 100%, 50%)',
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 interface ChartDatas {
-  mes: string
-  totalUsuarios: number
+  mes: string;
+  totalUsuarios: number;
 }
 
 export function ChartInit() {
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [estadisticas, setEstadisticas] = useState<ChartDatas[]>([]);
-  const [firstMonth, setFirstMonth] = useState<string>("");
-  const [lastMonth, setLastMonth] = useState<string>("");
+  const [firstMonth, setFirstMonth] = useState<string>('');
+  const [lastMonth, setLastMonth] = useState<string>('');
 
-  const { clubData } = useEquipoClub()
+  const { clubData } = useEquipoClub();
 
   const selectionType = localStorage.getItem('selectionType');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiEstadisticas = new estadisticaAPI()
+        const apiEstadisticas = new estadisticaAPI();
 
-        const id_team = clubData.id
-        let data
+        const id_team = clubData.id;
+        let data;
 
-        console.log("selectionType", selectionType)
-        console.log("clubData", clubData)
+        // console.log("selectionType", selectionType)
+        // console.log("clubData", clubData)
 
-        if (selectionType === "club") {
-          data = await apiEstadisticas.diagramaUsuariosPorClub(id_team)
+        if (selectionType === 'club') {
+          data = await apiEstadisticas.diagramaUsuariosPorClub(id_team);
         } else {
-          data = await apiEstadisticas.diagramaUsuariosEquipo(id_team)
+          data = await apiEstadisticas.diagramaUsuariosEquipo(id_team);
         }
 
         //TODO: Cambiar los datos de mes a espanol
         data.forEach((element: any) => {
           switch (element.mes) {
-            case "January":
-              element.mes = "Enero"
-              break
-            case "February":
-              element.mes = "Febrero"
-              break
-            case "March":
-              element.mes = "Marzo"
-              break
-            case "April":
-              element.mes = "Abril"
-              break
-            case "May":
-              element.mes = "Mayo"
-              break
-            case "June":
-              element.mes = "Junio"
-              break
-            case "July":
-              element.mes = "Julio"
-              break
-            case "August":
-              element.mes = "Agosto"
-              break
-            case "September":
-              element.mes = "Septiembre"
-              break
-            case "October":
-              element.mes = "Octubre"
-              break
-            case "November":
-              element.mes = "Noviembre"
-              break
-            case "December":
-              element.mes = "Diciembre"
-              break
+            case 'January':
+              element.mes = 'Enero';
+              break;
+            case 'February':
+              element.mes = 'Febrero';
+              break;
+            case 'March':
+              element.mes = 'Marzo';
+              break;
+            case 'April':
+              element.mes = 'Abril';
+              break;
+            case 'May':
+              element.mes = 'Mayo';
+              break;
+            case 'June':
+              element.mes = 'Junio';
+              break;
+            case 'July':
+              element.mes = 'Julio';
+              break;
+            case 'August':
+              element.mes = 'Agosto';
+              break;
+            case 'September':
+              element.mes = 'Septiembre';
+              break;
+            case 'October':
+              element.mes = 'Octubre';
+              break;
+            case 'November':
+              element.mes = 'Noviembre';
+              break;
+            case 'December':
+              element.mes = 'Diciembre';
+              break;
           }
-        })
+        });
 
-        setFirstMonth(data[0].mes)
-        setLastMonth(data[data.length - 1].mes)
+        setFirstMonth(data[0].mes);
+        setLastMonth(data[data.length - 1].mes);
 
-        setEstadisticas(data)
+        setEstadisticas(data);
       } catch (error: any) {
-        setError(error)
+        setError(error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   return (
     <Card>
@@ -144,7 +142,7 @@ export function ChartInit() {
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
-              name='Mes'
+              name="Mes"
             />
             <ChartTooltip
               cursor={false}
@@ -156,7 +154,7 @@ export function ChartInit() {
               fill="var(--color-desktop)"
               fillOpacity={0.4}
               stroke="var(--color-desktop)"
-              name='Total de Usuarios: '
+              name="Total de Usuarios: "
             />
           </AreaChart>
         </ChartContainer>
@@ -171,5 +169,5 @@ export function ChartInit() {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

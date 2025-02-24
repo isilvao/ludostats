@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import Resizer from 'react-image-file-resizer';
 import { Toaster } from '@/components/ui/sonner';
+import { getProfileImage } from '@/lib/utils';
 import { useEquipoClub } from '@/hooks';
 import {
   Form,
@@ -52,7 +53,6 @@ interface User {
 const memberSchema = z.object({
   nombre: z.string().min(1, 'Nombre obligatorio'),
   apellido: z.string().min(1, 'Apellido obligatorio'),
-  correo: z.string().email('Correo inválido'),
   telefono: z
     .string()
     .optional()
@@ -70,10 +70,10 @@ const roleSchema = z.object({
 
 const EditMember = () => {
   const { memberID } = useParams();
-  const { clubData } = useEquipoClub();
+  const { clubData, rolClub } = useEquipoClub();
   const router = useRouter();
-  const [member, setMember] = useState<User | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [member, setMember] = useState<User>();
+  const [profileImage, setProfileImage] = useState('');
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [selectedOption, setSelectedOption] = useState('edit');
   const selectionType = localStorage.getItem('selectionType');
@@ -106,43 +106,43 @@ const EditMember = () => {
           const teamAPI = new EquipoAPI();
           const result = await teamAPI.getUserByIdInTeam(clubData.id, memberID);
           setMember(result.usuario);
-          setProfileImage(result.usuario.foto);
+          setProfileImage(getProfileImage(result.usuario));
           form.reset({
-            nombre: result.usuario.nombre,
-            apellido: result.usuario.apellido,
-            correo: result.usuario.correo,
-            telefono: result.usuario.telefono,
+            nombre: result.usuario.nombre || '',
+            apellido: result.usuario.apellido || '',
+            correo: result.usuario.correo || '', // Corrección aquí
+            telefono: result.usuario.telefono || '',
             fecha_nacimiento: result.usuario.fecha_nacimiento
               ? new Date(result.usuario.fecha_nacimiento)
                   .toISOString()
                   .split('T')[0]
               : '',
-            direccion: result.usuario.direccion,
-            documento: result.usuario.documento,
+            direccion: result.usuario.direccion || '',
+            documento: result.usuario.documento || '',
           });
           roleForm.reset({
-            role: result.rol, // Set the role in the role form
+            role: result.rol || 'miembro', // Se asegura que haya un valor válido
           });
         } else {
           const clubAPI = new ClubAPI();
           const result = await clubAPI.getUserByIdInClub(clubData.id, memberID);
           setMember(result.usuario);
-          setProfileImage(result.usuario.foto);
+          setProfileImage(getProfileImage(result.usuario));
           form.reset({
-            nombre: result.usuario.nombre,
-            apellido: result.usuario.apellido,
-            correo: result.usuario.correo,
-            telefono: result.usuario.telefono,
+            nombre: result.usuario.nombre || '',
+            apellido: result.usuario.apellido || '',
+            correo: result.usuario.correo || '', // Corrección aquí
+            telefono: result.usuario.telefono || '',
             fecha_nacimiento: result.usuario.fecha_nacimiento
               ? new Date(result.usuario.fecha_nacimiento)
                   .toISOString()
                   .split('T')[0]
               : '',
-            direccion: result.usuario.direccion,
-            documento: result.usuario.documento,
+            direccion: result.usuario.direccion || '',
+            documento: result.usuario.documento || '',
           });
           roleForm.reset({
-            role: result.rol, // Set the role in the role form
+            role: result.rol || 'miembro', // Se asegura que haya un valor válido
           });
         }
       } catch (error) {
@@ -402,28 +402,41 @@ const EditMember = () => {
               onSubmit={roleForm.handleSubmit(handleRoleChange)}
               className="space-y-4"
             >
-              <FormField
-                control={roleForm.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Rol</FormLabel>
-                    <FormControl>
-                      <select {...field} className="input">
-                        <option value="gerente">Gerente</option>
-                        <option value="entrenador">Entrenador</option>
-                        <option value="deportista">Deportista</option>
-                        <option value="admin">Admin</option>
-                        <option value="miembro">Miembro</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={roleForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Rol *</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="text-black pl-2 py-2 mt-1 w-full border border-gray-300 rounded-md focus:outline-none focus:border-black focus:ring-1 focus:ring-black/50"
+                          disabled={field.value === 'gerente'}
+                        >
+                          {field.value !== 'gerente' && (
+                            <>
+                              <option value="entrenador">Entrenador</option>
+                              <option value="deportista">Deportista</option>
+                              <option value="admin">Admin</option>
+                              <option value="miembro">Miembro</option>
+                            </>
+                          )}
+                          {field.value === 'gerente' && (
+                            <option value="gerente">Gerente</option>
+                          )}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <Button
                 type="submit"
                 className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
+                disabled={roleForm.getValues('role') === 'gerente'}
               >
                 Guardar
               </Button>
@@ -448,7 +461,7 @@ const EditMember = () => {
           <div className="flex flex-col items-center">
             <div className="relative">
               <Image
-                src={profileImage || '/default-profile.png'}
+                src={profileImage}
                 alt="Foto de perfil"
                 className="rounded-full w-28 h-28 object-cover"
                 width={100}
