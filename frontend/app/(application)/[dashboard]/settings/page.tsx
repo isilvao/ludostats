@@ -96,8 +96,7 @@ const EditPage = () => {
       setLogo(getClubLogo(data));
       setName(data.nombre); // Actualizar el nombre en el estado local
     }
-    console.log(data)
-
+    console.log(data);
   }, [data, form]);
 
   if (!data) {
@@ -338,7 +337,9 @@ const EditPage = () => {
                 onChange={handleLogoChange}
               />
             </div>
-            <h2 className="mt-4 text-xl font-semibold text-gray-800">{name}</h2>
+            <h2 className="mt-4 text-xl font-semibold text-gray-800 text-center px-2">
+              {name}
+            </h2>
           </div>
           <ul className="mt-6">
             <li
