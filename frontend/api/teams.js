@@ -266,4 +266,60 @@ export class TeamsAPI {
   }
 
 
+  ////////////EVENTOS DEPENDENCIAS
+  async crearEvento(eventoData) {
+    try {
+      const url = `${this.baseApi}/evento`;
+
+      const params = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventoData),
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error('Error al crear el evento.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al crear el evento:', error);
+      throw error;
+    }
+  }
+
+  // 📌 Obtener eventos por club
+  async obtenerEventosPorClub(clubId) {
+    try {
+      const url = `${this.baseApi}/eventos/club/${clubId}`;
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error('No se pudieron obtener los eventos del club.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener eventos del club:', error);
+      throw error;
+    }
+  }
+
+  // 📌 Obtener eventos por equipo
+  async obtenerEventosPorEquipo(equipoId) {
+    try {
+      const url = `${this.baseApi}/eventos/equipo/${equipoId}`;
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error('No se pudieron obtener los eventos del equipo.');
+
+      return result;
+    } catch (error) {
+      console.error('Error al obtener eventos del equipo:', error);
+      throw error;
+    }
+  }
+
+
 }
