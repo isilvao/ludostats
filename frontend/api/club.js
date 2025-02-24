@@ -204,7 +204,7 @@ export class ClubAPI {
 
       if (response.status !== 200) throw result;
 
-      return result.logo; // ✅ Devuelve solo la URL del logo actualizado
+      return result; // ✅ Devuelve solo la URL del logo actualizado
 
     } catch (error) {
       throw error;
