@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { estadisticaAPI } from "@/api/estadistica"
 import { useEquipoClub } from '@/hooks/useEquipoClub';
 
@@ -54,16 +54,12 @@ export function ChartInit() {
         const id_team = clubData.id
         let data
 
-        console.log("selectionType", selectionType)
-        console.log("clubData", clubData)
-
         if (selectionType === "club") {
           data = await apiEstadisticas.diagramaUsuariosPorClub(id_team)
         } else {
           data = await apiEstadisticas.diagramaUsuariosEquipo(id_team)
         }
 
-        //TODO: Cambiar los datos de mes a espanol
         data.forEach((element: any) => {
           switch (element.mes) {
             case "January":
@@ -133,7 +129,7 @@ export function ChartInit() {
             accessibilityLayer
             data={estadisticas}
             margin={{
-              left: 12,
+              left: -15,
               right: 12,
             }}
           >
@@ -146,6 +142,7 @@ export function ChartInit() {
               tickFormatter={(value) => value.slice(0, 3)}
               name='Mes'
             />
+            <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${value}`} />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}

@@ -56,11 +56,10 @@ const CreateForm = ({ type }: { type: FormType }) => {
     resolver: zodResolver(schema),
     defaultValues: {
       name: '',
-      ...(type === 'team' && { sport: '' }),
+      ...(type === 'club' && { sport: '' }),
       phone: '',
       logo: undefined,
       ...(type === 'team' && {
-        // gender: '',
         description: '',
         level: '',
         club: '',
@@ -212,22 +211,14 @@ const CreateForm = ({ type }: { type: FormType }) => {
                   render={({ field }) => (
                     <FormItem>
                       <div className="shad-form-item">
-                        <FormLabel className="shad-form-label">
-                          Deporte *
-                        </FormLabel>
+                        <FormLabel className="shad-form-label">Deporte *</FormLabel>
                         <FormControl>
-                          <select
+                          <Input
                             {...field}
+                            placeholder="Escribe el deporte"
+                            className="shad-input"
                             value={field.value as string}
-                            className="text-gray-400 py-2 mt-1"
-                          >
-                            <option value="" disabled>
-                              Selecciona un deporte
-                            </option>
-                            <option value="football">Football</option>
-                            <option value="basketball">Basketball</option>
-                            <option value="volleyball">Volleyball</option>
-                          </select>
+                          />
                         </FormControl>
                       </div>
                       <FormMessage className="shad-form-message" />
@@ -337,6 +328,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
                           placeholder="ex: +57 123 456 7890"
                           className="shad-input"
                           {...field}
+                          value={field.value as string}
                         />
                       </FormControl>
                     </div>

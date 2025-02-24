@@ -162,46 +162,108 @@ async function diagramaBarrasEstadisticaPorEquipo(req, res) {
     const { id_tipoestadistica, id_team } = req.params;
 
     try {
-        const usuarios = await UsuariosEquipos.findAll({
-            where: { equipo_id: id_team, rol: 'deportista' },
+        const estadisticas = await Estadistica.findAll({
+            where: {
+                tipoEstadistica_id: id_tipoestadistica, equipo_id: id_team,
+            },
             include: {
                 model: Usuario,
                 as: "usuario",
                 attributes: ['nombre', 'apellido'],
-                include: {
-                    model: Estadistica,
-                    as: "estadisticas",
-                    where: { tipoEstadistica_id: id_tipoestadistica }
-                }
             }
+        })
+
+        const datosPorMes = {};
+        const cantidadDatosMes = {}
+
+        estadisticas.forEach(estadistica => {
+            const mes = moment(estadistica.fecha).format("MMMM");
+            if (!datosPorMes[mes]) {
+                cantidadDatosMes[mes] = 0;
+                datosPorMes[mes] = 0;
+            }
+            datosPorMes[mes] += parseFloat(estadistica.valor);
+            cantidadDatosMes[mes]++;
+        })
+
+        const estadisticasPorMes = Object.keys(datosPorMes).map(mes => {
+            return { mes: mes, total: datosPorMes[mes] / cantidadDatosMes[mes] };
         });
 
-        const estadisticasPorMes = {};
+        const mesesOrdenados = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
 
-        usuarios.forEach(usuario => {
-            usuario.usuario.estadisticas.forEach(estadistica => {
-                const mes = moment(estadistica.fecha).format("MMMM");
-                if (!estadisticasPorMes[mes]) {
-                    estadisticasPorMes[mes] = [];
+        estadisticasPorMes.sort((a, b) => {
+            return mesesOrdenados.indexOf(a.mes) - mesesOrdenados.indexOf(b.mes);
+        });
+
+        res.status(200).send(estadisticasPorMes);
+    } catch (error) {
+        return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
+    }
+}
+
+async function diagramaBarrasEstadisticaPorClub(req, res) {
+    const { id_tipoestadistica } = req.params;
+
+    try {
+        const estadisticas = await Estadistica.findAll({
+            where: {
+                tipoEstadistica_id: id_tipoestadistica
+            },
+            include: [
+                {
+                    model: Usuario,
+                    as: "usuario",
+                    attributes: ['nombre', 'apellido'],
+                },
+                {
+                    model: Equipo,
+                    as: "equipo",
+                    attributes: ['nombre'],
                 }
-                estadisticasPorMes[mes].push(estadistica.valor);
+            ]
+        })
+
+        const datosPorEquipo = {}
+        const cantidadDatosEquipo = {}
+
+        estadisticas.forEach(estadistica => {
+            const equipo = estadistica.equipo.nombre;
+            if (!datosPorEquipo[equipo]) {
+                datosPorEquipo[equipo] = {};
+                cantidadDatosEquipo[equipo] = {};
+            }
+
+            const mes = moment(estadistica.fecha).format("MMMM");
+            if (!datosPorEquipo[equipo][mes]) {
+                cantidadDatosEquipo[equipo][mes] = 0;
+                datosPorEquipo[equipo][mes] = 0;
+            }
+            datosPorEquipo[equipo][mes] += parseFloat(estadistica.valor);
+            cantidadDatosEquipo[equipo][mes]++;
+
+        })
+
+        const mesesOrdenados = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        const datosPorEquipoOrdenados = {};
+        Object.keys(datosPorEquipo).forEach(equipo => {
+            datosPorEquipoOrdenados[equipo] = {};
+            mesesOrdenados.forEach(mes => {
+                if (datosPorEquipo[equipo][mes]) {
+                    datosPorEquipoOrdenados[equipo][mes] = datosPorEquipo[equipo][mes];
+                }
             });
         });
 
-        const chartData = Object.keys(estadisticasPorMes).map(mes => {
-            const valores = estadisticasPorMes[mes];
-            console.log("Valores", valores);
+        return res.status(200).send(datosPorEquipo);
 
-            let suma = 0
-            for (let i = 0; i < valores.length; i++) {
-                suma += parseFloat(valores[i]);
-            }
-            const promedio = suma / valores.length;
-
-            return { month: mes, average: promedio };
-        });
-
-        res.status(200).send(chartData);
     } catch (error) {
         return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
     }
@@ -240,6 +302,15 @@ async function diagramaUsuariosDeEquipos(req, res) {
 
         chartData = Object.keys(usuariosPorMes).map(mes => {
             return { mes: mes, totalUsuarios: usuariosPorMes[mes] };
+        });
+
+        const mesesOrdenados = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        chartData.sort((a, b) => {
+            return mesesOrdenados.indexOf(a.mes) - mesesOrdenados.indexOf(b.mes);
         });
 
         res.status(200).send(chartData);
@@ -283,6 +354,15 @@ async function diagramaUsuariosDeClubes(req, res) {
             return { mes: mes, totalUsuarios: usuariosPorMes[mes] };
         });
 
+        const mesesOrdenados = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        chartData.sort((a, b) => {
+            return mesesOrdenados.indexOf(a.mes) - mesesOrdenados.indexOf(b.mes);
+        });
+
         res.status(200).send(chartData);
     } catch (error) {
         return res.status(500).send({ msg: "Error al consultar las estadisticas", error });
@@ -298,5 +378,6 @@ module.exports = {
     getAllEstadisticasInTeam,
     diagramaBarrasEstadisticaPorEquipo,
     diagramaUsuariosDeEquipos,
-    diagramaUsuariosDeClubes
+    diagramaUsuariosDeClubes,
+    diagramaBarrasEstadisticaPorClub
 }

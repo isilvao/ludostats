@@ -59,6 +59,9 @@ const EditPage = () => {
     setClubSeleccionado,
     updateClubLogo,
     updateClubName,
+    updateDescripcionClub,
+    updateTelefonoClub,
+    updateDeporteClub,
   } = useEquipoClub();
   const [selectedOption, setSelectedOption] = useState('edit');
   const [isLoadingImage, setIsLoadingImage] = useState(false);
@@ -69,7 +72,6 @@ const EditPage = () => {
   const router = useRouter();
   const [logo, setLogo] = useState(getClubLogo(clubData));
   const [name, setName] = useState(clubData?.nombre);
-  const [nivelPractica, setNivelPractica] = useState(data?.nivelPractica || '');
 
   const form = useForm({
     resolver: zodResolver(editSchema),
@@ -93,8 +95,9 @@ const EditPage = () => {
       });
       setLogo(getClubLogo(data));
       setName(data.nombre); // Actualizar el nombre en el estado local
-      setNivelPractica(data.nivelPractica); // Actualizar el nivel de práctica en el estado local
     }
+    console.log(data)
+
   }, [data, form]);
 
   if (!data) {
@@ -109,17 +112,21 @@ const EditPage = () => {
           ...values,
         });
       } else {
+        console.log('values en edicion de Club', values);
+
         await (api as ClubAPI).editarClub({
           id: data.id,
           ...values,
         });
       }
       updateClubName(values.nombre); // Actualizar el nombre en el contexto
+      updateDescripcionClub(values.descripcion); // Actualizar la descripción en el contexto
+      updateTelefonoClub(values.telefono); // Actualizar el teléfono en el contexto
+      updateDeporteClub(values.deporte); // Actualizar el deporte en el contexto
+      updateClubLogo(logo); // Actualizar el logo en el contexto
       setName(values.nombre); // Actualizar el nombre en el estado local
+
       form.reset(values); // Actualizar el formulario con los nuevos valores
-      if (isTeam) {
-        setNivelPractica(values.nivelPractica); // Actualizar el nivel de práctica en el estado local
-      }
       toast.success('Datos actualizados con éxito', {
         style: {
           background: '#4CAF50', // Fondo verde

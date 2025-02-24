@@ -46,6 +46,27 @@ export const EquipoClubProvider = ({ children }) => {
     }));
   };
 
+  const updateDescripcionClub = (newDescripcion) => {
+    setClubData((prevClubData) => ({
+      ...prevClubData,
+      descripcion: newDescripcion,
+    }));
+  }
+
+  const updateTelefonoClub = (newTelefono) => {
+    setClubData((prevClubData) => ({
+      ...prevClubData,
+      telefono: newTelefono,
+    }));
+  }
+
+  const updateDeporteClub = (newDeporte) => {
+    setClubData((prevClubData) => ({
+      ...prevClubData,
+      deporte: newDeporte,
+    }));
+  }
+
   return (
     <EquipoClubContext.Provider
       value={{
@@ -62,6 +83,9 @@ export const EquipoClubProvider = ({ children }) => {
         resetDatos,
         updateClubLogo, // Añadir la función al contexto
         updateClubName, // Añadir la función al contexto
+        updateDescripcionClub,
+        updateTelefonoClub,
+        updateDeporteClub,
       }}
     >
       {children}
