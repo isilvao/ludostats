@@ -280,7 +280,7 @@ export class TeamsAPI {
       const response = await fetch(url, params);
       const result = await response.json();
 
-      if (response.status !== 200) throw new Error('Error al crear el evento.');
+      // if (response.status !== 200) throw new Error('Error al crear el evento.');
 
       return result;
     } catch (error) {
