@@ -52,7 +52,6 @@ const CreateEventForm = () => {
         const equipoAPI = new EquipoAPI();
         const equipos = await equipoAPI.obtenerEquiposClub(clubData.id);
         setEquipos(equipos);
-        console.log('Equipos:', equipos);
       } catch (error) {
         console.error('Error al obtener los equipos:', error);
       }
@@ -66,14 +65,6 @@ const CreateEventForm = () => {
   const onSubmit = async (values: z.infer<typeof createEventSchema>) => {
     setIsLoading(true);
     try {
-      console.log({
-        titulo: values.titulo,
-        descripcion: values.descripcion,
-        fecha_inicio: values.fecha_inicio,
-        fecha_fin: values.fecha_fin,
-        club_id: clubData.id,
-        equipo_ids: values.equipos,
-      });
       await teamsAPI.crearEvento({
         titulo: values.titulo,
         descripcion: values.descripcion,

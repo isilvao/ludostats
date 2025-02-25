@@ -96,7 +96,6 @@ const EditPage = () => {
       setLogo(getClubLogo(data));
       setName(data.nombre); // Actualizar el nombre en el estado local
     }
-    console.log(data);
   }, [data, form]);
 
   if (!data) {
@@ -111,8 +110,6 @@ const EditPage = () => {
           ...values,
         });
       } else {
-        console.log('values en edicion de Club', values);
-
         await (api as ClubAPI).editarClub({
           id: data.id,
           ...values,

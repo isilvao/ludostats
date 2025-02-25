@@ -1,5 +1,6 @@
 const { Resend } = require('resend');
 const { Stripe } = require('stripe');
+const { EXCHANGE_RATE_API_KEY } = require('../constants');
 
 const sendEmail = async (req, res) => {
     const resend = new Resend("re_AyQTq895_HDdFFDVdEJtDPTBH5qRCpfZ8");
@@ -49,7 +50,6 @@ const sendEmail = async (req, res) => {
 
         // ✅ API para Stripe
         if (body.priceId) {
-            console.log("✅ Creando sesión de Stripe con priceId:", body.priceId);
 
             const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
             if (!stripeSecretKey) {
@@ -72,7 +72,6 @@ const sendEmail = async (req, res) => {
                     cancel_url: `${req.headers.origin}/cancelPayment`,
                 });
 
-                console.log("✅ URL de checkout creada:", session.url);
                 return res.json({ url: session.url });
             } catch (error) {
                 console.error("❌ Error creando sesión de Stripe:", error);
@@ -88,18 +87,16 @@ const sendEmail = async (req, res) => {
 }
 
 const stripePrices = async (req, res) => {
-    console.log("✅ Obteniendo precios de Stripe...");
 
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
         return res.status(500).json({ error: "❌ Stripe secret key is not defined" });
     }
 
-    const stripe = new Stripe(stripeSecretKey);
     try {
+        const stripe = new Stripe(stripeSecretKey);
         const prices = await stripe.prices.list();
-        console.log("✅ Precios obtenidos:", prices);
-        return res.json(prices);
+        return res.json({ prices, EXCHANGE_RATE_API_KEY });
     } catch (error) {
         console.error("❌ Error obteniendo precios de Stripe:", error);
         return res.status(500).json({ error: "Error obteniendo precios" });

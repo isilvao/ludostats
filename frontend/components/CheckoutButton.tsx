@@ -1,6 +1,5 @@
 "use client";
 
-import { loadStripe } from '@stripe/stripe-js';
 import { StripeAPI } from '../api/stripe'
 
 interface CheckoutButtonProps {
@@ -10,13 +9,10 @@ interface CheckoutButtonProps {
 const CheckoutButton = ({ priceId }: CheckoutButtonProps) => {
 
   const handleCheckout = async () => {
-    console.log("✅ Botón presionado. ID de pago:", priceId); // ✅ Verificar que el ID llega al hacer clic
 
     const stripeapi = new StripeAPI();
 
     const result = await stripeapi.createCheckoutSession(priceId);
-
-    console.log("✅ Resultado de la API:", result); // ✅ Verificar que la respuesta de la API es correcta
 
     window.location.href = result;
   };

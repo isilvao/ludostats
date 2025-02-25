@@ -109,7 +109,6 @@ const CalendarEvents = () => {
           fecha_inicio: event.evento.fecha_inicio,
           fecha_fin: event.evento.fecha_fin,
         }));
-        console.log('Events:', events);
         setEvents(events);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -428,9 +427,9 @@ const CalendarEvents = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}

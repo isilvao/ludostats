@@ -44,8 +44,6 @@ export class UsuariosEquipos {
       if (response.status !== 201)
         throw new Error(result.msg || 'Error al agregar usuario al equipo.');
 
-      console.log('📌 Usuario agregado correctamente:', result);
-
       return result;
     } catch (error) {
       console.error('❌ Error al agregar usuario al equipo:', error);
@@ -76,7 +74,6 @@ export class UsuariosEquipos {
       if (response.status !== 200)
         throw new Error(result.msg || 'Error al eliminar usuario del equipo.');
 
-      console.log('📌 Usuario eliminado correctamente:', result);
       return result;
     } catch (error) {
       console.error('❌ Error al eliminar usuario del equipo:', error);
@@ -101,7 +98,6 @@ export class UsuariosEquipos {
           result.msg || 'Error al obtener los equipos del usuario.'
         );
 
-      console.log('📌 Equipos del usuario obtenidos:', result);
       return result;
     } catch (error) {
       console.error('❌ Error al obtener equipos del usuario:', error);
