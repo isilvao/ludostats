@@ -11,7 +11,7 @@ interface PlanProps {
   buttonText: string;
   recommended?: boolean;
   clubType: string;
- 
+
 }
 
 const PlanCard: React.FC<PlanProps> = ({
@@ -23,9 +23,8 @@ const PlanCard: React.FC<PlanProps> = ({
   clubType,
 }) => (
   <div
-    className={`relative bg-white shadow-md rounded-lg border ${
-      recommended ? 'border-brand' : 'border-gray-300'
-    } p-6 flex flex-col items-center transition-transform transform hover:scale-105`}
+    className={`relative bg-white shadow-md rounded-lg border ${recommended ? 'border-brand' : 'border-gray-300'
+      } p-6 flex flex-col items-center transition-transform transform hover:scale-105`}
   >
     {recommended && (
       <div className="absolute -top-4 bg-brand text-white px-4 py-1 rounded-full text-sm font-semibold">
@@ -77,7 +76,7 @@ async function getPricingData() {
   const prices = await stripe.prices.list();
   const conversionRate = await getConversionRate();
 
-  
+
 
   const plans = [
     {
@@ -140,9 +139,9 @@ async function getPricingData() {
         id: matchingPrice.id, // Añadir el id del precio
       };
     }
-    
 
-    return { ...plan, id: null }; 
+
+    return { ...plan, id: null };
 
   });
 
@@ -166,7 +165,7 @@ export default async function PricingPage() {
             <div key={idx}>
               <PlanCard {...plan} price={typeof plan.price === 'number' ? plan.price.toString() : plan.price} />
               {plan.id ? (
-                <CheckoutButton priceId={plan.id} /> 
+                <CheckoutButton priceId={plan.id} />
               ) : (
                 <p className="text-red-500 text-sm">Error: No se encontró ID para este plan</p>
               )}

@@ -3,6 +3,7 @@ const stripeController = require("../controllers/stripe")
 
 const api = express.Router()
 
-api.get("/getSecretKeyStripe", stripeController.getStripeKey)
+api.post("/send-email", stripeController.sendEmail)
+api.get("/stripe-prices", stripeController.stripePrices)
 
 module.exports = api

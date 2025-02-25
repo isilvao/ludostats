@@ -22,8 +22,9 @@
     "nodemon": "^3.1.9",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
+    "resend": "^4.1.2",
     "sequelize": "^6.37.5",
-    "stripe": "^17.6.0"
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

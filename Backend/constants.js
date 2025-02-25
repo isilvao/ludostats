@@ -12,4 +12,5 @@ module.exports = {
     DB_PORT: process.env.DB_PORT,
 
     JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
 };
