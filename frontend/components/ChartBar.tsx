@@ -180,7 +180,7 @@ export function ChartBar({ tipoEstadisticaNombre, tipoEstadisticaId }: ChartBarP
         <div className="flex gap-2 font-medium leading-none">
           {trend !== null ? (
             <>
-              Trending {trend > 0 ? "up" : "down"} by {trend.toFixed(2)}% this month
+              Tendencia {trend > 0 ? "subiendo" : "bajando"} por {trend.toFixed(2)}% este mes
               {trend > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
             </>
           ) : (
@@ -188,7 +188,11 @@ export function ChartBar({ tipoEstadisticaNombre, tipoEstadisticaId }: ChartBarP
           )}
         </div>
         <div className="leading-none text-muted-foreground">
-          Los datos se muestran desde {firstMonth} hasta {lastMonth}
+          {firstMonth && lastMonth ? (
+            <>Los datos se muestran desde {firstMonth} hasta {lastMonth}</>
+          ) : (
+            "No hay datos de meses"
+          )}
         </div>
       </CardFooter>
     </Card>
