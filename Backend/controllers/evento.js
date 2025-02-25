@@ -1,5 +1,8 @@
 const Evento = require('../models/Evento');
 const EventoDependencia = require('../models/EventoDependencia');
+const { Op, Sequelize } = require('sequelize');
+const UsuarioClub = require("../models/UsuarioClub");
+const UsuariosEquipos = require("../models/UsuariosEquipos");
 
 const crearEvento = async (req, res) => {
     const { nombre, descripcion, fecha_inicio, fecha_fin} = req.body;
@@ -183,6 +186,123 @@ const obtenerEventosPorEquipo = async (req, res) => {
 
 
 
+/////////////////////////////////////////
+////EVENTOS DEPENDENCIA////////
+//////////NUEVOS METODOS///////////
+
+
+
+const obtenerEventosCercanosPorClub = async (req, res) => {
+    const { club_id } = req.params;
+    const hoy = new Date();
+    const hoyFormateado = hoy.toISOString().split("T")[0]; // ✅ Solo YYYY-MM-DD
+
+    try {
+        // 🔹 Obtener la cantidad de miembros activados en el club (solo deportistas y miembros)
+        const cantidadMiembros = await UsuarioClub.count({
+            where: {
+                club_id,
+                rol: { [Op.in]: ["deportista", "miembro"] } // ✅ Solo contar deportistas y miembros
+            }
+        });
+
+        // 🔹 Obtener TODOS los eventos del club
+        const eventos = await EventoDependencia.findAll({
+            where: { club_id },
+            include: [{ model: Evento, as: "evento" }],
+            order: [[{ model: Evento, as: "evento" }, "fecha_inicio", "ASC"]] // Ordenamos por fecha
+        });
+
+        let eventoPasado = null;
+        let eventoFuturo = null;
+
+        // 🔹 Filtrar evento más reciente en el pasado y más próximo en el futuro
+        eventos.forEach(({ evento }) => {
+            const fechaEvento = new Date(evento.fecha_inicio).toISOString().split("T")[0]; // ✅ Solo YYYY-MM-DD
+
+            if (fechaEvento <= hoyFormateado) {
+                // 📌 Si ya pasó o es hoy, es un evento pasado
+                if (!eventoPasado || new Date(evento.fecha_inicio) > new Date(eventoPasado.fecha_inicio)) {
+                    eventoPasado = evento;
+                }
+            } else {
+                // 📌 Si es futuro, es un evento próximo
+                if (!eventoFuturo || new Date(evento.fecha_inicio) < new Date(eventoFuturo.fecha_inicio)) {
+                    eventoFuturo = evento;
+                }
+            }
+        });
+
+        res.status(200).json({
+            eventoPasado: eventoPasado || null,
+            eventoFuturo: eventoFuturo || null,
+            cantidadMiembros
+        });
+
+    } catch (error) {
+        console.error("❌ Error al obtener los eventos cercanos del club:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
+
+const obtenerEventosCercanosPorEquipo = async (req, res) => {
+    const { equipo_id } = req.params;
+    const hoy = new Date();
+    const hoyFormateado = hoy.toISOString().split("T")[0]; // ✅ Solo YYYY-MM-DD
+
+    try {
+        // 🔹 Obtener la cantidad de deportistas en el equipo
+        const cantidadDeportistas = await UsuariosEquipos.count({
+            where: {
+                equipo_id,
+                rol: { [Op.in]: ["deportista", "miembro"] } // ✅ Solo contar deportistas y miembros
+            }
+        });
+
+        // 🔹 Obtener TODOS los eventos del equipo
+        const eventos = await EventoDependencia.findAll({
+            where: { equipo_id },
+            include: [{ model: Evento, as: "evento" }],
+            order: [[{ model: Evento, as: "evento" }, "fecha_inicio", "ASC"]] // Ordenamos por fecha
+        });
+
+        let eventoPasado = null;
+        let eventoFuturo = null;
+
+        // 🔹 Filtrar evento más reciente en el pasado y más próximo en el futuro
+        eventos.forEach(({ evento }) => {
+            const fechaEvento = new Date(evento.fecha_inicio).toISOString().split("T")[0]; // ✅ Solo YYYY-MM-DD
+
+            if (fechaEvento <= hoyFormateado) {
+                // 📌 Si ya pasó o es hoy, es un evento pasado
+                if (!eventoPasado || new Date(evento.fecha_inicio) > new Date(eventoPasado.fecha_inicio)) {
+                    eventoPasado = evento;
+                }
+            } else {
+                // 📌 Si es futuro, es un evento próximo
+                if (!eventoFuturo || new Date(evento.fecha_inicio) < new Date(eventoFuturo.fecha_inicio)) {
+                    eventoFuturo = evento;
+                }
+            }
+        });
+
+        res.status(200).json({
+            eventoPasado: eventoPasado || null,
+            eventoFuturo: eventoFuturo || null,
+            cantidadDeportistas
+        });
+
+    } catch (error) {
+        console.error("❌ Error al obtener los eventos cercanos del equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
+
+
 
 module.exports = {
     crearEvento,
@@ -192,6 +312,9 @@ module.exports = {
     deleteEvento,
     crearEventoConDependencias,
     obtenerEventosPorClub,
-    obtenerEventosPorEquipo
+    obtenerEventosPorEquipo,
+    obtenerEventosCercanosPorEquipo,
+    obtenerEventosCercanosPorClub
+
 
 }

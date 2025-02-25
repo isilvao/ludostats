@@ -322,4 +322,41 @@ export class TeamsAPI {
   }
 
 
+
+  //////////////////
+  //////otra de eventos
+
+  async obtenerEventosCercanosPorClub(clubId) {
+    try {
+        const url = `${this.baseApi}/eventos/club/cercanos/${clubId}`;
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (response.status !== 200) throw new Error('No se encontraron eventos.');
+
+        return result;
+    } catch (error) {
+        console.error('Error al obtener eventos cercanos del club:', error);
+        throw error;
+    }
+}
+
+async obtenerEventosCercanosPorEquipo(equipoId) {
+  try {
+      const url = `${this.baseApi}/eventos/equipo/cercanos/${equipoId}`;
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (response.status !== 200) throw new Error('No se encontraron eventos.');
+
+      return result;
+  } catch (error) {
+      console.error('Error al obtener eventos cercanos del equipo:', error);
+      throw error;
+  }
+}
+
+
+
+
 }

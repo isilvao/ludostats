@@ -33,4 +33,12 @@ api.get('/eventos/club/:club_id', eventoController.obtenerEventosPorClub);
 // 📌 Obtener eventos por equipo
 api.get('/eventos/equipo/:equipo_id', eventoController.obtenerEventosPorEquipo);
 
+
+// 📌 Obtener eventos cercanos para un club (pasado y futuro)
+api.get('/eventos/club/cercanos/:club_id', eventoController.obtenerEventosCercanosPorClub);
+
+// 📌 Obtener eventos cercanos para un equipo (pasado y futuro)
+api.get('/eventos/equipo/cercanos/:equipo_id', eventoController.obtenerEventosCercanosPorEquipo);
+
+
 module.exports = api;
