@@ -1,5 +1,6 @@
 const Evento = require('../models/Evento');
 const EventoDependencia = require('../models/EventoDependencia');
+const { Op, Sequelize } = require('sequelize');
 
 const crearEvento = async (req, res) => {
     const { nombre, descripcion, fecha_inicio, fecha_fin} = req.body;
@@ -183,6 +184,98 @@ const obtenerEventosPorEquipo = async (req, res) => {
 
 
 
+/////////////////////////////////////////
+////EVENTOS DEPENDENCIA////////
+//////////NUEVOS METODOS///////////
+
+
+
+const obtenerEventosCercanosPorClub = async (req, res) => {
+    const { club_id } = req.params;
+    const ahora = new Date();
+    const hoy = ahora.toISOString().split("T")[0]; // 🔹 Extraer solo la fecha (YYYY-MM-DD)
+
+    try {
+        // 🔹 Evento más reciente en el pasado (incluyendo eventos de hoy)
+        const eventoPasado = await EventoDependencia.findOne({
+            where: { club_id },
+            include: [{
+                model: Evento,
+                as: 'evento',
+                where: Sequelize.literal(`DATE(fecha_inicio) <= '${hoy}'`) // 📌 Comparar solo fecha
+            }],
+            order: [[{ model: Evento, as: 'evento' }, 'fecha_inicio', 'DESC']],
+            raw: true,
+            nest: true
+        });
+
+        // 🔹 Evento más próximo en el futuro (excluyendo eventos de hoy)
+        const eventoFuturo = await EventoDependencia.findOne({
+            where: { club_id },
+            include: [{
+                model: Evento,
+                as: 'evento',
+                where: Sequelize.literal(`DATE(fecha_inicio) > '${hoy}'`) // 📌 Comparar solo fecha
+            }],
+            order: [[{ model: Evento, as: 'evento' }, 'fecha_inicio', 'ASC']],
+            raw: true,
+            nest: true
+        });
+
+        res.status(200).json({
+            eventoPasado: eventoPasado || null,
+            eventoFuturo: eventoFuturo || null
+        });
+    } catch (error) {
+        console.error("❌ Error al obtener los eventos cercanos del club:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+const obtenerEventosCercanosPorEquipo = async (req, res) => {
+    const { equipo_id } = req.params;
+    const ahora = new Date();
+    const hoy = ahora.toISOString().split("T")[0]; // 🔹 Extraer solo la fecha (YYYY-MM-DD)
+
+    try {
+        // 🔹 Evento más reciente en el pasado (incluyendo eventos de hoy)
+        const eventoPasado = await EventoDependencia.findOne({
+            where: { equipo_id },
+            include: [{
+                model: Evento,
+                as: 'evento',
+                where: Sequelize.literal(`DATE(fecha_inicio) <= '${hoy}'`) // 📌 Comparar solo fecha
+            }],
+            order: [[{ model: Evento, as: 'evento' }, 'fecha_inicio', 'DESC']],
+            raw: true,
+            nest: true
+        });
+
+        // 🔹 Evento más próximo en el futuro (excluyendo eventos de hoy)
+        const eventoFuturo = await EventoDependencia.findOne({
+            where: { equipo_id },
+            include: [{
+                model: Evento,
+                as: 'evento',
+                where: Sequelize.literal(`DATE(fecha_inicio) > '${hoy}'`) // 📌 Comparar solo fecha
+            }],
+            order: [[{ model: Evento, as: 'evento' }, 'fecha_inicio', 'ASC']],
+            raw: true,
+            nest: true
+        });
+
+        res.status(200).json({
+            eventoPasado: eventoPasado || null,
+            eventoFuturo: eventoFuturo || null
+        });
+    } catch (error) {
+        console.error("❌ Error al obtener los eventos cercanos del equipo:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
+
 
 module.exports = {
     crearEvento,
@@ -192,6 +285,9 @@ module.exports = {
     deleteEvento,
     crearEventoConDependencias,
     obtenerEventosPorClub,
-    obtenerEventosPorEquipo
+    obtenerEventosPorEquipo,
+    obtenerEventosCercanosPorEquipo,
+    obtenerEventosCercanosPorClub
+
 
 }
