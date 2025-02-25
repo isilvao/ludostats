@@ -12,6 +12,8 @@ import { useAuth } from '@/hooks';
 import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { sportsOptions } from '@/lib/utils';
+import Select from 'react-select';
 import {
   Form,
   FormControl,
@@ -72,6 +74,10 @@ const EditPage = () => {
   const router = useRouter();
   const [logo, setLogo] = useState(getClubLogo(clubData));
   const [name, setName] = useState(clubData?.nombre);
+  const sportsOptionsFormatted = sportsOptions.map((sport) => ({
+    value: sport,
+    label: sport,
+  }));
 
   const form = useForm({
     resolver: zodResolver(editSchema),
@@ -142,7 +148,12 @@ const EditPage = () => {
       } else {
         await (api as ClubAPI).eliminarClub(data.id);
       }
-      toast.success('Eliminado con éxito');
+      toast.success('Eliminado con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
       router.push('/home');
     } catch (error) {
       console.error('Error al eliminar:', error);
@@ -277,7 +288,22 @@ const EditPage = () => {
                   <FormItem>
                     <FormLabel>Deporte</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Deporte" />
+                      <Select
+                        {...field}
+                        options={sportsOptionsFormatted}
+                        value={
+                          sportsOptionsFormatted.find(
+                            (option) => option.value === field.value
+                          ) || { value: data.deporte, label: data.deporte }
+                        }
+                        onChange={(selectedOption) =>
+                          field.onChange(selectedOption?.value)
+                        }
+                        className="shadow-sm"
+                        placeholder="Selecciona un deporte"
+                        isSearchable
+                        maxMenuHeight={200} // Altura máxima del menú desplegable
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -297,10 +323,10 @@ const EditPage = () => {
   };
 
   return (
-    <section className="py-5 mx-0">
+    <section className="mx-0">
       <Toaster />
       <div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+        <h1 className="text-3xl font-bold text-brand2 mb-6">
           {isTeam ? 'Editar Equipo' : 'Editar Club'}
         </h1>
       </div>
@@ -334,7 +360,7 @@ const EditPage = () => {
                 onChange={handleLogoChange}
               />
             </div>
-            <h2 className="mt-4 text-xl font-semibold text-gray-800 text-center px-2">
+            <h2 className="mt-4 text-xl font-semibold text-brand2 text-center px-2">
               {name}
             </h2>
           </div>
@@ -371,7 +397,7 @@ const EditPage = () => {
           </ul>
         </div>
         <div className="bg-white p-6 border border-gray-300 rounded-md lg:w-[75%] w-full">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+          <h1 className="text-2xl font-bold text-brand2 mb-4">
             {selectedOption === 'edit' ? 'Editar Información' : ''}
           </h1>
           {renderContent()}

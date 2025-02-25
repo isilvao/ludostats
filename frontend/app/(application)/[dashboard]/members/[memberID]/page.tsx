@@ -290,7 +290,17 @@ const EditMember = () => {
   };
 
   if (!member) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center">
+          <div
+            className="spinner-border animate-spin inline-block w-12 h-12 border-4 border-t-transparent border-brand rounded-full"
+            role="status"
+          ></div>
+          <span className="mt-4 text-brand font-semibold">Cargando...</span>
+        </div>
+      </div>
+    );
   }
 
   const renderContent = () => {

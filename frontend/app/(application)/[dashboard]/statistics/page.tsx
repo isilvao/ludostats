@@ -149,7 +149,7 @@ const EstadisticasPage = () => {
       const api = new estadisticaAPI();
       const result = await api.createTipoEstadistica(
         newEstadistica,
-        clubData.id,
+        clubData.id
       );
       const nuevaEstadistica = {
         id: result.id,
@@ -218,8 +218,19 @@ const EstadisticasPage = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center">
+          <div
+            className="spinner-border animate-spin inline-block w-12 h-12 border-4 border-t-transparent border-brand rounded-full"
+            role="status"
+          ></div>
+          <span className="mt-4 text-brand font-semibold">Cargando...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-6 px-6 items-center max-w-7xl mx-auto">

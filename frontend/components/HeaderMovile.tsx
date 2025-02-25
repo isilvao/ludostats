@@ -44,15 +44,15 @@ const navItems = [
       club: ['gerente', 'admin'],
     },
   },
-  {
-    name: 'Torneos',
-    icon: GiLaurelsTrophy,
-    url: '/[dashboard]/inicio',
-    specialVisibility: {
-      equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'],
-      club: ['gerente', 'admin'],
-    },
-  },
+  // {
+  //   name: 'Torneos',
+  //   icon: GiLaurelsTrophy,
+  //   url: '/[dashboard]/inicio',
+  //   specialVisibility: {
+  //     equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'],
+  //     club: ['gerente', 'admin'],
+  //   },
+  // },
   {
     name: 'Pagos',
     icon: MdPayments,

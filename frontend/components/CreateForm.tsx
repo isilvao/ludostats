@@ -8,6 +8,10 @@ import { ClubAPI } from '@/api/club';
 import { EquipoAPI } from '@/api/equipo';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks';
+import { sportsOptions } from '@/lib/utils';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
+import Select from 'react-select';
 import {
   Form,
   FormControl,
@@ -51,6 +55,10 @@ const CreateForm = ({ type }: { type: FormType }) => {
   const { user, accessToken } = useAuth();
   const router = useRouter();
   const [clubs, setClubs] = useState<{ id: string; nombre: string }[]>([]);
+  const sportsOptionsFormatted = sportsOptions.map((sport) => ({
+    value: sport,
+    label: sport,
+  }));
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -96,6 +104,12 @@ const CreateForm = ({ type }: { type: FormType }) => {
           accessToken
         );
         // Redirigir al usuario a /home después de un envío exitoso
+        toast.success('Club creado con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
         router.push('/home');
       } else if (type === 'team') {
         await equipoCreate.crearEquipo(
@@ -109,7 +123,15 @@ const CreateForm = ({ type }: { type: FormType }) => {
           },
           accessToken
         );
-        router.push('/home');
+        toast.success('Equipo creado con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
+        setTimeout(() => {
+          router.push('/home');
+        }, 1000);
       }
     } catch (error) {
       console.error('Error al crear el club:', error);
@@ -120,6 +142,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
 
   return (
     <section className="min-h-[90vh] py-6 px-6 items-center max-w-7xl mx-auto pb-10">
+      <Toaster />
       <div>
         <h1 className="text-2xl font-bold mb-2 text-center">
           {type === 'club' ? 'Crea tu club' : 'Crea tu equipo'}
@@ -211,13 +234,31 @@ const CreateForm = ({ type }: { type: FormType }) => {
                   render={({ field }) => (
                     <FormItem>
                       <div className="shad-form-item">
-                        <FormLabel className="shad-form-label">Deporte *</FormLabel>
+                        <FormLabel className="shad-form-label">
+                          Deporte *
+                        </FormLabel>
                         <FormControl>
-                          <Input
+                          <Select
                             {...field}
-                            placeholder="Escribe el deporte"
-                            className="shad-input"
-                            value={field.value as string}
+                            options={sportsOptionsFormatted}
+                            value={sportsOptionsFormatted.find(
+                              (option) => option.value === field.value
+                            )}
+                            onChange={(selectedOption) =>
+                              field.onChange(selectedOption?.value)
+                            }
+                            classNamePrefix="react-select"
+                            className="shad-input "
+                            placeholder="Selecciona un deporte"
+                            isSearchable
+                            maxMenuHeight={200} // Altura máxima del menú desplegable
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                border: 'none',
+                                boxShadow: 'none',
+                              }),
+                            }}
                           />
                         </FormControl>
                       </div>
@@ -265,7 +306,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
                             <select
                               {...field}
                               value={field.value as string}
-                              className="text-gray-400 py-2 mt-1"
+                              className="text-gray-400 py-2 mt-1 outline-none"
                             >
                               <option value="" disabled>
                                 Selecciona un nivel
@@ -293,7 +334,7 @@ const CreateForm = ({ type }: { type: FormType }) => {
                             <select
                               {...field}
                               value={field.value as string}
-                              className="text-gray-400 py-2 mt-1"
+                              className="text-gray-400 py-2 mt-1 outline-none"
                             >
                               <option value="" disabled>
                                 Selecciona un club

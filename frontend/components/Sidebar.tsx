@@ -40,15 +40,15 @@ const navItems = [
       club: ['gerente', 'admin'], // Visible solo para gerente y admin en club
     },
   },
-  {
-    name: 'Torneos',
-    icon: GiLaurelsTrophy,
-    url: '/[dashboard]/inicio',
-    specialVisibility: {
-      equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible para todos en equipo
-      club: ['gerente', 'admin'], // Visible solo para gerente y admin en club
-    },
-  },
+  // {
+  //   name: 'Torneos',
+  //   icon: GiLaurelsTrophy,
+  //   url: '/[dashboard]/inicio',
+  //   specialVisibility: {
+  //     equipo: ['gerente', 'entrenador', 'deportista', 'admin', 'miembro'], // Visible para todos en equipo
+  //     club: ['gerente', 'admin'], // Visible solo para gerente y admin en club
+  //   },
+  // },
   {
     name: 'Pagos',
     icon: MdPayments,
