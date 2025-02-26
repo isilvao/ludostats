@@ -68,11 +68,9 @@ const sendEmail = async (req, res) => {
                         },
                     ],
                     mode: "subscription",
-                    success_url: `${req.headers.origin}/home?session_id={CHECKOUT_SESSION_ID}`,
-                    cancel_url: `${req.headers.origin}/cancelPayment`,
+                    success_url: `${req.headers.origin}/home?payment=success`,
+                    cancel_url: `${req.headers.origin}/home?payment=cancel`,
                 });
-
-                console.log(session)
 
                 return res.json({ url: session.url });
             } catch (error) {
@@ -85,8 +83,16 @@ const sendEmail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
-
 }
+
+// DATOS PARA EL BACKEND
+/**
+ * Usuario ID
+ * Destinatario: null
+ * tipo: suscripcion
+ * concepto: (poner el plan)
+ */
+
 
 const stripePrices = async (req, res) => {
 
@@ -105,7 +111,20 @@ const stripePrices = async (req, res) => {
     }
 };
 
+const isPaymentSuccessful = async (req, res) => {
+    const { payment } = req.query;
+
+    if (payment === "success") {
+        console.log("Payment successful");
+    } else {
+        console.log("Payment failed");
+    }
+
+    return res.json({ payment });
+}
+
 module.exports = {
     sendEmail,
-    stripePrices
+    stripePrices,
+    isPaymentSuccessful
 };

@@ -113,16 +113,6 @@ const Pricing: React.FC = () => {
                     Planes y precios
                 </h2>
 
-
-
-                <div>
-                    <h1>Compra un producto</h1>
-                    <CheckoutButton />
-                </div>
-
-
-
-
                 <p className="text-center text-gray-600 mb-12">
                     Escoge el plan que mejor se ajuste a las necesidades de tu club
                     deportivo.

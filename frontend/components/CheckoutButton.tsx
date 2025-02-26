@@ -12,9 +12,9 @@ const CheckoutButton = ({ priceId }: CheckoutButtonProps) => {
 
     const stripeapi = new StripeAPI();
 
-    const result = await stripeapi.createCheckoutSession(priceId);
+    const data = await stripeapi.createCheckoutSession(priceId);
 
-    window.location.href = result;
+    window.location.href = data.url;
   };
 
   if (!priceId) {

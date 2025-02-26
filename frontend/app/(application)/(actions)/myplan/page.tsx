@@ -51,12 +51,6 @@ const PlanCard: React.FC<PlanProps> = ({
                 </li>
             ))}
         </ul>
-        <Link
-            href="/sign-up"
-            className="bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand/90 transition-colors"
-        >
-            {buttonText}
-        </Link>
         {id ? (
             <CheckoutButton priceId={id} />
         ) : (

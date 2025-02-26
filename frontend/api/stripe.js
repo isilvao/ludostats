@@ -24,9 +24,8 @@ export class StripeAPI {
             }
 
             const data = await res.json();
-            console.log("✅ URL de checkout recibida:", data);
 
-            return data.url;
+            return data;
         } catch (error) {
             console.error('❌ Error en el proceso de checkout:', error);
             alert('Hubo un error al procesar el pago. Por favor, inténtalo de nuevo.');
@@ -58,6 +57,29 @@ export class StripeAPI {
         } catch (error) {
             console.error('❌ Error en el proceso de precios:', error);
             alert('Hubo un error al obtener los precios. Por favor, inténtalo de nuevo.');
+        }
+    }
+
+    async isPaymentSuccessful() {
+        try {
+            const url = `${this.baseApi}/is-payment-successful`;
+
+            const params = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+
+            const res = await fetch(url, params);
+
+            const data = await res.json();
+
+            console.log(data)
+
+            return data;
+        } catch (error) {
+            console.error('❌ Error al obtener los datos:', error);
+            alert('Hubo un error al procesar el pago. Por favor, inténtalo de nuevo.');
         }
     }
 }
