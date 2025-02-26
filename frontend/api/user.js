@@ -199,7 +199,7 @@ export class User {
   }
 
 
-  async sendEmailValidate(email, firstName) {
+  async sendEmailValidate(email, firstName, id) {
     storedOtp2 = Math.floor(100000 + Math.random() * 900000).toString();
 
     try {
@@ -207,6 +207,7 @@ export class User {
         firstName,
         otp: storedOtp2,
         email,
+        id,
       };
 
       const url = `${this.baseApi}/send-email/user/login`;
