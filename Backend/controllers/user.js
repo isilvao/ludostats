@@ -599,7 +599,7 @@ const sendVerificationEmail1 = async (req, res) => {
 
   try {
       const { firstName, otp, email } = req.body;
-      const logoUrl = "https://res.cloudinary.com/dnoptrz2d/image/upload/otros/logo_ludostats.svg";
+      const logoUrl = "https://res.cloudinary.com/dnoptrz2d/image/upload/otros/logo_ludostats2.png";
 
       const verificationLink = `https://ludostats.com/verify?otp=${otp}`;
 
