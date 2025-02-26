@@ -18,7 +18,7 @@ const usuariosEquiposRoutes = require('./router/usuariosEquipos'); // Rutas para
 const eventosRoutes = require('./router/evento'); // Rutas para Eventos
 const invitacionRoutes = require('./router/invitaciones'); // Rutas para Invitaciones
 const stripeRoutes = require('./router/stripe');
-
+const galeriaRoutes = require('./router/galeria')
 // Configure body parser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -42,6 +42,8 @@ app.use(`/api/${API_VERSION}`, invitacionRoutes); // Agregar rutas de invitacion
 
 app.use(`/api/${API_VERSION}`, diegoRoutes); // Agregar rutas de eventos
 app.use(`/api/${API_VERSION}`, stripeRoutes);
+
+app.use(`/api/${API_VERSION}`, galeriaRoutes);
 
 // Initialize models and sync with db
 initModels();

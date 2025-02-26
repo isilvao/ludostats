@@ -9,6 +9,7 @@ const Pago = require('./Pago');
 const Transaccion = require("./Transaccion");
 const Notificacion = require("./Notificacion");
 const EventoDependencia = require('./EventoDependencia');
+const Galeria = require('./Galeria');
 
 const Invitacion = require('./invitacion');
 const UsuariosEquipos = require('./UsuariosEquipos');
@@ -233,6 +234,29 @@ UsuarioClub.belongsTo(Club, { foreignKey: 'club_id' });
 // 📌 Relación de transacciones con usuario receptor
 Transaccion.belongsTo(Usuario, { foreignKey: 'destinatario_id', as: 'destinatario' });
 
+// 📌 Relación de Galería con Club (un club puede tener varias imágenes)
+Club.hasMany(Galeria, {
+  foreignKey: 'club_id',
+  as: 'galeria',
+  onDelete: 'CASCADE'
+});
+Galeria.belongsTo(Club, {
+  foreignKey: 'club_id',
+  as: 'club'
+});
+
+// 📌 Relación de Galería con Equipo (un equipo puede tener varias imágenes)
+Equipo.hasMany(Galeria, {
+  foreignKey: 'equipo_id',
+  as: 'galeria',
+  onDelete: 'CASCADE'
+});
+Galeria.belongsTo(Equipo, {
+  foreignKey: 'equipo_id',
+  as: 'equipo'
+});
+
+
 
 
 
@@ -240,6 +264,6 @@ Transaccion.belongsTo(Usuario, { foreignKey: 'destinatario_id', as: 'destinatari
 
 
 module.exports = {
-  Usuario, Club, Equipo, Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, EventoDependencia, initModels, Transaccion,
+  Usuario, Club, Equipo, Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, EventoDependencia, initModels, Galeria,Transaccion,
   Notificacion
 };
