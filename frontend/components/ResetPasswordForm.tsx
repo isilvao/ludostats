@@ -42,11 +42,13 @@ const ResetPasswordForm = () => {
 
     try {
       const userController = new User();
+      console.log(1)
       const user = await userController.getUserByEmail(values.email);
       if (!user) {
         setErrorMessage('El correo no existe en la plataforma.');
         return;
       }
+      console.log(2)
       setAccountId(user.id);
       await userController.sendEmail(values.email, user.nombre);
       setOtpSent(true);

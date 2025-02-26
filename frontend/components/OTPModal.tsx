@@ -68,6 +68,7 @@ const OtpModal = ({
     try {
       const userController = new User();
       const user = await userController.getUserByEmail(email);
+      console.log('llego a antes de llamar al controlador')
       await userController.sendEmail(email, user.nombre);
     } catch (error) {
       setErrorMessage('No se pudo enviar el OTP. Inténtalo de nuevo.');

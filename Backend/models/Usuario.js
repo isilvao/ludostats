@@ -65,6 +65,11 @@ const Usuario = sequelize.define('Usuario', {
     ultima_transaccion_id: {
         type: DataTypes.UUID,
         allowNull: true,
+    },
+    correo_validado:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull:false,
     }
 
 });
