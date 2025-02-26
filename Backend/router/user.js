@@ -44,5 +44,18 @@ api.get("/usuarios/:usuario_id/clubs", [md_auth.asureAuth], userController.busca
 
 api.patch("/user_foto/:id", upload.single("foto"), userController.actualizarFotoUsuario);
 
+api.post("/send-email/user", userController.sendEmail)
+
+api.post("/send-email/user/login", userController.sendVerificationEmail1)
+
+api.patch("/activateUser", userController.activateUser)
+
+api.get("/isAccountValid/:id", userController.isAccountValid)
+
+
+
+
+
+
 module.exports = api;
 
