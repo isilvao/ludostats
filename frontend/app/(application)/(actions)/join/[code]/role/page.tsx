@@ -88,7 +88,7 @@ const RolePage = () => {
           <p className="mb-2 text-lg font-semibold">Acudiente</p>
           <p className="text-gray-600 text-center pb-5">
             Eres el acudiente de algun jugador. Puedes ver sus estadísticas y
-            mensajes.
+            eventos.
           </p>
           <Link
             href={`/join/${code}/parent`}
@@ -101,8 +101,7 @@ const RolePage = () => {
           <IoPerson className="w-12 h-12 mb-2 text-[#333232]" />
           <p className="mb-2 text-lg font-semibold">Deportista</p>
           <p className="text-gray-600 text-center pb-5">
-            Eres un jugador de este qequipo. Puedes ver tus estadísticas y
-            mensajes.
+            Eres un jugador de este equipo. Puedes ver tus estadísticas y eventos.
           </p>
           <button
             className="px-4 py-2 w-full text-white bg-brand rounded hover:bg-brand/90 max-w-32 transition-colors duration-200"

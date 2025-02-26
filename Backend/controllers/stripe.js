@@ -68,9 +68,11 @@ const sendEmail = async (req, res) => {
                         },
                     ],
                     mode: "subscription",
-                    success_url: `${req.headers.origin}/successPayment?session_id={CHECKOUT_SESSION_ID}`,
+                    success_url: `${req.headers.origin}/home?session_id={CHECKOUT_SESSION_ID}`,
                     cancel_url: `${req.headers.origin}/cancelPayment`,
                 });
+
+                console.log(session)
 
                 return res.json({ url: session.url });
             } catch (error) {
