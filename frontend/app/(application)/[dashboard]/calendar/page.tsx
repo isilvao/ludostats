@@ -75,6 +75,8 @@ import {
   createViewMonthGrid,
   createViewWeek,
 } from '@schedule-x/calendar';
+import { Card } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface Event {
   id: string;
@@ -87,10 +89,12 @@ interface Event {
 
 const CalendarEvents = () => {
   const [events, setEvents] = React.useState<Event[]>([]);
-  const { clubData } = useEquipoClub();
+  const { clubData, rolClub } = useEquipoClub();
   const [loading, setLoading] = React.useState(true);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const selectionType = localStorage.getItem('selectionType');
+  const isTeam = selectionType === 'equipo';
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -170,15 +174,32 @@ const CalendarEvents = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const teamsAPI = new TeamsAPI();
-        const fetchedEvents = await teamsAPI.obtenerEventosPorClub(clubData.id);
-        const events = fetchedEvents.map((event: any) => ({
-          id: event.evento.id,
-          titulo: event.evento.titulo,
-          descripcion: event.evento.descripcion,
-          fecha_inicio: event.evento.fecha_inicio,
-          fecha_fin: event.evento.fecha_fin,
-        }));
+        let events: Event[] = [];
+        if (clubData.id && !isTeam) {
+          const teamsAPI = new TeamsAPI();
+          const fetchedEvents = await teamsAPI.obtenerEventosPorClub(
+            clubData.id
+          );
+          events = fetchedEvents.map((event: any) => ({
+            id: event.evento.id,
+            titulo: event.evento.titulo,
+            descripcion: event.evento.descripcion,
+            fecha_inicio: event.evento.fecha_inicio,
+            fecha_fin: event.evento.fecha_fin,
+          }));
+        } else {
+          const teamsAPI = new TeamsAPI();
+          const fetchedEvents = await teamsAPI.obtenerEventosPorEquipo(
+            clubData.id
+          );
+          events = fetchedEvents.map((event: any) => ({
+            id: event.evento.id,
+            titulo: event.evento.titulo,
+            descripcion: event.evento.descripcion,
+            fecha_inicio: event.evento.fecha_inicio,
+            fecha_fin: event.evento.fecha_fin,
+          }));
+        }
         setEvents(events);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -199,47 +220,48 @@ const CalendarEvents = () => {
       const teamsAPI = new TeamsAPI();
       await teamsAPI.deleteEvento(id);
       setEvents((prevEvents) => prevEvents.filter((event) => event.id !== id));
+      toast.success('Evento eliminado correctamente');
     } catch (error) {
       console.error('Error deleting event:', error);
     }
   }
 
-  async function handleCreate() {
-    if (
-      !newEvent.titulo ||
-      !newEvent.fecha_inicio ||
-      !newEvent.fecha_fin ||
-      !newEvent.descripcion
-    ) {
-      toast.error('Todos los campos son obligatorios');
-      return;
-    }
-    try {
-      const teamsAPI = new TeamsAPI();
-      await teamsAPI.createEvento(newEvent, clubData.id);
-      setEvents((prevEvents) => [
-        ...prevEvents,
-        {
-          id: newEvent.eventId,
-          titulo: newEvent.titulo,
-          descripcion: newEvent.descripcion,
-          fecha_inicio: newEvent.fecha_inicio,
-          fecha_fin: newEvent.fecha_fin,
-          categoria: '', // Add appropriate value for categoria
-        },
-      ]);
-      setNewEvent({
-        eventId: '',
-        titulo: '',
-        descripcion: '',
-        fecha_inicio: '',
-        fecha_fin: '',
-      });
-      setIsDialogOpen(false);
-    } catch (error) {
-      console.error('Error creating event:', error);
-    }
-  }
+  // async function handleCreate() {
+  //   if (
+  //     !newEvent.titulo ||
+  //     !newEvent.fecha_inicio ||
+  //     !newEvent.fecha_fin ||
+  //     !newEvent.descripcion
+  //   ) {
+  //     toast.error('Todos los campos son obligatorios');
+  //     return;
+  //   }
+  //   try {
+  //     const teamsAPI = new TeamsAPI();
+  //     await teamsAPI.createEvento(newEvent, clubData.id);
+  //     setEvents((prevEvents) => [
+  //       ...prevEvents,
+  //       {
+  //         id: newEvent.eventId,
+  //         titulo: newEvent.titulo,
+  //         descripcion: newEvent.descripcion,
+  //         fecha_inicio: newEvent.fecha_inicio,
+  //         fecha_fin: newEvent.fecha_fin,
+  //         categoria: '', // Add appropriate value for categoria
+  //       },
+  //     ]);
+  //     setNewEvent({
+  //       eventId: '',
+  //       titulo: '',
+  //       descripcion: '',
+  //       fecha_inicio: '',
+  //       fecha_fin: '',
+  //     });
+  //     setIsDialogOpen(false);
+  //   } catch (error) {
+  //     console.error('Error creating event:', error);
+  //   }
+  // }
 
   async function handleEdit(id: string) {
     try {
@@ -294,7 +316,7 @@ const CalendarEvents = () => {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Descripción
+          Tipo
           <ArrowUpDown />
         </Button>
       ),
@@ -352,14 +374,14 @@ const CalendarEvents = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
+              {/* <DropdownMenuItem asChild>
                 <Link
                   href={`/home`}
                   className="w-full justify-center cursor-pointer"
                 >
                   Editar
                 </Link>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem asChild>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -410,6 +432,10 @@ const CalendarEvents = () => {
     },
   });
 
+  const handleFilterChange = (value: string) => {
+    setColumnFilters([{ id: 'descripcion', value }]);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -440,128 +466,150 @@ const CalendarEvents = () => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-
-          <Link
-            href={`calendar/createEvent`}
-            className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center"
-          >
-            <FaCalendarPlus />
-            {/* <IoPersonAdd className="w-5 h-5" /> */}
-            <p>Añadir evento</p>
-          </Link>
+          {(rolClub === 'gerente' ||
+            rolClub === 'admin' ||
+            rolClub === 'entrenador') && (
+            <Link
+              href={`calendar/createEvent`}
+              className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center"
+            >
+              <FaCalendarPlus />
+              {/* <IoPersonAdd className="w-5 h-5" /> */}
+              <p>Añadir evento</p>
+            </Link>
+          )}
         </div>
       </div>
-      <div className="bg-white border border-gray-300 rounded-lg p-6 max-w-full mt-4">
-        <div className="flex items-center pb-5 justify-between">
-          <Input
-            placeholder="Filtrar por titulo..."
-            value={
-              (table.getColumn('titulo')?.getFilterValue() as string) ?? ''
-            }
-            onChange={(event) =>
-              table.getColumn('titulo')?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm mr-3"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader className="bg-gray-100">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
+      <div className="flex gap-6">
+        <Card className="hidden lg:block w-60 h-60 p-4">
+          <h2 className="text-lg font-semibold mb-3">Filtrar por</h2>
+          <RadioGroup defaultValue="" onValueChange={handleFilterChange}>
+            {[
+              'Todos',
+              'Partido Amistoso',
+              'Torneo',
+              'Entrenamiento',
+              'Liga',
+            ].map((option) => (
+              <label key={option} className="flex items-center space-x-2">
+                <RadioGroupItem value={option === 'Todos' ? '' : option} />
+                <span>{option}</span>
+              </label>
+            ))}
+          </RadioGroup>
+        </Card>
+        <div className="bg-white border w-full border-gray-300 rounded-lg p-6 max-w-full">
+          <div className="flex items-center pb-5 justify-between">
+            <Input
+              placeholder="Filtrar por titulo..."
+              value={
+                (table.getColumn('titulo')?.getFilterValue() as string) ?? ''
+              }
+              onChange={(event) =>
+                table.getColumn('titulo')?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm mr-3"
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  Columns <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
                     return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
                     );
                   })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No hay eventos disponibles
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} de{' '}
-            {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Siguiente
-            </Button>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader className="bg-gray-100">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No hay eventos disponibles
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex-1 text-sm text-muted-foreground">
+              {table.getFilteredSelectedRowModel().rows.length} de{' '}
+              {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
+            </div>
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Siguiente
+              </Button>
+            </div>
           </div>
         </div>
       </div>

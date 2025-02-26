@@ -25,62 +25,93 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
+import { useParams } from 'next/navigation';
 
 const createEventSchema = z.object({
   titulo: z.string().min(2, 'Título obligatorio').max(50),
-  descripcion: z.string().min(5, 'Descripción obligatoria').max(200),
-  fecha_inicio: z.string().min(1, 'Fecha de inicio obligatoria'),
-  fecha_fin: z.string().min(1, 'Fecha de fin obligatoria'),
-  equipos: z.array(z.string()).optional(),
+  descripcion: z.string().min(1, 'Selecciona un tipo de evento'),
+  fecha_inicio_fecha: z.string().min(1, 'Fecha de inicio obligatoria'),
+  fecha_inicio_hora: z.string().min(1, 'Hora de inicio obligatoria'),
+  fecha_fin_fecha: z.string().min(1, 'Fecha de fin obligatoria'),
+  fecha_fin_hora: z.string().min(1, 'Hora de fin obligatoria'),
+  equipos: z.array(z.string()).min(1, 'Selecciona al menos un equipo'),
 });
 
 const CreateEventForm = () => {
   const teamsAPI = new TeamsAPI();
-  const { user, accessToken } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const { clubData } = useEquipoClub();
-  const [eventType, setEventType] = useState('entrenamiento');
-  const [team, setTeam] = useState('equipo prueba');
+  const params = useParams();
+  const nameTeam = params
+    ? Array.isArray(params.dashboard)
+      ? params.dashboard[0]
+      : params.dashboard
+    : null;
+  const selectionType = localStorage.getItem('selectionType');
+  const isTeam = selectionType === 'equipo';
   const [equipos, setEquipos] = useState<{ id: string; nombre: string }[]>([]);
   const form = useForm<z.infer<typeof createEventSchema>>({
     resolver: zodResolver(createEventSchema),
     defaultValues: {
       titulo: '',
       descripcion: '',
-      fecha_inicio: '',
-      fecha_fin: '',
+      fecha_inicio_fecha: '',
+      fecha_inicio_hora: '',
+      fecha_fin_fecha: '',
+      fecha_fin_hora: '',
       equipos: [],
     },
   });
 
   useEffect(() => {
-    const fetchEquipos = async () => {
-      try {
-        const equipoAPI = new EquipoAPI();
-        const equipos = await equipoAPI.obtenerEquiposClub(clubData.id);
-        setEquipos(equipos);
-      } catch (error) {
-        console.error('Error al obtener los equipos:', error);
-      }
-    };
+    if (!isTeam) {
+      const fetchEquipos = async () => {
+        try {
+          const equipoAPI = new EquipoAPI();
+          const equipos = await equipoAPI.obtenerEquiposClub(clubData.id);
+          setEquipos(equipos);
+        } catch (error) {
+          console.error('Error al obtener los equipos:', error);
+        }
+      };
 
-    fetchEquipos();
-  }, [user.id]);
+      fetchEquipos();
+    }
+  }, [user.id, isTeam]);
 
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (values: z.infer<typeof createEventSchema>) => {
     setIsLoading(true);
     try {
+      const fecha_inicio = `${values.fecha_inicio_fecha}T${values.fecha_inicio_hora}`;
+      const fecha_fin = `${values.fecha_fin_fecha}T${values.fecha_fin_hora}`;
+      const club_id = isTeam ? clubData.club.id : clubData.id;
+      const equipo_ids = isTeam ? [clubData.id] : values.equipos;
+
+      // console.log('values', {
+      //   titulo: values.titulo,
+      //   descripcion: values.descripcion,
+      //   fecha_inicio,
+      //   fecha_fin,
+      //   club_id,
+      //   equipo_ids,
+      // });
+
       await teamsAPI.crearEvento({
         titulo: values.titulo,
         descripcion: values.descripcion,
-        fecha_inicio: values.fecha_inicio,
-        fecha_fin: values.fecha_fin,
-        club_id: clubData.id,
-        equipo_ids: values.equipos,
+        fecha_inicio,
+        fecha_fin,
+        club_id,
+        equipo_ids,
       });
-      router.push('/calendar');
+
+      toast.success('Evento creado correctamente');
+      router.push(`/${nameTeam}/calendar`);
     } catch (error) {
       console.error('Error al crear el evento:', error);
     } finally {
@@ -90,15 +121,9 @@ const CreateEventForm = () => {
 
   return (
     <section className="min-h-[90vh] px-6 items-center max-w-7xl mx-auto pb-10">
-      <div className="flex flex-col items-start">
-        <h1 className="text-2xl font-bold mb-2 text-brand2">Crear Evento</h1>
-        <p className="text-gray-600 mb-2 text-center">
-          Completa la información del evento y selecciona los equipos a los que
-          se asignará.
-        </p>
-      </div>
-      {/* <div>
-        <h1 className="text-2xl font-bold mb-2 text-center">Crear Evento</h1>
+      <Toaster />
+      <div className="flex flex-col items-start py-4">
+        <h1 className="text-3xl font-bold mb-2 text-brand2">Crear Evento</h1>
         <p className="text-gray-600 mb-2 text-center">
           Completa la información del evento y selecciona los equipos a los que
           se asignará.
@@ -107,151 +132,189 @@ const CreateEventForm = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="bg-white rounded-md shadow-md max-w-2xl mx-auto p-4 border-t-[20px] border-brand"
+          className="max-w-4xl mx-auto p-6 space-y-6"
         >
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <FormField
-                control={form.control}
-                name="titulo"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="shad-form-item">
-                      <FormLabel className="shad-form-label">
-                        Título *
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Título del evento"
-                          className="shad-input"
-                          {...field}
-                          value={field.value as string}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage className="shad-form-message" />
-                  </FormItem>
-                )}
-              />
+          {/* Selección de equipos */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="bg-brand text-white rounded-full w-8 h-8 flex items-center justify-center">
+                  1
+                </div>
+                <p className="text-xl font-bold text-brand2">Equipo</p>
+              </div>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-6 px-4 md:px-12">
+              {isTeam ? (
+                <p className="text-lg">{clubData.nombre}</p>
+              ) : (
+                <FormField
+                  control={form.control}
+                  name="equipos"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="grid gap-2">
+                        {equipos.map((equipo) => (
+                          <Label
+                            key={equipo.id}
+                            className="flex items-center gap-2"
+                          >
+                            <Checkbox
+                              checked={field.value.includes(equipo.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...field.value, equipo.id]);
+                                } else {
+                                  field.onChange(
+                                    field.value.filter((id) => id !== equipo.id)
+                                  );
+                                }
+                              }}
+                            />
+                            {equipo.nombre}
+                          </Label>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </CardContent>
+          </Card>
 
+          {/* Tipo de evento */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="bg-brand text-white rounded-full w-8 h-8 flex items-center justify-center">
+                  2
+                </div>
+                <p className="text-xl font-bold text-brand2">Tipo de evento</p>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 md:px-12">
               <FormField
                 control={form.control}
                 name="descripcion"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="shad-form-item">
-                      <FormLabel className="shad-form-label">
-                        Descripción *
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Descripción del evento"
-                          className="shad-input"
-                          {...field}
-                          value={field.value as string}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage className="shad-form-message" />
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="grid grid-cols-2 gap-4"
+                    >
+                      <Label className="flex items-center gap-2">
+                        <RadioGroupItem value="amistoso" /> Partido Amistoso
+                      </Label>
+                      <Label className="flex items-center gap-2">
+                        <RadioGroupItem value="torneo" /> Torneo
+                      </Label>
+                      <Label className="flex items-center gap-2">
+                        <RadioGroupItem value="entrenamiento" /> Entrenamiento
+                      </Label>
+                      <Label className="flex items-center gap-2">
+                        <RadioGroupItem value="liga" /> Liga
+                      </Label>
+                    </RadioGroup>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-
+            </CardContent>
+            <CardContent className="px-4 md:px-12">
+              <div className="my-6">
+                <p className="text-lg font-bold text-brand2">
+                  Añadir detalles del evento
+                </p>
+              </div>
               <FormField
                 control={form.control}
-                name="fecha_inicio"
+                name="titulo"
                 render={({ field }) => (
-                  <FormItem>
-                    <div className="shad-form-item">
-                      <FormLabel className="shad-form-label">
-                        Fecha de Inicio *
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          className="shad-input"
-                          {...field}
-                          value={field.value as string}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage className="shad-form-message" />
+                  <FormItem className="w-full md:max-w-lg">
+                    <FormLabel>Título</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Título" />
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
+            </CardContent>
+          </Card>
 
+          {/* Fecha del evento */}
+          {/* Fecha y Hora de Inicio */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="bg-brand text-white rounded-full w-8 h-8 flex items-center justify-center">
+                  3
+                </div>
+                <p className="text-xl font-bold text-brand2">
+                  Fecha del evento
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-6 px-4 md:px-12">
               <FormField
                 control={form.control}
-                name="fecha_fin"
+                name="fecha_inicio_fecha"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="shad-form-item">
-                      <FormLabel className="shad-form-label">
-                        Fecha de Fin *
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          className="shad-input"
-                          {...field}
-                          value={field.value as string}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage className="shad-form-message" />
+                    <FormLabel>Fecha de inicio</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-
-            <div className="space-y-6">
               <FormField
                 control={form.control}
-                name="equipos"
+                name="fecha_inicio_hora"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="">
-                      <FormLabel className="">Equipos *</FormLabel>
-                      <FormControl>
-                        <div className="max-h-64 overflow-y-auto border p-2 rounded">
-                          {equipos.map((equipo) => (
-                            <div
-                              key={equipo.id}
-                              className="flex items-center space-x-2"
-                            >
-                              <Checkbox
-                                checked={
-                                  field.value?.includes(equipo.id) ?? false
-                                }
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    field.onChange([
-                                      ...(field.value || []),
-                                      equipo.id,
-                                    ]);
-                                  } else {
-                                    field.onChange(
-                                      (field.value || []).filter(
-                                        (id) => id !== equipo.id
-                                      )
-                                    );
-                                  }
-                                }}
-                              />
-                              <label>{equipo.nombre}</label>
-                            </div>
-                          ))}
-                        </div>
-                      </FormControl>
-                    </div>
-                    <FormMessage className="shad-form-message" />
+                    <FormLabel>Hora de inicio</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-          </div>
+              <FormField
+                control={form.control}
+                name="fecha_fin_fecha"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fecha de fin</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fecha_fin_hora"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hora de fin</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
 
-          <div className="flex justify-center border-t border-gray-200 pt-6">
+          {/* Botón de enviar */}
+          <div className="flex justify-center pt-5">
             <Button
               type="submit"
               className="w-full md:w-auto bg-brand hover:bg-brand/90 text-white font-bold py-4 px-8 rounded"
@@ -261,95 +324,7 @@ const CreateEventForm = () => {
             </Button>
           </div>
         </form>
-      </Form> */}
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <Card>
-          <CardHeader>Equipo</CardHeader>
-          <CardContent>
-            <RadioGroup
-              value={team}
-              onChange={(e) => setTeam((e.target as HTMLInputElement).value)}
-              className="flex gap-4"
-            >
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="equipo prueba" /> equipo prueba
-              </Label>
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="CHAM" /> CHAM
-              </Label>
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="Chum" /> Chum
-              </Label>
-            </RadioGroup>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>Tipo de evento</CardHeader>
-          <CardContent>
-            <RadioGroup
-              value={eventType}
-              onChange={(e) =>
-                setEventType((e.target as HTMLInputElement).value)
-              }
-              className="grid grid-cols-2 gap-4"
-            >
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="partido entre nosotros" /> Partido entre
-                nosotros
-              </Label>
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="partido amistoso" /> Partido amistoso
-              </Label>
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="torneo" /> Torneo
-              </Label>
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="entrenamiento" /> Entrenamiento
-              </Label>
-            </RadioGroup>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>Fecha del evento</CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <span>Evento recurrente</span>
-              <Switch />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Fecha de inicio</Label>
-                <Input type="date" defaultValue="2025-02-25" />
-              </div>
-              <div>
-                <Label>Fecha de fin</Label>
-                <Input type="date" defaultValue="2025-02-25" />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label>Hora de encuentro</Label>
-                <Input type="time" defaultValue="19:00" />
-              </div>
-              <div>
-                <Label>Hora de inicio</Label>
-                <Input type="time" defaultValue="20:00" />
-              </div>
-              <div>
-                <Label>Hora de fin</Label>
-                <Input type="time" defaultValue="21:00" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-end gap-4">
-          <Button variant="outline">Cancelar</Button>
-          <Button className="bg-blue-600 text-white">Guardar</Button>
-        </div>
-      </div>
+      </Form>
     </section>
   );
 };
