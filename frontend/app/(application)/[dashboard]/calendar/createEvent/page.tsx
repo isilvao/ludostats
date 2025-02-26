@@ -10,6 +10,11 @@ import { useAuth } from '@/hooks';
 import { EquipoAPI } from '@/api/equipo';
 import { useEquipoClub } from '@/hooks';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Select, SelectItem } from '@/components/ui/select';
 import {
   Form,
   FormControl,
@@ -34,6 +39,8 @@ const CreateEventForm = () => {
   const { user, accessToken } = useAuth();
   const router = useRouter();
   const { clubData } = useEquipoClub();
+  const [eventType, setEventType] = useState('entrenamiento');
+  const [team, setTeam] = useState('equipo prueba');
   const [equipos, setEquipos] = useState<{ id: string; nombre: string }[]>([]);
   const form = useForm<z.infer<typeof createEventSchema>>({
     resolver: zodResolver(createEventSchema),
@@ -83,7 +90,14 @@ const CreateEventForm = () => {
 
   return (
     <section className="min-h-[90vh] px-6 items-center max-w-7xl mx-auto pb-10">
-      <div>
+      <div className="flex flex-col items-start">
+        <h1 className="text-2xl font-bold mb-2 text-brand2">Crear Evento</h1>
+        <p className="text-gray-600 mb-2 text-center">
+          Completa la información del evento y selecciona los equipos a los que
+          se asignará.
+        </p>
+      </div>
+      {/* <div>
         <h1 className="text-2xl font-bold mb-2 text-center">Crear Evento</h1>
         <p className="text-gray-600 mb-2 text-center">
           Completa la información del evento y selecciona los equipos a los que
@@ -247,7 +261,95 @@ const CreateEventForm = () => {
             </Button>
           </div>
         </form>
-      </Form>
+      </Form> */}
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <Card>
+          <CardHeader>Equipo</CardHeader>
+          <CardContent>
+            <RadioGroup
+              value={team}
+              onChange={(e) => setTeam((e.target as HTMLInputElement).value)}
+              className="flex gap-4"
+            >
+              <Label className="flex items-center gap-2">
+                <RadioGroupItem value="equipo prueba" /> equipo prueba
+              </Label>
+              <Label className="flex items-center gap-2">
+                <RadioGroupItem value="CHAM" /> CHAM
+              </Label>
+              <Label className="flex items-center gap-2">
+                <RadioGroupItem value="Chum" /> Chum
+              </Label>
+            </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>Tipo de evento</CardHeader>
+          <CardContent>
+            <RadioGroup
+              value={eventType}
+              onChange={(e) =>
+                setEventType((e.target as HTMLInputElement).value)
+              }
+              className="grid grid-cols-2 gap-4"
+            >
+              <Label className="flex items-center gap-2">
+                <RadioGroupItem value="partido entre nosotros" /> Partido entre
+                nosotros
+              </Label>
+              <Label className="flex items-center gap-2">
+                <RadioGroupItem value="partido amistoso" /> Partido amistoso
+              </Label>
+              <Label className="flex items-center gap-2">
+                <RadioGroupItem value="torneo" /> Torneo
+              </Label>
+              <Label className="flex items-center gap-2">
+                <RadioGroupItem value="entrenamiento" /> Entrenamiento
+              </Label>
+            </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>Fecha del evento</CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-4">
+              <span>Evento recurrente</span>
+              <Switch />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Fecha de inicio</Label>
+                <Input type="date" defaultValue="2025-02-25" />
+              </div>
+              <div>
+                <Label>Fecha de fin</Label>
+                <Input type="date" defaultValue="2025-02-25" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>Hora de encuentro</Label>
+                <Input type="time" defaultValue="19:00" />
+              </div>
+              <div>
+                <Label>Hora de inicio</Label>
+                <Input type="time" defaultValue="20:00" />
+              </div>
+              <div>
+                <Label>Hora de fin</Label>
+                <Input type="time" defaultValue="21:00" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end gap-4">
+          <Button variant="outline">Cancelar</Button>
+          <Button className="bg-blue-600 text-white">Guardar</Button>
+        </div>
+      </div>
     </section>
   );
 };

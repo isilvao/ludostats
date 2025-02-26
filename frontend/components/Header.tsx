@@ -41,9 +41,12 @@ const Header = () => {
           size={24}
         />
         <div className="h-6 border-l border-gray-400"></div>
-        <span className="text-gray-400 hover:text-gray-600 cursor-pointer">
+        <Link
+          href="/myplan"
+          className="text-gray-400 hover:text-gray-600 cursor-pointer"
+        >
           Mi Plan
-        </span>
+        </Link>
         <div className="h-6 border-l border-gray-400"></div>
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none">
