@@ -5,6 +5,7 @@ import { FaShieldAlt, FaHandshake } from 'react-icons/fa';
 import { useAuth } from '@/hooks/useAuth';
 import { EquipoAPI } from '@/api/equipo';
 import { ClubAPI } from '@/api/club';
+import { StripeAPI } from '@/api/stripe';
 import LoadingScreen from '@/components/LoadingScreen';
 import { User } from '@/api/user';
 import CardClub from '@/components/CardClub';
@@ -60,11 +61,17 @@ const Page: React.FC = () => {
       try {
         const equipoAPI = new EquipoAPI();
         const clubAPI = new ClubAPI();
+        const stripeAPI = new StripeAPI();
         const userhijo = new User();
         const equiposData = await equipoAPI.obtenerMisEquipos(user.id);
         setEquipos(equiposData);
         const clubesData = await clubAPI.buscarMisClubes(user.id);
         setClubes(clubesData);
+
+        const paymentSuccessful = await stripeAPI.isPaymentSuccessful();
+
+        console.log('Payment successful:', paymentSuccessful);
+
         const hijos = await userhijo.obtenerMisHijos(accessToken);
         const equiposhijoData = await Promise.all(
           hijos.map(async (hijo: Hijo) => {
@@ -266,31 +273,28 @@ const Page: React.FC = () => {
             <div className="flex space-x-4">
               <button
                 onClick={() => setActiveTab('equipos')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${
-                  activeTab === 'equipos'
-                    ? 'bg-brand text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'equipos'
+                  ? 'bg-brand text-white'
+                  : 'bg-gray-200 text-gray-700'
+                  }`}
               >
                 Equipos
               </button>
               <button
                 onClick={() => setActiveTab('clubes')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${
-                  activeTab === 'clubes'
-                    ? 'bg-brand text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'clubes'
+                  ? 'bg-brand text-white'
+                  : 'bg-gray-200 text-gray-700'
+                  }`}
               >
                 Clubes
               </button>
               <button
                 onClick={() => setActiveTab('hijos')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${
-                  activeTab === 'hijos'
-                    ? 'bg-brand text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'hijos'
+                  ? 'bg-brand text-white'
+                  : 'bg-gray-200 text-gray-700'
+                  }`}
               >
                 Hijos
               </button>

@@ -5,5 +5,6 @@ const api = express.Router()
 
 api.post("/send-email", stripeController.sendEmail)
 api.get("/stripe-prices", stripeController.stripePrices)
+api.get("/is-payment-successful", stripeController.isPaymentSuccessful)
 
 module.exports = api

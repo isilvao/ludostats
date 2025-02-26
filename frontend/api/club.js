@@ -294,4 +294,5 @@ export class ClubAPI {
       throw error;
     }
   }
+
 }

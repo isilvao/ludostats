@@ -598,10 +598,11 @@ const sendVerificationEmail1 = async (req, res) => {
   const resend = new Resend("re_AyQTq895_HDdFFDVdEJtDPTBH5qRCpfZ8");
 
   try {
-      const { firstName, otp, email } = req.body;
+      const { firstName, otp, email, id } = req.body;
       const logoUrl = "https://res.cloudinary.com/dnoptrz2d/image/upload/otros/logo_ludostats2.png";
 
-      const verificationLink = `https://ludostats.com/verify?otp=${otp}`;
+      const verificationLink = `http://localhost:3000/validate?otp=${otp}&id=${id}`
+;
 
       const { data, error } = await resend.emails.send({
           from: "general@ludostats.com",
