@@ -28,6 +28,7 @@ const Dashboard: React.FC = () => {
     eventoPasado?: Evento;
     eventoFuturo?: Evento;
     cantidadMiembros: number;
+    cantidadDeportistas: number;
   }
 
   const [eventos, setEventos] = useState<Eventos | null>(null);
@@ -99,22 +100,25 @@ const Dashboard: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-brand2">
                   {clubData.nombre}
                 </h2>
-                {rolClub === ''}
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href={`/${nameTeam}/settings`}
-                        className="bg-white border border-gray-300 p-2 rounded hover:bg-gray-200 transition-colors duration-300"
-                      >
-                        <MdOutlineModeEdit className="text-xl text-gray-400" />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      Editar {selectionType === 'equipo' ? 'equipo' : 'club'}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                {(rolClub === 'gerente' ||
+                  rolClub === 'entrenador' ||
+                  rolClub === 'administrador') && (
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href={`/${nameTeam}/settings`}
+                          className="bg-white border border-gray-300 p-2 rounded hover:bg-gray-200 transition-colors duration-300"
+                        >
+                          <MdOutlineModeEdit className="text-xl text-gray-400" />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Editar {selectionType === 'equipo' ? 'equipo' : 'club'}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
                 <div>
@@ -138,7 +142,9 @@ const Dashboard: React.FC = () => {
                 <div>
                   <p>
                     <span className="font-medium text-brand2">Jugadores:</span>{' '}
-                    {eventos?.cantidadMiembros || 0}
+                    {selectionType === 'equipo'
+                      ? eventos?.cantidadDeportistas
+                      : eventos?.cantidadMiembros || 0}
                   </p>
                   <p>
                     <span className="font-medium text-brand2">Teléfono: </span>

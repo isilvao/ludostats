@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Toaster, toast } from 'sonner';
 import { useParams } from 'next/navigation';
+import { IoIosAddCircle, IoIosStats } from 'react-icons/io';
+import { FaQuestion } from 'react-icons/fa';
 
 interface TipoEstadistica {
   id: string;
@@ -50,9 +52,13 @@ const EstadisticaCard = ({
   isTeam: boolean;
 }) => (
   <div className="estadistica-card bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center gap-4 h-full cursor-pointer">
-    <Link href={`/${nameTeam}/statistics/${tipoEstadistica.id}`} passHref>
+    <Link
+      href={`/${nameTeam}/statistics/${tipoEstadistica.id}`}
+      passHref
+      className="w-full h-full"
+    >
       <div className="w-full h-full flex flex-col items-center text-center gap-4">
-        <h3 className="text-xl font-semibold text-gray-700">
+        <h3 className="text-xl font-semibold text-brand2">
           {tipoEstadistica.nombre}
         </h3>
         <p className="text-gray-600">{tipoEstadistica.descripcion}</p>
@@ -233,16 +239,17 @@ const EstadisticasPage = () => {
   }
 
   return (
-    <div className="py-6 px-6 items-center max-w-7xl mx-auto">
+    <div className="px-6 items-center max-w-7xl mx-auto">
       <Toaster />
-      <div className="flex items-center py-4 justify-between">
-        <h1 className="h2">Tipos de Estadística</h1>
+      <div className="flex items-center py-4 justify-between mb-6">
+        <h1 className="text-3xl font-bold text-brand2">Tipos de Estadística</h1>
         {!isTeam && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+              <button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+                <IoIosAddCircle className="text-lg" />
                 <span>Agregar Nueva</span>
-              </Button>
+              </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
@@ -255,7 +262,7 @@ const EstadisticasPage = () => {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="nombre" className="text-right">
-                    Nombre
+                    Nombre *
                   </Label>
                   <Input
                     id="nombre"
@@ -287,7 +294,17 @@ const EstadisticasPage = () => {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" onClick={handleCreateEstadistica}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (!newEstadistica.nombre || !newEstadistica.descripcion) {
+                      toast.error('Todos los campos son obligatorios', {});
+                      return;
+                    }
+                    handleCreateEstadistica();
+                  }}
+                  className="bg-brand hover:bg-brand/90"
+                >
                   Guardar
                 </Button>
               </DialogFooter>
@@ -295,21 +312,30 @@ const EstadisticasPage = () => {
           </Dialog>
         )}
       </div>
-      <div className="estadisticas-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {estadisticas.map((tipoEstadistica) => (
-          <EstadisticaCard
-            key={tipoEstadistica.id}
-            tipoEstadistica={tipoEstadistica}
-            onEdit={(estadistica) => {
-              setEditEstadistica(estadistica);
-              setIsEditDialogOpen(true);
-            }}
-            onDelete={handleDeleteEstadistica}
-            nameTeam={nameTeam}
-            isTeam={isTeam}
-          />
-        ))}
-      </div>
+      {estadisticas.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-full text-center mt-20">
+          <FaQuestion className="text-9xl text-gray-400 mb-6" />
+          <p className="text-xl text-gray-600">
+            Aún no hay ningún tipo de estadística
+          </p>
+        </div>
+      ) : (
+        <div className="estadisticas-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {estadisticas.map((tipoEstadistica) => (
+            <EstadisticaCard
+              key={tipoEstadistica.id}
+              tipoEstadistica={tipoEstadistica}
+              onEdit={(estadistica) => {
+                setEditEstadistica(estadistica);
+                setIsEditDialogOpen(true);
+              }}
+              onDelete={handleDeleteEstadistica}
+              nameTeam={nameTeam}
+              isTeam={isTeam}
+            />
+          ))}
+        </div>
+      )}
       {editEstadistica && (
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
@@ -355,7 +381,11 @@ const EstadisticasPage = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" onClick={handleEditEstadistica}>
+              <Button
+                type="button"
+                onClick={handleEditEstadistica}
+                className="bg-brand hover:bg-brand/90"
+              >
                 Guardar
               </Button>
             </DialogFooter>

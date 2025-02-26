@@ -73,6 +73,8 @@ import { Label } from '@/components/ui/label';
 import { EquipoAPI } from '@/api/equipo';
 import { ChartBar } from '@/components/ChartBar';
 import { Chart } from 'chart.js';
+import { FaQuestion, FaSadCry } from 'react-icons/fa';
+import { IoIosAddCircle } from 'react-icons/io';
 
 type statistic = {
   id: string;
@@ -228,7 +230,12 @@ const StatisticDetail: React.FC = () => {
 
       setNewStatistic({ memberId: '', valor: '', fecha: '' });
       setIsDialogOpen(false);
-      toast.success('Estadística creada con éxito');
+      toast.success('Estadística creada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error) {
       console.error('Error creating statistic:', error);
       toast.error('Error al crear la estadística');
@@ -259,7 +266,12 @@ const StatisticDetail: React.FC = () => {
       );
       setEditStatistic(null);
       setIsEditDialogOpen(false);
-      toast.success('Estadística actualizada con éxito');
+      toast.success('Estadística actualizada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error) {
       console.error('Error updating statistic:', error);
       toast.error('Error al actualizar la estadística');
@@ -271,7 +283,12 @@ const StatisticDetail: React.FC = () => {
       const api = new estadisticaAPI();
       await api.deleteEstadistica(id);
       setData((prevData) => prevData.filter((stat) => stat.id !== id));
-      toast.success('Estadística eliminada con éxito');
+      toast.success('Estadística eliminada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
     } catch (error) {
       console.error('Error deleting statistic:', error);
       toast.error('Error al eliminar la estadística');
@@ -360,101 +377,101 @@ const StatisticDetail: React.FC = () => {
     },
     ...(selectionType !== 'equipo'
       ? [
-        {
-          accessorKey: 'equipo',
-          header: 'Equipo',
-          cell: ({ row }: { row: any }) => (
-            <div className="ml-4">{row.getValue('equipo')}</div>
-          ),
-        },
-      ]
+          {
+            accessorKey: 'equipo',
+            header: 'Equipo',
+            cell: ({ row }: { row: any }) => (
+              <div className="ml-4">{row.getValue('equipo')}</div>
+            ),
+          },
+        ]
       : []),
     ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
       ? [
-        {
-          id: 'actions',
-          header: 'Acciones',
-          cell: ({ row }: { row: any }) => {
-            const statistic = row.original;
-            const [statisticToDelete, setStatisticToDelete] =
-              useState<statistic | null>(null);
+          {
+            id: 'actions',
+            header: 'Acciones',
+            cell: ({ row }: { row: any }) => {
+              const statistic = row.original;
+              const [statisticToDelete, setStatisticToDelete] =
+                useState<statistic | null>(null);
 
-            return (
-              <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                    <DropdownMenuItem asChild>
-                      <Button
-                        onClick={() => {
-                          setEditStatistic(statistic);
-                          setIsEditDialogOpen(true);
-                        }}
-                        className="w-full bg-transparent hover:bg-gray-100 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
-                      >
-                        Editar
+              return (
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal />
                       </Button>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setStatisticToDelete(statistic);
-                      }}
-                      className="justify-center w-full bg-red/40 hover:bg-red/50 text-gray-600 py-2 px-4 transition-colors duration-w-[10rem] cursor-pointer"
-                    >
-                      Borrar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <button
+                          onClick={() => {
+                            setEditStatistic(statistic);
+                            setIsEditDialogOpen(true);
+                          }}
+                          className="w-full justify-center cursor-pointer"
+                        >
+                          Editar
+                        </button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStatisticToDelete(statistic);
+                        }}
+                        className="w-full justify-center cursor-pointer"
+                      >
+                        Borrar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
-                {/* AlertDialog separado */}
-                {statisticToDelete &&
-                  statisticToDelete.id === statistic.id && (
-                    <AlertDialog
-                      open
-                      onOpenChange={(open) => {
-                        if (!open) setStatisticToDelete(null);
-                      }}
-                    >
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Confirmar eliminación
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            ¿Estás seguro de que deseas eliminar esta
-                            estadística? Esta acción no se puede deshacer.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel
-                            onClick={() => setStatisticToDelete(null)}
-                          >
-                            Cancelar
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => {
-                              handleDeleteStatistic(statistic.id);
-                              setStatisticToDelete(null);
-                            }}
-                          >
-                            Eliminar
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-              </>
-            );
+                  {/* AlertDialog separado */}
+                  {statisticToDelete &&
+                    statisticToDelete.id === statistic.id && (
+                      <AlertDialog
+                        open
+                        onOpenChange={(open) => {
+                          if (!open) setStatisticToDelete(null);
+                        }}
+                      >
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Confirmar eliminación
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              ¿Estás seguro de que deseas eliminar esta
+                              estadística? Esta acción no se puede deshacer.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel
+                              onClick={() => setStatisticToDelete(null)}
+                            >
+                              Cancelar
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                handleDeleteStatistic(statistic.id);
+                                setStatisticToDelete(null);
+                              }}
+                            >
+                              Eliminar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                </>
+              );
+            },
           },
-        },
-      ]
+        ]
       : []),
   ];
 
@@ -501,8 +518,10 @@ const StatisticDetail: React.FC = () => {
   return (
     <div className="w-full">
       <Toaster />
-      <div className="flex items-center py-4 justify-between">
-        <h1 className="h2">{tipoEstadisticaNombre}</h1>
+      <div className="flex items-center py-4 justify-between mb-6">
+        <h1 className="text-3xl font-bold text-brand2">
+          {tipoEstadisticaNombre}
+        </h1>
         <div className="flex items-center space-x-5 h-10">
           <TooltipProvider delayDuration={200}>
             <Tooltip>
@@ -522,9 +541,10 @@ const StatisticDetail: React.FC = () => {
           {selectionType === 'equipo' && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+                <button className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center">
+                  <IoIosAddCircle className="text-lg" />
                   <span>Agregar Nueva</span>
-                </Button>
+                </button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -593,7 +613,11 @@ const StatisticDetail: React.FC = () => {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="button" onClick={handleCreateStatistic}>
+                  <Button
+                    type="button"
+                    onClick={handleCreateStatistic}
+                    className="bg-brand hover:bg-brand/90 text-white"
+                  >
                     Guardar
                   </Button>
                 </DialogFooter>
@@ -602,117 +626,132 @@ const StatisticDetail: React.FC = () => {
           )}
         </div>
       </div>
-      <div className="max-w-[400px]">
-        <ChartBar tipoEstadisticaNombre={tipoEstadisticaNombre} tipoEstadisticaId={tipoEstadisticaId} />
-      </div>
-      <div className="flex items-center py-4 justify-between">
-        <Input
-          placeholder="Filtrar por nombre..."
-          value={(table.getColumn('nombre')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('nombre')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-full">
-              Columnas <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+      {data.length > 0 ? (
+        <div className="max-w-[400px]">
+          <ChartBar
+            tipoEstadisticaNombre={tipoEstadisticaNombre}
+            tipoEstadisticaId={tipoEstadisticaId}
+          />
+        </div>
+      ) : null}
+      <div className="bg-white border border-gray-300 rounded-lg p-6 max-w-full mt-4">
+        <div className="flex items-center py-4 justify-between">
+          <Input
+            placeholder="Filtrar por nombre..."
+            value={
+              (table.getColumn('nombre')?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table.getColumn('nombre')?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-full">
+                Columnas <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
                   return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
                   );
                 })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} de{' '}
-          {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Siguiente
-          </Button>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader className="bg-gray-100">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center h-full text-center my-6">
+                      <FaSadCry className="text-2xl text-gray-400 mb-2" />
+                      <p className="text-xl text-gray-600">
+                        Aún no hay ninguna estadística, agrega una nueva en el
+                        equipo.
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} de{' '}
+            {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Siguiente
+            </Button>
+          </div>
         </div>
       </div>
       {editStatistic && (
@@ -744,7 +783,11 @@ const StatisticDetail: React.FC = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" onClick={handleEditStatistic}>
+              <Button
+                type="button"
+                onClick={handleEditStatistic}
+                className="bg-brand hover:bg-brand/90 text-white"
+              >
                 Guardar
               </Button>
             </DialogFooter>

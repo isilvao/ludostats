@@ -67,6 +67,14 @@ import {
 } from '@/components/ui/tooltip';
 import { BiExport } from 'react-icons/bi';
 import { set } from 'zod';
+import { FaCalendarPlus } from 'react-icons/fa';
+import { ScheduleXCalendar, useNextCalendarApp } from '@schedule-x/react';
+import {
+  createViewDay,
+  createViewMonthAgenda,
+  createViewMonthGrid,
+  createViewWeek,
+} from '@schedule-x/calendar';
 
 interface Event {
   id: string;
@@ -95,6 +103,68 @@ const CalendarEvents = () => {
     descripcion: '',
     fecha_inicio: '',
     fecha_fin: '',
+  });
+
+  const calendarApp = useNextCalendarApp({
+    views: [
+      createViewWeek(),
+      createViewDay(),
+      createViewMonthAgenda(),
+      createViewMonthGrid(),
+    ],
+    theme: 'shadcn',
+    calendars: {
+      johndoe: {
+        label: 'John Doe',
+        colorName: 'johndoe',
+        lightColors: {
+          main: 'hsl(210 40% 93.1%)',
+          container: '#000',
+          onContainer: 'hsl(210 40% 93.1%)',
+        },
+      },
+    },
+    selectedDate: '2023-12-01',
+    events: [
+      {
+        id: 1,
+        title: 'Coffee with John',
+        start: '2023-12-01',
+        end: '2023-12-01',
+        calendarId: 'johndoe',
+      },
+      {
+        id: 2,
+        title: 'Breakfast with Sam',
+        description: 'Discuss the new project',
+        location: 'Starbucks',
+        start: '2023-11-29 05:00',
+        end: '2023-11-29 06:00',
+        calendarId: 'johndoe',
+      },
+      {
+        id: 3,
+        title: 'Gym',
+        start: '2023-11-27 06:00',
+        end: '2023-11-27 07:00',
+        calendarId: 'johndoe',
+      },
+      {
+        id: 4,
+        title: 'Media fasting',
+        start: '2023-12-01',
+        end: '2023-12-03',
+        calendarId: 'johndoe',
+      },
+      {
+        id: 5,
+        title: 'Some appointment',
+        people: ['John'],
+        start: '2023-12-03 03:00',
+        end: '2023-12-03 04:30',
+        calendarId: 'johndoe',
+      },
+    ],
   });
 
   useEffect(() => {
@@ -275,7 +345,7 @@ const CalendarEvents = () => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-8 w-8 p-0">
+              <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal />
               </Button>
@@ -356,7 +426,7 @@ const CalendarEvents = () => {
   return (
     <div className="w-full">
       <div className="flex items-center py-4 justify-between">
-        <h1 className="h2">Calendario</h1>
+        <h1 className="text-3xl font-bold text-brand2">Calendario</h1>
         <div className="flex items-center space-x-5 h-10">
           <TooltipProvider delayDuration={200}>
             <Tooltip>
@@ -375,119 +445,124 @@ const CalendarEvents = () => {
             href={`calendar/createEvent`}
             className="bg-brand hover:bg-brand/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-w-[10rem] flex flex-row space-x-3 items-center"
           >
+            <FaCalendarPlus />
             {/* <IoPersonAdd className="w-5 h-5" /> */}
             <p>Añadir evento</p>
           </Link>
         </div>
       </div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filtrar por titulo..."
-          value={(table.getColumn('titulo')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('titulo')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm mr-3"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+      <div className="bg-white border border-gray-300 rounded-lg p-6 max-w-full mt-4">
+        <div className="flex items-center pb-5 justify-between">
+          <Input
+            placeholder="Filtrar por titulo..."
+            value={
+              (table.getColumn('titulo')?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table.getColumn('titulo')?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm mr-3"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
                   return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
                   );
                 })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No hay eventos disponibles
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} de{' '}
-          {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Siguiente
-          </Button>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader className="bg-gray-100">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No hay eventos disponibles
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} de{' '}
+            {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Siguiente
+            </Button>
+          </div>
         </div>
       </div>
     </div>
