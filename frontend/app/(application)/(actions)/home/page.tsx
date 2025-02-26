@@ -68,7 +68,7 @@ const Page: React.FC = () => {
         const clubesData = await clubAPI.buscarMisClubes(user.id);
         setClubes(clubesData);
 
-        const paymentSuccessful = await stripeAPI.isPaymentSuccessful();
+        const paymentSuccessful = await stripeAPI.isPaymentSuccessful(); // True si el pago fue exitoso, False si no, null para consultar solo /home
 
         console.log('Payment successful:', paymentSuccessful);
 

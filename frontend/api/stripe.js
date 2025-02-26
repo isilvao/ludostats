@@ -61,8 +61,12 @@ export class StripeAPI {
     }
 
     async isPaymentSuccessful() {
+
+        const queryParams = new URLSearchParams(window.location.search);
+        const sessionId = queryParams.get('payment');
+
         try {
-            const url = `${this.baseApi}/is-payment-successful`;
+            const url = `${this.baseApi}/is-payment-successful?payment=${sessionId}`;
 
             const params = {
                 headers: {
@@ -74,9 +78,7 @@ export class StripeAPI {
 
             const data = await res.json();
 
-            console.log(data)
-
-            return data;
+            return data.payment;
         } catch (error) {
             console.error('❌ Error al obtener los datos:', error);
             alert('Hubo un error al procesar el pago. Por favor, inténtalo de nuevo.');
