@@ -357,6 +357,64 @@ async obtenerEventosCercanosPorEquipo(equipoId) {
 }
 
 
+/////////
+///galerias
+
+
+async subirImagenGaleria(titulo, descripcion, club_id, equipo_id, file) {
+  try {
+      const url = `${this.baseApi}/galeria`;
+      const formData = new FormData();
+      formData.append('titulo', titulo);
+      formData.append('descripcion', descripcion);
+      if (club_id) formData.append('club_id', club_id);
+      if (equipo_id) formData.append('equipo_id', equipo_id);
+      formData.append('imagen', file);
+
+      const params = {
+          method: 'POST',
+          body: formData,
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (!response.ok) throw result;
+      return result;
+
+  } catch (error) {
+      console.error('Error al subir imagen a la galería:', error);
+      throw error;
+  }
+}
+
+// 📌 Obtener imágenes de la galería por Club ID
+async obtenerGaleriaPorClub(club_id) {
+  try {
+      const url = `${this.baseApi}/galeria/club/${club_id}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Error al obtener la galería del club.');
+      return await response.json();
+  } catch (error) {
+      console.error('Error al obtener la galería del club:', error);
+      throw error;
+  }
+}
+
+// 📌 Obtener imágenes de la galería por Equipo ID
+async obtenerGaleriaPorEquipo(equipo_id) {
+  try {
+      const url = `${this.baseApi}/galeria/equipo/${equipo_id}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Error al obtener la galería del equipo.');
+      return await response.json();
+  } catch (error) {
+      console.error('Error al obtener la galería del equipo:', error);
+      throw error;
+  }
+}
+
+
 
 
 }

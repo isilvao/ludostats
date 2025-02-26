@@ -7,6 +7,7 @@ const Club = require("../models/Club");
 const UsuariosEquipos = require("../models/UsuariosEquipos");
 const { Op } = require("sequelize");
 const cloudinary = require('../utils/cloudinary');  // 📌 Importa Cloudinary correctamente
+const { Resend } = require('resend');
 
 //*********************     PERSONAL ROUTES     *********************
 async function getMe(req, res) {
@@ -525,6 +526,168 @@ const actualizarFotoUsuario = async (req, res) => {
 };
 
 
+/////////////////////////
+///send email
+
+const sendEmail = async (req, res) => {
+  const resend = new Resend("re_AyQTq895_HDdFFDVdEJtDPTBH5qRCpfZ8");
+
+  try {
+      const body = req.body;
+
+      if (body.firstName && body.otp && body.email) {
+          const { firstName, otp, email } = body;
+          const logoUrl = "https://res.cloudinary.com/dnoptrz2d/image/upload/otros/logo_ludostats2.png";
+
+          const { data, error } = await resend.emails.send({
+              from: "general@ludostats.com",
+              to: [email],
+              subject: "Solicitud de Cambio de Contraseña",
+              html: `
+              <html>
+              <head>
+                  <meta charset="UTF-8">
+                  <style>
+                      body { margin: 0; padding: 0; font-family: 'Arial', sans-serif; background-color: #f4f4f4; }
+                        .email-container { max-width: 600px; margin: 20px auto; background: #fdfdfd; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+                        .header { background-color: #9fedc0; padding: 20px; text-align: center; }
+                        .header img { width: 200px; }
+                        .content { padding: 30px; text-align: center; }
+                        .content h1 { font-size: 24px; color: #333; }
+                        .content p { font-size: 16px; color: #555; margin-bottom: 20px; }
+                        .otp-box { background-color: #f56758; color: #fff; padding: 15px; font-size: 22px; font-weight: bold; display: inline-block; border-radius: 5px; }
+                        .footer { margin-top: 20px; padding: 20px; background: #f8f8f8; text-align: center; font-size: 12px; color: #777; }
+                  </style>
+              </head>
+              <body>
+                  <div class="email-container">
+                      <div class="header">
+                          <img src="${logoUrl}" alt="LudoStats Logo">
+                      </div>
+                      <div class="content">
+                          <h1>Hola, ${firstName}!</h1>
+                          <p>Has solicitado cambiar tu contraseña en <strong>LudoStats</strong>.</p>
+                          <p>Utiliza el siguiente código de verificación:</p>
+                          <div class="otp-box">${otp}</div>
+                          <p>Este código es válido por un tiempo limitado.</p>
+                      </div>
+                      <div class="footer">
+                          Si no solicitaste este cambio, por favor ignora este correo.
+                      </div>
+                  </div>
+              </body>
+              </html>
+              `,
+          });
+
+          if (error) {
+              return res.status(500).json({ error });
+          }
+
+          return res.json(data);
+      }
+
+      return res.status(400).json({ error: "Solicitud inválida" });
+  } catch (error) {
+      return res.status(500).json({ error: error.message });
+  }
+};
+
+
+const sendVerificationEmail1 = async (req, res) => {
+  const resend = new Resend("re_AyQTq895_HDdFFDVdEJtDPTBH5qRCpfZ8");
+
+  try {
+      const { firstName, otp, email } = req.body;
+      const logoUrl = "https://res.cloudinary.com/dnoptrz2d/image/upload/otros/logo_ludostats.svg";
+
+      const verificationLink = `https://ludostats.com/verify?otp=${otp}`;
+
+      const { data, error } = await resend.emails.send({
+          from: "general@ludostats.com",
+          to: [email],
+          subject: "Verifica tu cuenta en LudoStats",
+          html: `
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <style>
+                  .email-container { max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+                  .header { background-color: #9fedc0; padding: 20px; text-align: center; }
+                  .header img { width: 200px; }
+                  .content { padding: 30px; text-align: center; }
+                  .content h1 { font-size: 24px; color: #333; }
+                  .content p { font-size: 16px; color: #555; margin-bottom: 20px; }
+                  .verify-button { display: inline-block; background-color: #2ecc71; color: #fff; padding: 15px 25px; border-radius: 5px; text-decoration: none; font-size: 18px; }
+              </style>
+          </head>
+          <body>
+              <div class="email-container">
+                  <div class="header">
+                      <img src="${logoUrl}" alt="LudoStats Logo">
+                  </div>
+                  <div class="content">
+                      <h1>¡Bienvenido, ${firstName}!</h1>
+                      <p>Gracias por registrarte en <strong>LudoStats</strong>. Por favor, verifica tu cuenta haciendo clic en el botón de abajo.</p>
+                      <a href="${verificationLink}" class="verify-button">Verificar Cuenta</a>
+                      <p>O puedes ingresar este código manualmente:</p>
+                      <div class="otp-box" onclick="copyToClipboard('${otp}')">${otp}</div>
+                  </div>
+              </div>
+          </body>
+          </html>
+          `,
+      });
+
+      if (error) return res.status(500).json({ error });
+
+      return res.json(data);
+  } catch (error) {
+      return res.status(500).json({ error: error.message });
+  }
+};
+
+const activateUser = async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const usuario = await User.findByPk(user_id);
+    if (!usuario) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
+    }
+
+    usuario.correo_validado = true;
+    await usuario.save(); // ✅ Asegurar que la actualización se complete antes de continuar
+
+    return res.status(200).json({ msg: "Usuario activado correctamente" }); // ✅ Respuesta después de actualizar
+
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+const isAccountValid = async(req,res) =>{
+
+  try{
+    const { id } = req.params
+  const user = await User.findByPk(id);
+
+  if (!user) {
+    return res.status(404).json({ error: "El usuario no existe" }); // ✅ Manejar usuario no encontrado
+  }
+
+  return res.status(200).json({ correo_validado: user.correo_validado }); // ✅ Devolver el estado correctamente
+
+
+  }catch(error){
+    return res.status(500).json({error: error.massage})
+  }
+  
+}
+
+
 
 module.exports = {
   getMe,
@@ -546,4 +709,8 @@ module.exports = {
   deleteMe,
   actualizarFotoUsuario,
   updatePasswordFromProfile,
+  sendEmail,
+  sendVerificationEmail1,
+  activateUser,
+  isAccountValid
 };

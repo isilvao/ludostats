@@ -22,6 +22,10 @@ export default function Layout({
     return redirect(`/sign-up?next=${encodeURIComponent(pathname)}`);
   }
 
+  // if (!user.activo){
+  //   return redirect(`/validate`)
+  // }
+
   return (
     <EquipoClubProvider> {/* 📌 Envolvemos la app con el contexto */}
       <main className="bg-[#F4F5F5] min-h-screen">
