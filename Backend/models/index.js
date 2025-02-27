@@ -13,7 +13,6 @@ const Galeria = require('./Galeria');
 
 const Invitacion = require('./invitacion');
 const UsuariosEquipos = require('./UsuariosEquipos');
-const sequelize = require('../db');
 
 const initModels = async () => {
   try {
