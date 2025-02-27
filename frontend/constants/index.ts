@@ -92,7 +92,7 @@ export const footerLinks = [
       { name: 'Términos de servicio', href: '/terms-of-service' },
       { name: 'Política de privacidad', href: '/privacy-policy' },
       { name: 'Preguntas frecuentes', href: '/faq' },
-      { name: 'Legal', href: '/' },
+      // { name: 'Legal', href: '/' },
     ],
   },
 ];
