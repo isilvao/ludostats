@@ -601,7 +601,7 @@ const sendVerificationEmail1 = async (req, res) => {
       const { firstName, otp, email, id } = req.body;
       const logoUrl = "https://res.cloudinary.com/dnoptrz2d/image/upload/otros/logo_ludostats2.png";
 
-      const verificationLink = `http://localhost:3000/join?otp=${otp}&id=${id}`
+      const verificationLink = `http://localhost:3000/home?otp=${otp}&id=${id}`
 ;
 
       const { data, error } = await resend.emails.send({
