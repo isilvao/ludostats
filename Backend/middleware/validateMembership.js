@@ -4,7 +4,7 @@ const UsuariosEquipos = require('../models/UsuariosEquipos');
 const TipoEstadistica = require('../models/TipoEstadistica');
 
 const MEMBERSHIP_LIMITS = {
-    gratis: { clubes: 1, equipos: 1, estadisticas: 2, miembros: 10 },
+    gratis: { clubes: 1, equipos: 2, estadisticas: 2, miembros: 10 },
     basico: { clubes: 1, equipos: 5, estadisticas: 10, miembros: 50 },
     premium: { clubes: 3, equipos: 15, estadisticas: 30, miembros: 150 },
     pro: { clubes: 5, equipos: 30, estadisticas: 50, miembros: 300 },
@@ -67,7 +67,7 @@ const validarCreacionEquipo = async (req, res, next) => {
 /**
  * 📌 Middleware para validar la cantidad de tipos de estadísticas que un usuario puede crear según su membresía.
  */
-const validarCreacionEstadistica = async (req, res, next) => { 
+const validarCreacionEstadistica = async (req, res, next) => {
     try {
         const { user_id } = req.user;
 

@@ -59,7 +59,7 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: true,
     },
     tipo_suscripcion: {
-        type: DataTypes.ENUM('gratis', 'basica', 'premium', 'pro'),
+        type: DataTypes.ENUM('gratis', 'basico', 'premium', 'pro'),
         defaultValue: 'gratis',
     },
     fecha_fin_suscripcion: {

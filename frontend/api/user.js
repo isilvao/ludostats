@@ -174,8 +174,6 @@ export class User {
         email,
       };
 
-      console.log(3);
-
       const url = `${this.baseApi}/send-email/user`;
 
       const response = await fetch(url, {

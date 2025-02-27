@@ -16,7 +16,6 @@ import { Toaster } from '@/components/ui/sonner';
 // Interfaces para cada tipo (puedes modificarlas según tu API)
 interface Equipo {
   id: string;
-  //Equipo: {
   nombre: string;
   logo?: string;
   rol: string;
@@ -24,7 +23,6 @@ interface Equipo {
     nombre: string;
     deporte: string;
   };
-  //};
 }
 
 interface Club {
@@ -72,18 +70,14 @@ const Page: React.FC = () => {
 
         const paymentSuccessful = await stripeAPI.isPaymentSuccessful();
 
-        console.log('Payment successful:', paymentSuccessful);
-
-        if (paymentSuccessful) {
+        if (paymentSuccessful === true) {
           toast.success('Pago realizado con éxito', {
             style: {
               background: '#4CAF50', // Fondo verde
               color: '#FFFFFF', // Texto blanco
             },
           });
-        }
-
-        if (!paymentSuccessful) {
+        } else if (paymentSuccessful === false) {
           toast.error('Pago fallido', {
             style: {
               background: '#F44336', // Fondo rojo
@@ -295,31 +289,28 @@ const Page: React.FC = () => {
             <div className="flex space-x-4">
               <button
                 onClick={() => setActiveTab('equipos')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${
-                  activeTab === 'equipos'
-                    ? 'bg-brand text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'equipos'
+                  ? 'bg-brand text-white'
+                  : 'bg-gray-200 text-gray-700'
+                  }`}
               >
                 Equipos
               </button>
               <button
                 onClick={() => setActiveTab('clubes')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${
-                  activeTab === 'clubes'
-                    ? 'bg-brand text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'clubes'
+                  ? 'bg-brand text-white'
+                  : 'bg-gray-200 text-gray-700'
+                  }`}
               >
                 Clubes
               </button>
               <button
                 onClick={() => setActiveTab('hijos')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${
-                  activeTab === 'hijos'
-                    ? 'bg-brand text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'hijos'
+                  ? 'bg-brand text-white'
+                  : 'bg-gray-200 text-gray-700'
+                  }`}
               >
                 Hijos
               </button>

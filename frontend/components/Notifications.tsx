@@ -37,7 +37,6 @@ const Notifications = () => {
           'da69d930-ac88-49e9-a3c0-aabf1f1b3f4a'
         );
         const unreadNotifications = data.noLeidas;
-        console.log('unreadNotifications:', unreadNotifications);
         setNotifications(unreadNotifications);
         setUnreadCount(unreadNotifications.length);
       } catch (error) {
