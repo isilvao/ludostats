@@ -15,6 +15,7 @@ interface PlanProps {
     recommended?: boolean;
     clubType: string;
     id?: string | null;
+    isActive?: boolean;
 }
 
 const PlanCard: React.FC<PlanProps> = ({
@@ -25,6 +26,7 @@ const PlanCard: React.FC<PlanProps> = ({
     recommended,
     clubType,
     id,
+    isActive,
 }) => (
     <div
         className={`relative bg-white shadow-md rounded-lg border ${recommended ? 'border-brand' : 'border-gray-300'
@@ -53,12 +55,23 @@ const PlanCard: React.FC<PlanProps> = ({
                 </li>
             ))}
         </ul>
-        {id ? (
-            <CheckoutButton priceId={id} />
+        {isActive ? (
+            <div className="flex justify-center items-center py-10">
+                <button
+                    className="bg-[#378535] text-white px-4 py-2 rounded-lg hover:bg-[#378535]/90 transition-colors">
+                    Plan activo
+                </button>
+            </div>
         ) : (
-            <p className="text-red-500 text-sm">
-                Error: No se encontró ID para este plan
-            </p>
+            id && name !== 'Gratuito' ? (
+                <CheckoutButton priceId={id} />
+            ) : (
+                name !== 'Gratuito' && (
+                    <p className="text-red-500 text-sm">
+                        Error: No se encontró ID para este plan
+                    </p>
+                )
+            )
         )}
     </div>
 );
@@ -93,31 +106,37 @@ async function getPricingData() {
 
         const plans = [
             {
-                name: 'Básico',
-                price: 70000,
+                name: 'Gratuito',
+                price: 0,
                 features: [
-                    { name: 'Gestión de miembros', included: true },
-                    { name: 'Control de pagos', included: true },
-                    { name: 'Estadísticas básicas', included: true },
-                    { name: 'Soporte por email', included: true },
-                    { name: 'Gestión avanzada', included: false },
-                    { name: 'Soporte prioritario', included: false },
-                    { name: 'Integraciones con terceros', included: false },
+                    { name: 'Cantidad de clubes: 1', included: true },
+                    { name: 'Cantidad de equipos: 2', included: true },
+                    { name: 'Cantidad de tipos de estadística: 2', included: true },
+                    { name: 'Limite de usuarios por plan: 10', included: true },
+                ],
+                buttonText: 'Registrar mi club',
+                clubType: 'clubes pequeños',
+            },
+            {
+                name: 'Básico',
+                price: 71000,
+                features: [
+                    { name: 'Cantidad de clubes: 1', included: true },
+                    { name: 'Cantidad de equipos: 5', included: true },
+                    { name: 'Cantidad de tipos de estadística: 10', included: true },
+                    { name: 'Limite de usuarios por plan: 50', included: true },
                 ],
                 buttonText: 'Registrar mi club',
                 clubType: 'clubes pequeños',
             },
             {
                 name: 'Premium',
-                price: 140000,
+                price: 141000,
                 features: [
-                    { name: 'Gestión de miembros', included: true },
-                    { name: 'Control de pagos', included: true },
-                    { name: 'Estadísticas avanzadas', included: true },
-                    { name: 'Soporte por email', included: true },
-                    { name: 'Gestión avanzada', included: true },
-                    { name: 'Soporte prioritario', included: true },
-                    { name: 'Integraciones con terceros', included: false },
+                    { name: 'Cantidad de clubes: 3', included: true },
+                    { name: 'Cantidad de equipos: 15', included: true },
+                    { name: 'Cantidad de tipos de estadística: 30', included: true },
+                    { name: 'Limite de usuarios por plan: 150', included: true },
                 ],
                 buttonText: 'Registrar mi club',
                 recommended: true,
@@ -125,15 +144,12 @@ async function getPricingData() {
             },
             {
                 name: 'Pro',
-                price: 21000,
+                price: 211000,
                 features: [
-                    { name: 'Gestión de miembros', included: true },
-                    { name: 'Control de pagos', included: true },
-                    { name: 'Estadísticas avanzadas', included: true },
-                    { name: 'Soporte por email', included: true },
-                    { name: 'Gestión avanzada', included: true },
-                    { name: 'Soporte prioritario', included: true },
-                    { name: 'Integraciones con terceros', included: true },
+                    { name: 'Cantidad de clubes: 5', included: true },
+                    { name: 'Cantidad de equipos: 30', included: true },
+                    { name: 'Cantidad de tipos de estadística: 50', included: true },
+                    { name: 'Limite de usuarios por plan: 300', included: true },
                 ],
                 buttonText: 'Registrar mi club',
                 clubType: 'clubes grandes',
@@ -172,19 +188,16 @@ const PricingPage: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await getPricingData();
-            setPlans(data.map(plan => ({ ...plan, price: plan.price.toString() })) as PlanProps[]);
+            setPlans(data.map(plan => ({
+                ...plan,
+                price: plan.price.toString(),
+                isActive: user?.tipo_suscripcion === plan.name?.toLowerCase()
+            })) as PlanProps[]);
 
-            // Obtener informacion sobre el usuario y los planes activos
-            if (user) {
-                const stripeapi = new StripeAPI();
-                const activeSubscriptions = await stripeapi.userHasPayment(user.id);
-
-                console.log('Planes activos:', activeSubscriptions);
-            }
             setIsLoading(false);
         };
         fetchData();
-    }, []);
+    }, [user]);
 
     if (isLoading) {
         return <LoadingScreen />;

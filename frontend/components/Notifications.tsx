@@ -39,7 +39,6 @@ const Notifications = () => {
           user.id
         );
         const unreadNotifications = data.noLeidas;
-        console.log('unreadNotifications:', unreadNotifications);
         setNotifications(unreadNotifications);
         setUnreadCount(unreadNotifications.length);
       } catch (error) {

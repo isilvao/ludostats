@@ -39,15 +39,6 @@ const sendEmail = async (req, res) => {
     }
 }
 
-// DATOS PARA EL BACKEND
-/**
- * Usuario ID
- * Destinatario: null
- * tipo: suscripcion
- * concepto: (poner el plan)
- */
-
-
 const stripePrices = async (req, res) => {
 
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -78,7 +69,8 @@ const isPaymentSuccessful = async (req, res) => {
 }
 
 const webhook = async (request, response) => {
-    const endpointSecret = "whsec_172ebf303d7b3fd03afb648acb50c5c749e6a7f71a9bb62c2a9cb9b711b05241";
+    const endpointSecret = "whsec_H5n5KCuBX0dfBDmocQjzhCHiyiuWAx2x";
+
     const signature = request.headers['stripe-signature'];
 
     let event;
@@ -116,7 +108,7 @@ const webhook = async (request, response) => {
                     console.log('estoy adentro')
                     await usuario.update({ id_stripe: usuarioStripeId, tipo_suscripcion: tipoPlan });
 
-                    
+
                     // 📌 Enviar un correo de confirmación de la membresía
                     const emailContent = `
                         <html>

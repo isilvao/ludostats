@@ -65,7 +65,6 @@ const TeamsPage: React.FC = () => {
         const clubAPI = new EquipoAPI();
         const equiposData = await clubAPI.obtenerEquiposClub(clubData.id);
         setEquipos(equiposData);
-        console.log('Equipos del club:', equiposData);
       } catch (error) {
         console.error('Error al obtener los equipos del club:', error);
         toast.error('Error al obtener los equipos del club');

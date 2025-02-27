@@ -14,8 +14,6 @@ const CheckoutButton = ({ priceId }: CheckoutButtonProps) => {
 
     const data = await stripeapi.createCheckoutSession(priceId);
 
-    console.log("EL ID DEL CHECKOUT ES: ", data.id);
-
     window.location.href = data.url;
   };
 
@@ -29,7 +27,7 @@ const CheckoutButton = ({ priceId }: CheckoutButtonProps) => {
         className="bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand/90 transition-colors"
         onClick={handleCheckout} // ✅ Llamar la función de prueba al hacer clic
       >
-        Renovar suscripción
+        Adquirir suscripción
       </button>
     </div>
   );
