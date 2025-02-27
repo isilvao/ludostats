@@ -14,6 +14,8 @@ const CheckoutButton = ({ priceId }: CheckoutButtonProps) => {
 
     const data = await stripeapi.createCheckoutSession(priceId);
 
+    console.log("EL ID DEL CHECKOUT ES: ", data.id);
+
     window.location.href = data.url;
   };
 

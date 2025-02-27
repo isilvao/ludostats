@@ -1,62 +1,15 @@
 const { Resend } = require('resend');
 const { Stripe } = require('stripe');
-const { EXCHANGE_RATE_API_KEY } = require('../constants');
+const { EXCHANGE_RATE_API_KEY, STRIPE_WEBHOOK_SECRET } = require('../constants');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-01-27.acacia" });
+const User = require('../models/Usuario');
 
 const sendEmail = async (req, res) => {
-    const resend = new Resend("re_AyQTq895_HDdFFDVdEJtDPTBH5qRCpfZ8");
-
     try {
         const body = req.body;
 
-        if (body.firstName && body.otp && body.email) {
-            const { firstName, otp, email } = body;
-
-            const { data, error } = await resend.emails.send({
-                from: "general@ludostats.com",
-                to: [email],
-                subject: "Confirmación pago de suscripción a LudoStats",
-                text: "",
-                html: `
-                <html>
-                    <head>
-                    <meta charset="UTF-8">
-                    <style>
-                        body { margin: 0; padding: 20px; background-color: #f4f4f4; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-                        .container { background-color: #ffffff; max-width: 600px; margin: 0 auto; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); padding: 30px; }
-                        h1 { font-size: 24px; color: #333333; margin-bottom: 20px; }
-                        p { font-size: 16px; color: #555555; line-height: 1.5; }
-                        .otp { font-weight: bold; color: #e74c3c; }
-                        .footer { margin-top: 20px; font-size: 12px; color: #999999; text-align: center; }
-                    </style>
-                    </head>
-                    <body>
-                    <div class="container">
-                        <h1>Bienvenido, ${firstName}!</h1>
-                        <p>Tu código de un solo uso es: <span class="otp">${otp}</span></p>
-                        <p>Por favor, usa este código para restablecer tu contraseña.</p>
-                        <p class="footer">Si no solicitaste un cambio de contraseña, por favor ignora este correo.</p>
-                    </div>
-                    </body>
-                </html>
-            `,
-            });
-
-            if (error) {
-                return res.status(500).json({ error });
-            }
-
-            return res.json(data);
-        }
-
         // ✅ API para Stripe
         if (body.priceId) {
-
-            const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-            if (!stripeSecretKey) {
-                throw new Error("❌ Stripe secret key is not defined");
-            }
-
-            const stripe = new Stripe(stripeSecretKey, { apiVersion: "2025-01-27.acacia" });
 
             try {
                 const session = await stripe.checkout.sessions.create({
@@ -72,7 +25,7 @@ const sendEmail = async (req, res) => {
                     cancel_url: `${req.headers.origin}/home?payment=cancel`,
                 });
 
-                return res.json({ url: session.url });
+                return res.json({ url: session.url, id: session.id });
             } catch (error) {
                 console.error("❌ Error creando sesión de Stripe:", error);
                 return res.status(500).json({ error: "Error creando sesión de checkout" });
@@ -123,8 +76,69 @@ const isPaymentSuccessful = async (req, res) => {
     }
 }
 
+const webhook = async (request, response) => {
+    const endpointSecret = "whsec_172ebf303d7b3fd03afb648acb50c5c749e6a7f71a9bb62c2a9cb9b711b05241";
+    const signature = request.headers['stripe-signature'];
+
+    let event;
+
+    try {
+        // ✅ Verificamos la firma del webhook usando el cuerpo en formato RAW
+        event = stripe.webhooks.constructEvent(request.body, signature, endpointSecret);
+    } catch (err) {
+        console.error("⚠️ Webhook signature verification failed:", err.message);
+        return response.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        const subscriptionId = session.subscription || null;
+        const customerId = session.customer;
+
+        console.log('✅ Checkout completado. ID del cliente:', customerId);
+
+        if (subscriptionId) {
+            try {
+                // ✅ Obtener los datos completos de la suscripción
+                const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+                const usuarioStripeId = subscription.customer;
+                const customer = await stripe.customers.retrieve(usuarioStripeId);
+
+
+                const correoUsuario = customer.email;
+                const tipoPlan = subscription.plan.nickname.toLowerCase().replace("á", "a");
+                const usuario = await User.findOne({ where: { correo: correoUsuario } })
+
+                if (usuario) {
+                    await usuario.update({ id_stripe: usuarioStripeId, tipo_suscripcion: tipoPlan });
+                } else {
+                    console.warn(`⚠️ Usuario no encontrado con el correo: ${correoUsuario}`);
+                }
+
+                // ENVIO DE CORREO Y NOTIFICACION, ACTUALIZACION USUARIO
+                // CORREO -> Nombre, email, tipo de plan, Date.now()
+                // NOTIFICACION -> Usuario id, tipo de plan, Date.now()
+
+            } catch (error) {
+                console.error("❌ Error al obtener suscripción:", error.message);
+            }
+        } else {
+            console.warn("⚠️ No hay suscripción en este checkout.");
+        }
+    } else {
+        console.log(`ℹ️ Evento no manejado: ${event.type}`);
+    }
+
+    response.status(200).json({ received: true });
+};
+
+const userHasSubscription = async (req, res) => {
+    console.log("🔍 Verificando suscripción del usuario...");
+}
+
 module.exports = {
     sendEmail,
     stripePrices,
-    isPaymentSuccessful
+    isPaymentSuccessful,
+    webhook
 };

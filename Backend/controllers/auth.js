@@ -3,13 +3,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("../utils/jwt");
 
 function register(req, res) {
-  const { nombre, apellido, correo, contrasena, foto } = req.body;
+  const { nombre, apellido, correo, contrasena, foto, correo_validado } = req.body;
 
-  if (!correo) res.status(400).send({ msg: "El correo es obligatorio" });
+  if (!correo) return res.status(400).send({ msg: "El correo es obligatorio" });
   if (!contrasena)
-    res.status(400).send({ msg: "La contraseña es obligatoria" });
-  if (!nombre) res.status(400).send({ msg: "El nombre es obligatorio" });
-  if (!apellido) res.status(400).send({ msg: "El apellido es obligatorio" });
+    return res.status(400).send({ msg: "La contraseña es obligatoria" });
+  if (!nombre) return res.status(400).send({ msg: "El nombre es obligatorio" });
+  if (!apellido) return res.status(400).send({ msg: "El apellido es obligatorio" });
 
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(contrasena, salt);
@@ -20,7 +20,8 @@ function register(req, res) {
     apellido,
     correo: correo.toLowerCase(),
     contrasena: hashPassword,
-    foto: foto || null // 📌 Guardar la foto si está disponible
+    foto: foto || null, // 📌 Guardar la foto si está disponible
+    correo_validado
   })
     .then((userStored) => {
       if (!userStored) {
@@ -78,22 +79,22 @@ function refreshAccessToken(req, res) {
   const { token } = req.body;
 
   if (!token) {
-    res.status(500).send({ msg: "No se ha encontrado el token" });
+    return res.status(500).send({ msg: "No se ha encontrado el token" });
   }
   const { user_id } = jwt.decodeToken(token);
 
   Usuario.findOne({ where: { id: user_id } })
     .then((user) => {
       if (!user) {
-        res.status(404).send({ msg: "Usuario no encontrado" });
+        return res.status(404).send({ msg: "Usuario no encontrado" });
       } else {
-        res.status(200).send({
+        return res.status(200).send({
           accessToken: jwt.createAccessToken(user),
         });
       }
     })
     .catch((err) => {
-      res.status(500).send({ msg: "Error del servidor" });
+      return res.status(500).send({ msg: "Error del servidor" });
     });
 }
 

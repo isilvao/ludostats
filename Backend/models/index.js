@@ -264,6 +264,6 @@ Galeria.belongsTo(Equipo, {
 
 
 module.exports = {
-  Usuario, Club, Equipo, Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, EventoDependencia, initModels, Galeria,Transaccion,
+  Usuario, Club, Equipo, Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, EventoDependencia, initModels, Galeria, Transaccion,
   Notificacion
 };
