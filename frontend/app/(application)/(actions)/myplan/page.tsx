@@ -94,7 +94,7 @@ async function getPricingData() {
         const plans = [
             {
                 name: 'Básico',
-                price: 38000,
+                price: 70000,
                 features: [
                     { name: 'Gestión de miembros', included: true },
                     { name: 'Control de pagos', included: true },
@@ -109,7 +109,7 @@ async function getPricingData() {
             },
             {
                 name: 'Premium',
-                price: 79900,
+                price: 140000,
                 features: [
                     { name: 'Gestión de miembros', included: true },
                     { name: 'Control de pagos', included: true },
@@ -125,7 +125,7 @@ async function getPricingData() {
             },
             {
                 name: 'Pro',
-                price: 119900,
+                price: 21000,
                 features: [
                     { name: 'Gestión de miembros', included: true },
                     { name: 'Control de pagos', included: true },
@@ -175,8 +175,13 @@ const PricingPage: React.FC = () => {
             setPlans(data.map(plan => ({ ...plan, price: plan.price.toString() })) as PlanProps[]);
 
             // Obtener informacion sobre el usuario y los planes activos
+            if (user) {
+                const stripeapi = new StripeAPI();
+                const activeSubscriptions = await stripeapi.userHasPayment(user.id);
 
-
+                console.log('Planes activos:', activeSubscriptions);
+            }
+            setIsLoading(false);
         };
         fetchData();
     }, []);
@@ -195,7 +200,7 @@ const PricingPage: React.FC = () => {
                     Escoge el plan que mejor se ajuste a las necesidades de tu club
                     deportivo.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {plans.map((plan, idx) => (
                         <div key={idx}>
                             <PlanCard {...plan} />
