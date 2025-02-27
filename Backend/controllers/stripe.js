@@ -115,12 +115,12 @@ const isPaymentSuccessful = async (req, res) => {
     const { payment } = req.query;
 
     if (payment === "success") {
-        console.log("Payment successful");
+        return res.json({ payment: true });
+    } else if (payment === "cancel") {
+        return res.json({ payment: false });
     } else {
-        console.log("Payment failed");
+        return res.json({ payment: null });
     }
-
-    return res.json({ payment });
 }
 
 module.exports = {
