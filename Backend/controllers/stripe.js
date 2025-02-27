@@ -5,8 +5,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-01-
 const User = require('../models/Usuario');
 const { Notificacion } = require('../models/Notificacion');
 
-const endpointSecret = "whsec_H5n5KCuBX0dfBDmocQjzhCHiyiuWAx2x";
-
 const sendEmail = async (req, res) => {
     try {
         const body = req.body;
@@ -71,6 +69,8 @@ const isPaymentSuccessful = async (req, res) => {
 }
 
 const webhook = async (request, response) => {
+    const endpointSecret = "whsec_H5n5KCuBX0dfBDmocQjzhCHiyiuWAx2x";
+
     const signature = request.headers['stripe-signature'];
 
     let event;

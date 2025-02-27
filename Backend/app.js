@@ -20,14 +20,8 @@ const invitacionRoutes = require('./router/invitaciones'); // Rutas para Invitac
 const stripeRoutes = require('./router/stripe');
 const galeriaRoutes = require('./router/galeria')
 
-app.use((req, res, next) => {
-    if (req.originalUrl === "/webhook") {
-        next(); // ⚠️ Evitar que otras configuraciones modifiquen el request.body
-    } else {
-        express.json()(req, res, next);
-    }
-});
-app.use(`/api/${API_VERSION}/webhook`, express.raw({ type: 'application/json' }));
+
+app.use(`/api/v1/webhook`, express.raw({ type: 'application/json' }));
 
 // Configure body parser
 app.use(bodyParser.urlencoded({ extended: false }));
