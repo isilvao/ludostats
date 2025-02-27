@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '../hooks';
 import { getProfileImage } from '../lib/utils';
-import Notifications from './Notifications';
+import { FaBell } from 'react-icons/fa';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +36,10 @@ const Header = () => {
         />
       </Link>
       <div className="flex items-center space-x-4">
-        <Notifications />
+        <FaBell
+          className="text-gray-400 hover:text-gray-600 cursor-pointer"
+          size={24}
+        />
         <div className="h-6 border-l border-gray-400"></div>
         <Link
           href="/myplan"

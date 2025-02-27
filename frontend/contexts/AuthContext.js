@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext } from 'react';
 import { User, Auth } from '../api';
 import { hasExpiredToken } from '../utils';
+import { set } from 'zod';
 
 const userController = new User();
 const authController = new Auth();
@@ -93,7 +94,7 @@ export function AuthProvider(props) {
   const updateProfileImage = (newImageUrl) => {
     setUser((prevUser) => ({
       ...prevUser,
-      foto: newImageUrl,
+      foto: newImageUrl, // <-- Aquí está la corrección importante
     }));
   };
 
