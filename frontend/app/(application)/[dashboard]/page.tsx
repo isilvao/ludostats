@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from '@/components/ui/tooltip';
+import { CarouselSpacing } from '@/components/Carousel';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -90,6 +91,10 @@ const Dashboard: React.FC = () => {
           <p className="text-gray-600">Consulta las noticias de tu equipo</p>
         </div>
 
+        {/* Sección de carrusel */}
+        <div className="mb-5 w-full flex items-center justify-center">
+          <CarouselSpacing clubId={clubData.id} isTeam={isTeam} />
+        </div>
         {/* Contenedor principal en grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Columna izquierda (principal) */}
