@@ -3,6 +3,7 @@ const Equipo = require("../models/Equipo");
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcryptjs");
 const { UsuarioClub } = require("../models");
+const {Notificacion} = require('../models')
 
 const borrarUsuarioEquipo = async (req, res) => {
   const { usuarioId, equipoId } = req.params;
@@ -156,99 +157,110 @@ const crearUsuarioEquipo = async (req, res) => {
   const { usuario_id, equipo_id, rol, nombre, apellido } = req.body;
 
   if (!usuario_id || !equipo_id || rol === undefined || rol === null) {
-    return res.status(400).json({ msg: "Faltan datos obligatorios" });
+      return res.status(400).json({ msg: "Faltan datos obligatorios" });
   }
 
-  let nuevoRol = ''
+  let nuevoRol = '';
   if (rol === 1) {
-    nuevoRol = 'deportista'
+      nuevoRol = 'deportista';
   } else if (rol === 2) {
-    nuevoRol = 'acudiente'
+      nuevoRol = 'acudiente';
   } else if (rol === 3) {
-    nuevoRol = 'entrenador'
+      nuevoRol = 'entrenador';
   } else if (rol === 4) {
-    nuevoRol = 'administrador'
+      nuevoRol = 'administrador';
   } else if (rol === 5) {
-    nuevoRol = 'miembro'
+      nuevoRol = 'miembro';
   }
 
   try {
-    // 📌 Verificar si el usuario ya está registrado en el equipo
-    if (rol != 2) {
-      const usuarioExistente = await UsuariosEquipos.findOne({
-        where: { usuario_id, equipo_id },
-      });
+      // 📌 Verificar si el usuario ya está registrado en el equipo (excepto acudientes)
+      if (rol !== 2) {
+          const usuarioExistente = await UsuariosEquipos.findOne({
+              where: { usuario_id, equipo_id },
+          });
 
-      if (usuarioExistente) {
-        return res
-          .status(409)
-          .json({ msg: "El usuario ya está registrado en este equipo." });
+          if (usuarioExistente) {
+              return res.status(409).json({ msg: "El usuario ya está registrado en este equipo." });
+          }
       }
-    }
 
-    // 📌 Si el usuario es acudiente (2) y se recibe nombre/apellido, solo creamos al hijo
-    if (rol === 2 && nombre && apellido) {
-      try {
+      // 📌 Si el usuario es acudiente (2) y se recibe nombre/apellido, solo creamos al hijo
+      if (rol === 2 && nombre && apellido) {
+          try {
+              const extra_id = await asignarHijoAlEquipo(usuario_id, equipo_id, nombre, apellido);
+              console.log(`📌 Registro del hijo completado con ID ${extra_id}`);
 
-        const extra_id = await asignarHijoAlEquipo(
+              return res.status(201).json({
+                  msg: "Hijo registrado correctamente en el equipo",
+                  hijo_id: extra_id,
+              });
+          } catch (error) {
+              console.error("❌ Error al asignar hijo:", error.message);
+              return res.status(400).json({ msg: error.message });
+          }
+      }
+
+      // 📌 Registrar al usuario en `UsuariosEquipos`
+      const nuevoRegistro = await UsuariosEquipos.create({
           usuario_id,
           equipo_id,
-          nombre,
-          apellido
-        );
-        console.log(`📌 Registro del hijo completado con ID ${extra_id}`);
+          rol: nuevoRol,
+      });
 
-        // 📌 Enviar respuesta para que Insomnia no se quede esperando
-        return res.status(201).json({
-          msg: "Hijo registrado correctamente en el equipo",
-          hijo_id: extra_id,
-        });
-      } catch (error) {
-        console.error("❌ Error al asignar hijo:", error.message);
-        return res.status(400).json({ msg: error.message });
+      // 📌 Obtener información del equipo y club
+      const equipo = await Equipo.findByPk(equipo_id);
+      const registroEnClub = await UsuarioClub.findOne({
+          where: { usuario_id, club_id: equipo.club_id }
+      });
+
+      // 📌 Si el usuario no está en el club, registrarlo también
+      if (!registroEnClub) {
+          await UsuarioClub.create({
+              usuario_id,
+              club_id: equipo.club_id,
+              rol: nuevoRol
+          });
+      } else {
+          await registroEnClub.update({ rol: nuevoRol });
       }
-    }
 
-    // 📌 Si no es acudiente, registrar normalmente en `UsuariosEquipos`
-    const nuevoRegistro = await UsuariosEquipos.create({
-      usuario_id,
-      equipo_id,
-      rol: nuevoRol,
-    });
+      console.log(`📌 Usuario ${usuario_id} asignado al equipo ${equipo_id} con rol ${nuevoRol}`);
 
-    const equipo = await Equipo.findByPk(equipo_id);
+      // 📌 Si el usuario es profesor (3), asignarlo automáticamente como entrenador
+      if (rol === 3) {
+          await asignarEntrenadorAEquipo(equipo_id, usuario_id);
+      }
 
-    const registroEnClub = await UsuarioClub.findOne({
-      where: { usuario_id, club_id: equipo.club_id }
-    });
+      // 📌 Obtener información del gerente del equipo para enviar notificación
+      const gerenteEquipo = await UsuariosEquipos.findOne({
+          where: { equipo_id, rol: "gerente" }
+      });
 
-    if (!registroEnClub) {
-      await UsuarioClub.create({
-        usuario_id,
-        club_id: equipo.club_id,
-        rol: nuevoRol
-      })
-    } else {
-      await registroEnClub.update({ rol: nuevoRol });
-    }
+      if (gerenteEquipo) {
+          const usuario = await Usuario.findByPk(usuario_id);
+          const nombreUsuario = `${usuario.nombre} ${usuario.apellido}`;
+          const fechaRegistro = new Date().toLocaleDateString("es-ES");
 
-    console.log(
-      `📌 Usuario ${usuario_id} asignado al equipo ${equipo_id} con rol ${rol}`
-    );
+          // 📌 Crear la notificación para el gerente
+          await Notificacion.create({
+              usuario_id: gerenteEquipo.usuario_id,
+              tipo: "otro", // Puedes cambiarlo si se define otro tipo más específico
+              mensaje: `${nombreUsuario} se ha unido al equipo ${equipo.nombre} con el rol de ${nuevoRol}. Fecha: ${fechaRegistro}`,
+              leido: false
+          });
 
-    // 📌 Si el usuario es profesor (3), asignarlo automáticamente como entrenador
-    if (rol === 3) {
-      await asignarEntrenadorAEquipo(equipo_id, usuario_id);
-    }
+          console.log("📌 Notificación enviada al gerente del equipo.");
+      }
 
-    return res
-      .status(201)
-      .json({ msg: "Registro creado correctamente", registro: nuevoRegistro });
+      return res.status(201).json({ msg: "Registro creado correctamente", registro: nuevoRegistro });
+
   } catch (error) {
-    console.error("❌ Error al crear el registro:", error);
-    return res.status(500).json({ msg: "Error interno del servidor" });
+      console.error("❌ Error al crear el registro:", error);
+      return res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
 
 
 const modificarRolUsuarioEquipo = async (req, res) => {

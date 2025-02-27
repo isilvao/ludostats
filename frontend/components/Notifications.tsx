@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { FaBell } from 'react-icons/fa';
 import { TeamsAPI } from '@/api/teams';
+import {useAuth} from '../hooks'
 
 const Notifications = () => {
   interface Notification {
@@ -28,13 +29,14 @@ const Notifications = () => {
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const {user} = useAuth()
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const api = new TeamsAPI();
         const data = await api.obtenerNotificaciones(
-          'da69d930-ac88-49e9-a3c0-aabf1f1b3f4a'
+          user.id
         );
         const unreadNotifications = data.noLeidas;
         console.log('unreadNotifications:', unreadNotifications);
