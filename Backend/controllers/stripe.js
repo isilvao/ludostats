@@ -5,7 +5,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-01-
 const User = require('../models/Usuario');
 const { Notificacion } = require('../models/Notificacion');
 
-
 const sendEmail = async (req, res) => {
     try {
         const body = req.body;
@@ -110,19 +109,14 @@ const webhook = async (request, response) => {
                 const correoUsuario = customer.email;
                 const tipoPlan = subscription.plan.nickname.toLowerCase().replace("á", "a");
                 const usuario = await User.findOne({ where: { correo: correoUsuario } })
+                console.log('estoy afuera')
 
                 if (usuario) {
+                    const resend = new Resend("re_AyQTq895_HDdFFDVdEJtDPTBH5qRCpfZ8");
+                    console.log('estoy adentro')
                     await usuario.update({ id_stripe: usuarioStripeId, tipo_suscripcion: tipoPlan });
 
-                     // 📌 Crear una notificación para el usuario
-                    await Notificacion.create({
-                        usuario_id: usuario.id,
-                        tipo: "membresia",
-                        mensaje: `Has adquirido la membresía ${tipoPlan.toUpperCase()} en LudoStats. ¡Disfrútala!`,
-                        fecha_creacion: new Date(),
-                        leido: false
-                    });
-
+                    
                     // 📌 Enviar un correo de confirmación de la membresía
                     const emailContent = `
                         <html>
@@ -165,6 +159,15 @@ const webhook = async (request, response) => {
                         subject: "🎉 ¡Tu nueva suscripción a LudoStats está activa!",
                         html: emailContent,
                     });
+
+                    // 📌 Crear una notificación para el usuario
+                    await Notificacion.create({
+                        usuario_id: usuario.id,
+                        tipo: "membresia",
+                        mensaje: `Has adquirido la membresía ${tipoPlan.toUpperCase()} en LudoStats. ¡Disfrútala!`,
+                        leido: false
+                    });
+
 
                     console.log(`✅ Notificación y correo de suscripción enviados a ${correoUsuario}`);
                 } else {
