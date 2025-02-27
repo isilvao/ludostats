@@ -79,22 +79,22 @@ function refreshAccessToken(req, res) {
   const { token } = req.body;
 
   if (!token) {
-    res.status(500).send({ msg: "No se ha encontrado el token" });
+    return res.status(500).send({ msg: "No se ha encontrado el token" });
   }
   const { user_id } = jwt.decodeToken(token);
 
   Usuario.findOne({ where: { id: user_id } })
     .then((user) => {
       if (!user) {
-        res.status(404).send({ msg: "Usuario no encontrado" });
+        return res.status(404).send({ msg: "Usuario no encontrado" });
       } else {
-        res.status(200).send({
+        return res.status(200).send({
           accessToken: jwt.createAccessToken(user),
         });
       }
     })
     .catch((err) => {
-      res.status(500).send({ msg: "Error del servidor" });
+      return res.status(500).send({ msg: "Error del servidor" });
     });
 }
 

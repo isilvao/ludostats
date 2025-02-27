@@ -19,6 +19,9 @@ const eventosRoutes = require('./router/evento'); // Rutas para Eventos
 const invitacionRoutes = require('./router/invitaciones'); // Rutas para Invitaciones
 const stripeRoutes = require('./router/stripe');
 const galeriaRoutes = require('./router/galeria')
+
+app.use(`/api/${API_VERSION}/webhook`, express.raw({ type: 'application/json' }));
+
 // Configure body parser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

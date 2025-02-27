@@ -35,7 +35,7 @@ const Usuario = sequelize.define('Usuario', {
     },
     activo: {
         type: DataTypes.BOOLEAN,
-        defaultValue : true,
+        defaultValue: true,
         allowNull: false
     },
     foto: {
@@ -54,6 +54,10 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.UUID,
         allowNull: true
     },
+    id_stripe: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     tipo_suscripcion: {
         type: DataTypes.ENUM('gratis', 'basica', 'premium', 'pro'),
         defaultValue: 'gratis',
@@ -66,10 +70,10 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.UUID,
         allowNull: true,
     },
-    correo_validado:{
+    correo_validado: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
-        allowNull:false,
+        allowNull: false,
     }
 
 });

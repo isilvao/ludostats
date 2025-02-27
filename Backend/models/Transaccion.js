@@ -19,7 +19,7 @@ const Transaccion = sequelize.define('Transaccion', {
         type: DataTypes.ENUM('suscripcion', 'matricula', 'otro'),
         allowNull: false,
     },
-    concepto: {
+    concepto: { // ID del usuario en Stripe
         type: DataTypes.STRING,
         allowNull: true,
     },
