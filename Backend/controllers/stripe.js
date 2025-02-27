@@ -3,6 +3,8 @@ const { Stripe } = require('stripe');
 const { EXCHANGE_RATE_API_KEY, STRIPE_WEBHOOK_SECRET } = require('../constants');
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-01-27.acacia" });
 const User = require('../models/Usuario');
+const { Notificacion } = require('../models/Notificacion');
+
 
 const sendEmail = async (req, res) => {
     try {
@@ -111,6 +113,60 @@ const webhook = async (request, response) => {
 
                 if (usuario) {
                     await usuario.update({ id_stripe: usuarioStripeId, tipo_suscripcion: tipoPlan });
+
+                     // 📌 Crear una notificación para el usuario
+                    await Notificacion.create({
+                        usuario_id: usuario.id,
+                        tipo: "membresia",
+                        mensaje: `Has adquirido la membresía ${tipoPlan.toUpperCase()} en LudoStats. ¡Disfrútala!`,
+                        fecha_creacion: new Date(),
+                        leido: false
+                    });
+
+                    // 📌 Enviar un correo de confirmación de la membresía
+                    const emailContent = `
+                        <html>
+                        <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+                            .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+                            .header { background-color: #9fedc0; padding: 20px; text-align: center; }
+                            .header img { width: 200px; }
+                            .content { padding: 30px; text-align: center; }
+                            .content h1 { font-size: 24px; color: #333; }
+                            .content p { font-size: 16px; color: #555; margin-bottom: 20px; }
+                            .plan-box { background-color: #f56758; color: #fff; padding: 15px; font-size: 18px; font-weight: bold; display: inline-block; border-radius: 5px; }
+                            .footer { margin-top: 20px; padding: 20px; background: #f8f8f8; text-align: center; font-size: 12px; color: #777; }
+                        </style>
+                        </head>
+                        <body>
+                        <div class="container">
+                            <div class="header">
+                                <img src="https://res.cloudinary.com/dnoptrz2d/image/upload/otros/logo_ludostats2.png" alt="LudoStats Logo">
+                            </div>
+                            <div class="content">
+                                <h1>¡Gracias por suscribirte, ${usuario.nombre}!</h1>
+                                <p>Has adquirido la membresía <span class="plan-box">${tipoPlan.toUpperCase()}</span> en LudoStats.</p>
+                                <p>Fecha de suscripción: ${new Date().toLocaleDateString("es-ES")}</p>
+                                <p>Disfruta de todos los beneficios que ofrece tu plan.</p>
+                            </div>
+                            <div class="footer">
+                                <p>Si tienes alguna pregunta, contáctanos en soporte@ludostats.com</p>
+                            </div>
+                        </div>
+                        </body>
+                        </html>
+                    `;
+
+                    await resend.emails.send({
+                        from: "general@ludostats.com",
+                        to: [correoUsuario],
+                        subject: "🎉 ¡Tu nueva suscripción a LudoStats está activa!",
+                        html: emailContent,
+                    });
+
+                    console.log(`✅ Notificación y correo de suscripción enviados a ${correoUsuario}`);
                 } else {
                     console.warn(`⚠️ Usuario no encontrado con el correo: ${correoUsuario}`);
                 }
