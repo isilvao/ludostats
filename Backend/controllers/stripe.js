@@ -133,12 +133,25 @@ const webhook = async (request, response) => {
 };
 
 const userHasSubscription = async (req, res) => {
-    console.log("🔍 Verificando suscripción del usuario...");
+    const { user_id } = req.params;
+
+    try {
+        const user = await User.findByPk(user_id);
+
+        if (user) {
+            return res.status(200).json({ hasSubscription: user.tipo_suscripcion });
+        } else {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
 }
 
 module.exports = {
     sendEmail,
     stripePrices,
     isPaymentSuccessful,
-    webhook
+    webhook,
+    userHasSubscription
 };

@@ -84,4 +84,26 @@ export class StripeAPI {
             alert('Hubo un error al procesar el pago. Por favor, inténtalo de nuevo.');
         }
     }
+
+    async userHasPayment(user_id) {
+        try {
+            const url = `${this.baseApi}/user-has-subscription/${user_id}`;
+
+            const params = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+
+            const res = await fetch(url, params);
+
+            const data = await res.json();
+
+            return data;
+        } catch (error) {
+            console.error('❌ Error al obtener los datos:', error);
+            alert('Hubo un error al procesar el pago. Por favor, inténtalo de nuevo.');
+        }
+    }
+
 }

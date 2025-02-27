@@ -134,7 +134,8 @@ const CreateForm = ({ type }: { type: FormType }) => {
         }, 1000);
       }
     } catch (error) {
-      console.error('Error al crear el club:', error);
+      toast.error('Has alcanzado el límite de clubes/equipos permitidos en tu plan', {
+      });
     } finally {
       setIsLoading(false);
     }

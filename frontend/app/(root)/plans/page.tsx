@@ -38,7 +38,9 @@ const PlanCard: React.FC<PlanProps> = ({
         <ul className="space-y-2 mb-6">
             {features.map((feature, idx) => (
                 <li key={idx} className="flex items-center text-gray-700">
-                    {feature.included ? (
+                    {feature.included === undefined ? (
+                        <span className="text-gray-500 font-bold mr-2">-</span>
+                    ) : feature.included ? (
                         <span className="text-brand font-bold mr-2">✔</span>
                     ) : (
                         <span className="text-red font-bold mr-2">✘</span>
@@ -59,8 +61,23 @@ const PlanCard: React.FC<PlanProps> = ({
 const Pricing: React.FC = () => {
     const plans = [
         {
+            name: 'Gratuito',
+            price: '$0',
+            features: [
+                { name: 'Cantidad de clubes: 1' },
+                { name: 'Cantidad de equipos: ' },
+                { name: 'Cantidad de tipos de estadística: ' },
+                { name: 'Soporte por email', included: true },
+                { name: 'Gestión avanzada', included: false },
+                { name: 'Soporte prioritario', included: false },
+                { name: 'Integraciones con terceros', included: false },
+            ],
+            buttonText: 'Registrar mi club',
+            clubType: 'clubes pequeños',
+        },
+        {
             name: 'Básico',
-            price: '$38,000',
+            price: '$71,000',
             features: [
                 { name: 'Gestión de miembros', included: true },
                 { name: 'Control de pagos', included: true },
@@ -75,7 +92,7 @@ const Pricing: React.FC = () => {
         },
         {
             name: 'Premium',
-            price: '$79,900',
+            price: '$141,000',
             features: [
                 { name: 'Gestión de miembros', included: true },
                 { name: 'Control de pagos', included: true },
@@ -91,7 +108,7 @@ const Pricing: React.FC = () => {
         },
         {
             name: 'Pro',
-            price: '$119,900',
+            price: '$211,000',
             features: [
                 { name: 'Gestión de miembros', included: true },
                 { name: 'Control de pagos', included: true },
@@ -117,7 +134,7 @@ const Pricing: React.FC = () => {
                     Escoge el plan que mejor se ajuste a las necesidades de tu club
                     deportivo.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {plans.map((plan, idx) => (
                         <PlanCard key={idx} {...plan} />
                     ))}
