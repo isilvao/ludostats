@@ -1,3 +1,5 @@
+'use client';
+import { useEffect, useState } from 'react';
 import { BellRing, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,41 +17,52 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FaBell } from 'react-icons/fa';
-
-const notifications = [
-  {
-    title: 'Your call has been confirmed.',
-    description: '1 hour ago',
-  },
-  {
-    title: 'You have a new message!',
-    description: '1 hour ago',
-  },
-  {
-    title: 'Your subscription is expiring soon!',
-    description: '2 hours ago',
-  },
-  {
-    title: 'Your subscription is expiring soon!',
-    description: '2 hours ago',
-  },
-  {
-    title: 'Your subscription is expiring soon!',
-    description: '2 hours ago',
-  },
-  {
-    title: 'Your subscription is expiring soon!',
-    description: '2 hours ago',
-  },
-  {
-    title: 'Your subscription is expiring soon!',
-    description: '2 hours ago',
-  },
-];
-
-const unreadCount = notifications.length;
+import { TeamsAPI } from '@/api/teams';
 
 const Notifications = () => {
+  interface Notification {
+    id: string;
+    mensaje: string;
+    fecha_creacion: string;
+  }
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const api = new TeamsAPI();
+        const data = await api.obtenerNotificaciones(
+          'da69d930-ac88-49e9-a3c0-aabf1f1b3f4a'
+        );
+        const unreadNotifications = data.noLeidas;
+        console.log('unreadNotifications:', unreadNotifications);
+        setNotifications(unreadNotifications);
+        setUnreadCount(unreadNotifications.length);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const markAllAsRead = async () => {
+    try {
+      const api = new TeamsAPI();
+      await Promise.all(
+        notifications.map((notification) =>
+          api.marcarNotificacionLeida(notification.id)
+        )
+      );
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="relative outline-none">
@@ -63,28 +76,16 @@ const Notifications = () => {
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[380px] p-0 max-h-[400px] overflow-y-auto">
+      <DropdownMenuContent className="w-[380px] p-0">
         <Card>
           <CardHeader>
-            <CardTitle>Notifications</CardTitle>
+            <CardTitle>Notificaciones</CardTitle>
             <CardDescription>
-              You have {unreadCount} unread messages.
+              Tienes {unreadCount} notificaciones sin leer.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <div className="flex items-center space-x-4 rounded-md border p-4">
-              <BellRing />
-              <div className="flex-1 space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Push Notifications
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Send notifications to device.
-                </p>
-              </div>
-              <Switch />
-            </div>
-            <div>
+            <div className="max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400">
               {notifications.map((notification, index) => (
                 <div
                   key={index}
@@ -93,10 +94,10 @@ const Notifications = () => {
                   <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {notification.title}
+                      {notification.mensaje}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {notification.description}
+                      {new Date(notification.fecha_creacion).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -104,8 +105,8 @@ const Notifications = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full">
-              <Check /> Mark all as read
+            <Button className="w-full" onClick={markAllAsRead}>
+              <Check /> Marcar todas como leidas
             </Button>
           </CardFooter>
         </Card>
