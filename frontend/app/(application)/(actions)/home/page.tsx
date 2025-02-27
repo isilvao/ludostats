@@ -281,6 +281,7 @@ const Page: React.FC = () => {
 
   return (
     <section className="py-6 px-6 items-center max-w-7xl mx-auto">
+      <Toaster />
       <div className="py-10 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 px-4 sm:px-6 lg:px-10 max-w-xl mx-auto">
           <h1 className="subtitle-2 sm:subtitle-1 text-[#4D4D4D]">
