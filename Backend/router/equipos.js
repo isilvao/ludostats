@@ -10,13 +10,16 @@ const api = express.Router();
 
 const multer = require("multer");
 
+const { validarCreacionEquipo } = require("../middleware/validateMembership");
+
+
 // 📌 Configuración de Multer para recibir imágenes
 const storage = multer.diskStorage({});
 const upload = multer({ storage });
 
 // Crear un equipo
 // api.post("/nuevoequipo", [md_auth.asureAuth, md_upload], equipoController.crearEquipo);
-api.post("/nuevoequipo", [md_auth.asureAuth, upload.single("logo")], equipoController.crearEquipo);
+api.post("/nuevoequipo", [md_auth.asureAuth, validarCreacionEquipo, upload.single("logo")], equipoController.crearEquipo);
 
 // Modificar un equipo por su ID
 //api.patch("/patchequipo/:id_equipo", [md_auth.asureAuth, md_upload, md_team.validateAdminOrGerenteInTeam], equipoController.modificarEquipo);

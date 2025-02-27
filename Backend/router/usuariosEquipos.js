@@ -3,8 +3,14 @@ const usuariosEquiposController = require("../controllers/usuariosEquipos");
 const userController = require("../controllers/user");
 
 const api = express.Router();
+const { validarUnionEquipo } = require("../middleware/validateMembership");
 
-api.post("/usuarios-equipos", usuariosEquiposController.crearUsuarioEquipo);
+
+
+
+api.post("/usuarios-equipos", [validarUnionEquipo],usuariosEquiposController.crearUsuarioEquipo);
+
+
 api.patch(
   "/usuarios-equipos/:id",
   usuariosEquiposController.modificarUsuarioEquipo

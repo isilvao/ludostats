@@ -113,6 +113,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
           apellido: values.lastName || '',
           correo: values.email,
           contrasena: values.password,
+          correo_validado: false,
         });
         result = await authController.login({
           correo: values.email,
@@ -152,7 +153,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
         apellido: values.lastName || '',
         correo: values.email,
         contrasena: values.password,
-        foto: values.picture || undefined, // 📌 Si no hay foto, enviamos `undefined`
+        foto: values.picture || undefined, // 📌 Si no hay foto, enviamos `undefined`'
+        correo_validado: true
       });
     } catch { }
 
