@@ -10,6 +10,8 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { User } from '@/api/user';
 import CardClub from '@/components/CardClub';
 import CardTeam from '@/components/CardTeam';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 // Interfaces para cada tipo (puedes modificarlas según tu API)
 interface Equipo {
@@ -68,9 +70,27 @@ const Page: React.FC = () => {
         const clubesData = await clubAPI.buscarMisClubes(user.id);
         setClubes(clubesData);
 
-        const paymentSuccessful = await stripeAPI.isPaymentSuccessful(); // True si el pago fue exitoso, False si no, null para consultar solo /home
+        const paymentSuccessful = await stripeAPI.isPaymentSuccessful();
 
         console.log('Payment successful:', paymentSuccessful);
+
+        if (paymentSuccessful) {
+          toast.success('Pago realizado con éxito', {
+            style: {
+              background: '#4CAF50', // Fondo verde
+              color: '#FFFFFF', // Texto blanco
+            },
+          });
+        }
+
+        if (!paymentSuccessful) {
+          toast.error('Pago fallido', {
+            style: {
+              background: '#F44336', // Fondo rojo
+              color: '#FFFFFF', // Texto blanco
+            },
+          });
+        }
 
         const hijos = await userhijo.obtenerMisHijos(accessToken);
         const equiposhijoData = await Promise.all(
@@ -120,6 +140,7 @@ const Page: React.FC = () => {
   if (noTieneNinguno) {
     return (
       <section className="py-6 px-6 items-center max-w-7xl mx-auto">
+        <Toaster />
         <div className="py-10 px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 px-4 sm:px-6 lg:px-10 max-w-xl mx-auto">
             <h1 className="subtitle-2 sm:subtitle-1 text-[#4D4D4D]">
@@ -273,28 +294,31 @@ const Page: React.FC = () => {
             <div className="flex space-x-4">
               <button
                 onClick={() => setActiveTab('equipos')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'equipos'
-                  ? 'bg-brand text-white'
-                  : 'bg-gray-200 text-gray-700'
-                  }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${
+                  activeTab === 'equipos'
+                    ? 'bg-brand text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
               >
                 Equipos
               </button>
               <button
                 onClick={() => setActiveTab('clubes')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'clubes'
-                  ? 'bg-brand text-white'
-                  : 'bg-gray-200 text-gray-700'
-                  }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${
+                  activeTab === 'clubes'
+                    ? 'bg-brand text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
               >
                 Clubes
               </button>
               <button
                 onClick={() => setActiveTab('hijos')}
-                className={`px-4 py-2 font-medium rounded-lg transition ${activeTab === 'hijos'
-                  ? 'bg-brand text-white'
-                  : 'bg-gray-200 text-gray-700'
-                  }`}
+                className={`px-4 py-2 font-medium rounded-lg transition ${
+                  activeTab === 'hijos'
+                    ? 'bg-brand text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
               >
                 Hijos
               </button>
