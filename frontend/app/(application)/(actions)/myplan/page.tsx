@@ -175,12 +175,6 @@ const PricingPage: React.FC = () => {
             setPlans(data.map(plan => ({ ...plan, price: plan.price.toString() })) as PlanProps[]);
 
             // Obtener informacion sobre el usuario y los planes activos
-            if (user) {
-                const stripeapi = new StripeAPI();
-                const activeSubscriptions = await stripeapi.getActiveSubscriptions(user.correo);
-                console.log('Subscripciones activas:', activeSubscriptions);
-            }
-
 
 
         };
