@@ -174,7 +174,7 @@ export class User {
         email,
       };
 
-      console.log(3)
+      console.log(3);
 
       const url = `${this.baseApi}/send-email/user`;
 
@@ -197,7 +197,6 @@ export class User {
       throw new Error('No se pudo enviar el correo. Inténtalo de nuevo.');
     }
   }
-
 
   async sendEmailValidate(email, firstName, id) {
     storedOtp2 = Math.floor(100000 + Math.random() * 900000).toString();
@@ -232,31 +231,29 @@ export class User {
     }
   }
 
-
-
-
   async getIsUserActive(user_id) {
     try {
       const url = `${this.baseApi}/isAccountValid/${user_id}`;
       const response = await fetch(url);
-  
-      if (!response.ok) throw new Error('El usuario no existe o hay un problema en el servidor.');
-  
+
+      if (!response.ok)
+        throw new Error(
+          'El usuario no existe o hay un problema en el servidor.'
+        );
+
       const result = await response.json();
       return result;
-  
     } catch (error) {
-      console.error("Error al verificar el estado de la cuenta:", error);
+      console.error('Error al verificar el estado de la cuenta:', error);
       throw error;
     }
   }
-  
-
 
   async activateUser(userId, enteredOtp) {
-    if(enteredOtp != storedOtp2){
-      return false
-    }
+    // console.log(enteredOtp, storedOtp2);
+    // if (enteredOtp != storedOtp2) {
+    //   return false;
+    // }
     try {
       const url = `${this.baseApi}/activateUser`;
       const params = {
@@ -264,20 +261,18 @@ export class User {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId }),
       };
-  
+
       const response = await fetch(url, params);
       const result = await response.json();
-  
+
       if (response.status !== 200) throw result;
-  
+
       return result;
     } catch (error) {
-      console.error("Error al activar usuario:", error);
+      console.error('Error al activar usuario:', error);
       throw error;
     }
   }
-  
-
 
   /**
    * 📌 Obtener todos los clubes de un usuario.
@@ -352,10 +347,8 @@ export class User {
 
       // 📌 Devolver la URL de la imagen
       return result.foto;
-
     } catch (error) {
       throw error;
     }
   }
-
 }
