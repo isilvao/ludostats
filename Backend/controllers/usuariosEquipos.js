@@ -191,6 +191,29 @@ const crearUsuarioEquipo = async (req, res) => {
               const extra_id = await asignarHijoAlEquipo(usuario_id, equipo_id, nombre, apellido);
               console.log(`📌 Registro del hijo completado con ID ${extra_id}`);
 
+
+               // 📌 Obtener información del equipo para la notificación
+               const equipo = await Equipo.findByPk(equipo_id);
+               const gerenteEquipo = await UsuariosEquipos.findOne({
+                   where: { equipo_id, rol: "gerente" }
+               });
+ 
+               if (gerenteEquipo) {
+                   const acudiente = await Usuario.findByPk(usuario_id);
+                   const nombreAcudiente = `${acudiente.nombre} ${acudiente.apellido}`;
+                   const fechaRegistro = new Date().toLocaleDateString("es-ES");
+ 
+                   // 📌 Notificación para el gerente sobre el hijo registrado
+                   await Notificacion.create({
+                       usuario_id: gerenteEquipo.usuario_id,
+                       tipo: "otro",
+                       mensaje: `${nombreAcudiente} ha registrado a su hijo ${nombre} ${apellido} en el equipo ${equipo.nombre} como ${nuevoRol}. Fecha: ${fechaRegistro}`,
+                       leido: false
+                   });
+ 
+                   console.log("📌 Notificación enviada al gerente del equipo.");
+               }
+
               return res.status(201).json({
                   msg: "Hijo registrado correctamente en el equipo",
                   hijo_id: extra_id,

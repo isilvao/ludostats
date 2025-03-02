@@ -1,39 +1,53 @@
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcryptjs");
 const jwt = require("../utils/jwt");
+const {Notificacion} = require('../models')
 
-function register(req, res) {
+const register = async (req, res) => {
   const { nombre, apellido, correo, contrasena, foto, correo_validado } = req.body;
 
   if (!correo) return res.status(400).send({ msg: "El correo es obligatorio" });
-  if (!contrasena)
-    return res.status(400).send({ msg: "La contraseña es obligatoria" });
+  if (!contrasena) return res.status(400).send({ msg: "La contraseña es obligatoria" });
   if (!nombre) return res.status(400).send({ msg: "El nombre es obligatorio" });
   if (!apellido) return res.status(400).send({ msg: "El apellido es obligatorio" });
 
-  const salt = bcrypt.genSaltSync(10);
-  const hashPassword = bcrypt.hashSync(contrasena, salt);
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hashPassword = bcrypt.hashSync(contrasena, salt);
 
-
-  Usuario.create({
-    nombre,
-    apellido,
-    correo: correo.toLowerCase(),
-    contrasena: hashPassword,
-    foto: foto || null, // 📌 Guardar la foto si está disponible
-    correo_validado
-  })
-    .then((userStored) => {
-      if (!userStored) {
-        return res.status(400).send({ msg: "Error al crear el usuario" });
-      }
-      return res.status(200).send({ msg: "Usuario creado correctamente", success: true });
-    })
-    .catch((err) => {
-      console.error(err);
-      return res.status(500).send({ msg: "Error al crear el usuario" });
+    // 📌 Crear usuario
+    const userStored = await Usuario.create({
+      nombre,
+      apellido,
+      correo: correo.toLowerCase(),
+      contrasena: hashPassword,
+      foto: foto || null, // 📌 Guardar la foto si está disponible
+      correo_validado
     });
-}
+
+    if (!userStored) {
+      return res.status(400).send({ msg: "Error al crear el usuario" });
+    }
+
+    // 📌 Crear la notificación de bienvenida
+    await Notificacion.create({
+      usuario_id: userStored.id,
+      tipo: "otro", // 📌 Puedes cambiarlo si agregas un tipo específico de bienvenida
+      mensaje: `¡Bienvenido a LudoStats, ${nombre}! Nos alegra tenerte aquí.`,
+      leido: false,
+      fecha_creacion: new Date()
+    });
+
+    console.log(`📌 Notificación de bienvenida creada para ${nombre}`);
+
+    return res.status(200).send({ msg: "Usuario creado correctamente", success: true });
+
+  } catch (err) {
+    console.error("❌ Error en el registro:", err);
+    return res.status(500).send({ msg: "Error al crear el usuario" });
+  }
+};
+
 
 function login(req, res) {
   const { correo, contrasena, rememberMe } = req.body;
