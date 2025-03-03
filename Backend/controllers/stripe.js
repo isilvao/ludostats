@@ -70,7 +70,7 @@ const isPaymentSuccessful = async (req, res) => {
 }
 
 const webhook = async (request, response) => {
-    const endpointSecret = "whsec_172ebf303d7b3fd03afb648acb50c5c749e6a7f71a9bb62c2a9cb9b711b05241";
+    const endpointSecret = STRIPE_WEBHOOK_SECRET;
 
     const signature = request.headers['stripe-signature'];
 
