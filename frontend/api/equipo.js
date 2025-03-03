@@ -119,7 +119,7 @@ export class EquipoAPI {
       };
 
       const response = await fetch(url, params);
-      const result = await response.json();
+      const result = await response.json()
 
       if (response.status !== 200) throw result;
 

@@ -191,7 +191,7 @@ const PricingPage: React.FC = () => {
             setPlans(data.map(plan => ({
                 ...plan,
                 price: plan.price.toString(),
-                isActive: user?.tipo_suscripcion === plan.name?.toLowerCase()
+                isActive: user?.tipo_suscripcion === plan.name?.toLowerCase().replace('á', 'a'),
             })) as PlanProps[]);
 
             setIsLoading(false);

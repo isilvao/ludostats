@@ -4,6 +4,12 @@ const UsuarioClub = require("../models/UsuarioClub");
 const Equipo = require("../models/Equipo");
 const cloudinary = require('../utils/cloudinary');
 const User = require("../models/Usuario");
+const UsuarioEquipo = require("../models/UsuariosEquipos");
+const Galeria = require("../models/Galeria");
+const Estadistica = require("../models/Estadistica");
+const Invitacion = require("../models/Invitacion");
+const EventoDependencia = require("../models/EventoDependencia");
+const TipoEstadistica = require("../models/TipoEstadistica");
 
 const buscarMisClubes = async (req, res) => {
   const { user_id } = req.query;
@@ -215,6 +221,25 @@ async function updateClub(req, res) {
 
 async function deleteClub(req, res) {
   const { id_club } = req.params;
+
+  console.log('ID del club', id_club)
+
+  const equipos = await Equipo.findAll({ where: { club_id: id_club }, attributes: ['id', 'nombre', 'club_id'] });
+
+  for (const equipo of equipos) {
+
+    console.log("ID de los equipos", equipo.id)
+    console.log("Nombre de los equipos", equipo.nombre)
+
+    await Estadistica.destroy({ where: { equipo_id: equipo.id } });
+    await TipoEstadistica.destroy({ where: { club_id: equipo.club_id } });
+    await UsuarioEquipo.destroy({ where: { equipo_id: equipo.id } });
+    await UsuarioClub.destroy({ where: { club_id: equipo.club_id } });
+    await EventoDependencia.destroy({ where: { equipo_id: equipo.id } });
+    await Invitacion.destroy({ where: { equipo_id: equipo.id } });
+    await Galeria.destroy({ where: { equipo_id: equipo.id } });
+    await Equipo.destroy({ where: { id: equipo.id } });
+  }
 
   const club = await Club.findByPk(id_club);
 

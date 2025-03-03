@@ -3,7 +3,7 @@ const { Stripe } = require('stripe');
 const { EXCHANGE_RATE_API_KEY, STRIPE_WEBHOOK_SECRET } = require('../constants');
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-01-27.acacia" });
 const User = require('../models/Usuario');
-const { Notificacion } = require('../models/Notificacion');
+const Notificacion = require('../models/Notificacion');
 
 const sendEmail = async (req, res) => {
     try {
@@ -49,6 +49,7 @@ const stripePrices = async (req, res) => {
     try {
         const stripe = new Stripe(stripeSecretKey);
         const prices = await stripe.prices.list();
+
         return res.json({ prices, EXCHANGE_RATE_API_KEY });
     } catch (error) {
         console.error("❌ Error obteniendo precios de Stripe:", error);
@@ -69,9 +70,11 @@ const isPaymentSuccessful = async (req, res) => {
 }
 
 const webhook = async (request, response) => {
-    const endpointSecret = STRIPE_WEBHOOK_SECRET;
+    const endpointSecret = "whsec_172ebf303d7b3fd03afb648acb50c5c749e6a7f71a9bb62c2a9cb9b711b05241";
 
     const signature = request.headers['stripe-signature'];
+
+    console.log('🔔 Webhook recibido:', request.body.type);
 
     let event;
 
@@ -88,8 +91,6 @@ const webhook = async (request, response) => {
         const subscriptionId = session.subscription || null;
         const customerId = session.customer;
 
-        console.log('✅ Checkout completado. ID del cliente:', customerId);
-
         if (subscriptionId) {
             try {
                 // ✅ Obtener los datos completos de la suscripción
@@ -101,11 +102,9 @@ const webhook = async (request, response) => {
                 const correoUsuario = customer.email;
                 const tipoPlan = subscription.plan.nickname.toLowerCase().replace("á", "a");
                 const usuario = await User.findOne({ where: { correo: correoUsuario } })
-                console.log('estoy afuera')
 
                 if (usuario) {
                     const resend = new Resend("re_AyQTq895_HDdFFDVdEJtDPTBH5qRCpfZ8");
-                    console.log('estoy adentro')
                     await usuario.update({ id_stripe: usuarioStripeId, tipo_suscripcion: tipoPlan });
 
 
@@ -152,13 +151,15 @@ const webhook = async (request, response) => {
                         html: emailContent,
                     });
 
+                    console.log("ID DEL USUARIOOOOOOOOOOOOOOOOOOOO", usuario.id)
+
                     // 📌 Crear una notificación para el usuario
                     await Notificacion.create({
                         usuario_id: usuario.id,
                         tipo: "membresia",
                         mensaje: `Has adquirido la membresía ${tipoPlan.toUpperCase()} en LudoStats. ¡Disfrútala!`,
                         leido: false
-                    });
+                    })
 
 
                     console.log(`✅ Notificación y correo de suscripción enviados a ${correoUsuario}`);

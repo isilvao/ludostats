@@ -125,10 +125,6 @@ const PrivacyPolicy: React.FC = () => {
                 <li>Información de contacto.</li>
               </ul>
             </li>
-            <li>
-              Carta de autorización del acudiente para el tratamiento de datos.
-            </li>
-            <li>Evidencia de la relación legal del acudiente con el menor.</li>
           </ul>
         </Section>
 

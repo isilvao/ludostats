@@ -5,7 +5,6 @@ const Estadistica = require('./Estadistica');
 const TipoEstadistica = require('./TipoEstadistica');
 const UsuarioClub = require('./UsuarioClub');
 const Evento = require('./Evento');
-const Pago = require('./Pago');
 const Transaccion = require("./Transaccion");
 const Notificacion = require("./Notificacion");
 const EventoDependencia = require('./EventoDependencia');
@@ -55,16 +54,6 @@ Usuario.hasMany(UsuariosEquipos, {
   onDelete: 'CASCADE'
 })
 UsuariosEquipos.belongsTo(Usuario, {
-  foreignKey: 'usuario_id',
-  as: 'usuario'
-})
-
-// Relacion un Usuario puede tener realizar varios pagos de mensualidad
-Usuario.hasMany(Pago, {
-  foreignKey: 'usuario_id',
-  as: 'pagos'
-})
-Pago.belongsTo(Usuario, {
   foreignKey: 'usuario_id',
   as: 'usuario'
 })
@@ -257,12 +246,7 @@ Galeria.belongsTo(Equipo, {
 
 
 
-
-
-
-
-
 module.exports = {
-  Usuario, Club, Equipo, Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Pago, Evento, EventoDependencia, initModels, Galeria, Transaccion,
+  Usuario, Club, Equipo, Estadistica, TipoEstadistica, UsuarioClub, UsuariosEquipos, Invitacion, Evento, EventoDependencia, initModels, Galeria, Transaccion,
   Notificacion
 };
