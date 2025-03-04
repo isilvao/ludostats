@@ -7,7 +7,7 @@ const User = require("../models/Usuario");
 const UsuarioEquipo = require("../models/UsuariosEquipos");
 const Galeria = require("../models/Galeria");
 const Estadistica = require("../models/Estadistica");
-const Invitacion = require("../models/Invitacion");
+const Invitacion = require("../models/invitacion");
 const EventoDependencia = require("../models/EventoDependencia");
 const TipoEstadistica = require("../models/TipoEstadistica");
 
