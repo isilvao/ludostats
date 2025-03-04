@@ -184,11 +184,19 @@ const EditMember = () => {
   const handleRoleChange = async (values: { role: string }) => {
     try {
       const usuariosEquiposAPI = new UsuariosEquipos();
-      await usuariosEquiposAPI.modificarRolUsuarioEquipo(
-        memberID,
-        clubData.id,
-        values.role
-      );
+      if (isTeam) {
+        await usuariosEquiposAPI.modificarRolUsuarioEquipo(
+          memberID,
+          clubData.id,
+          values.role
+        );
+      } else {
+        await usuariosEquiposAPI.modificarRolUsuarioClub(
+          memberID,
+          clubData.id,
+          values.role
+        );
+      }
       toast.success('Rol actualizado con éxito', {
         style: {
           background: '#4CAF50', // Fondo verde
@@ -412,11 +420,11 @@ const EditMember = () => {
               onSubmit={roleForm.handleSubmit(handleRoleChange)}
               className="space-y-4"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={roleForm.control}
-                  name="role"
-                  render={({ field }) => (
+              <FormField
+                control={roleForm.control}
+                name="role"
+                render={({ field }) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormItem>
                       <FormLabel>Rol *</FormLabel>
                       <FormControl>
@@ -429,7 +437,7 @@ const EditMember = () => {
                             <>
                               <option value="entrenador">Entrenador</option>
                               <option value="deportista">Deportista</option>
-                              <option value="admin">Admin</option>
+                              {/* <option value="admin">Admin</option> */}
                               <option value="miembro">Miembro</option>
                             </>
                           )}
@@ -440,9 +448,10 @@ const EditMember = () => {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
-                />
-              </div>
+                  </div>
+                )}
+              />
+
               <Button
                 type="submit"
                 className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
