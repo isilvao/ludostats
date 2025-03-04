@@ -13,6 +13,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { sportsOptions } from '@/lib/utils';
+import { TeamsAPI } from '@/api/teams';
 import Select from 'react-select';
 import {
   Form,
@@ -74,6 +75,13 @@ const EditPage = () => {
   const router = useRouter();
   const [logo, setLogo] = useState(getClubLogo(clubData));
   const [name, setName] = useState(clubData?.nombre);
+  interface GalleryImage {
+    id: string;
+    imagen_url: string;
+    titulo: string;
+  }
+
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const sportsOptionsFormatted = sportsOptions.map((sport) => ({
     value: sport,
     label: sport,
@@ -89,6 +97,59 @@ const EditPage = () => {
       nivelPractica: data?.nivelPractica || '',
     },
   });
+
+  const fetchGalleryImages = async () => {
+    try {
+      let images;
+      if (isTeam) {
+        const teamApi = new TeamsAPI();
+        images = await teamApi.obtenerGaleriaPorEquipo(data.id);
+        console.log(images);
+      } else {
+        const teamApi = new TeamsAPI();
+        images = await teamApi.obtenerGaleriaPorClub(data.id);
+      }
+      setGalleryImages(images);
+    } catch (error) {
+      console.error('Error al obtener las imágenes de la galería:', error);
+    }
+  };
+
+  const handleAddImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const title = prompt('Ingrese el título de la imagen:');
+        const description = prompt('Ingrese la descripción de la imagen:');
+        if (title && description) {
+          const teamApi = new TeamsAPI();
+          await teamApi.subirImagenGaleria(
+            title,
+            description,
+            isTeam ? null : data.id,
+            isTeam ? data.id : null,
+            file
+          );
+          fetchGalleryImages(); // Actualiza la galería después de subir la imagen
+          toast.success('Imagen subida con éxito', {
+            style: {
+              background: '#4CAF50', // Fondo verde
+              color: '#FFFFFF', // Texto blanco
+            },
+          });
+        }
+      } catch (error) {
+        console.error('Error al subir la imagen:', error);
+        toast.error('Error al subir la imagen');
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (data) {
+      fetchGalleryImages();
+    }
+  }, [data]);
 
   useEffect(() => {
     if (data) {
@@ -161,6 +222,23 @@ const EditPage = () => {
     }
   };
 
+  const handleDeleteImage = async (imageId: string) => {
+    try {
+      const teamApi = new TeamsAPI();
+      await teamApi.eliminarImagenGaleria(imageId);
+      fetchGalleryImages(); // Actualiza la galería después de eliminar la imagen
+      toast.success('Imagen eliminada con éxito', {
+        style: {
+          background: '#4CAF50', // Fondo verde
+          color: '#FFFFFF', // Texto blanco
+        },
+      });
+    } catch (error) {
+      console.error('Error al eliminar la imagen:', error);
+      toast.error('Error al eliminar la imagen');
+    }
+  };
+
   const handleLogoChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -213,115 +291,158 @@ const EditPage = () => {
   };
 
   const renderContent = () => {
-    return (
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="nombre"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre *</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Nombre" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="descripcion"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Descripción" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="telefono"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Teléfono" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {isTeam ? (
+    if (selectedOption === 'edit') {
+      return (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="nivelPractica"
+                name="nombre"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nivel de Práctica</FormLabel>
+                    <FormLabel>Nombre *</FormLabel>
                     <FormControl>
-                      <select
-                        {...field}
-                        value={field.value as string}
-                        className="text-black pl-2 py-2 mt-1 w-full border border-gray-300 rounded-md focus:outline-none focus:border-black focus:ring-1 focus:ring-black/50"
-                      >
-                        <option value="" disabled>
-                          Selecciona un nivel
-                        </option>
-                        <option value="Competitivo">Competitivo</option>
-                        <option value="Recreativo">Recreativo</option>
-                      </select>
+                      <Input {...field} placeholder="Nombre" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            ) : (
               <FormField
                 control={form.control}
-                name="deporte"
+                name="descripcion"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deporte</FormLabel>
+                    <FormLabel>Descripción</FormLabel>
                     <FormControl>
-                      <Select
-                        {...field}
-                        options={sportsOptionsFormatted}
-                        value={
-                          sportsOptionsFormatted.find(
-                            (option) => option.value === field.value
-                          ) || { value: data.deporte, label: data.deporte }
-                        }
-                        onChange={(selectedOption) =>
-                          field.onChange(selectedOption?.value)
-                        }
-                        className="shadow-sm"
-                        placeholder="Selecciona un deporte"
-                        isSearchable
-                        maxMenuHeight={200} // Altura máxima del menú desplegable
-                      />
+                      <Input {...field} placeholder="Descripción" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            )}
+              <FormField
+                control={form.control}
+                name="telefono"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teléfono</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Teléfono" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {isTeam ? (
+                <FormField
+                  control={form.control}
+                  name="nivelPractica"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nivel de Práctica</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          value={field.value as string}
+                          className="text-black pl-2 py-2 mt-1 w-full border border-gray-300 rounded-md focus:outline-none focus:border-black focus:ring-1 focus:ring-black/50"
+                        >
+                          <option value="" disabled>
+                            Selecciona un nivel
+                          </option>
+                          <option value="Competitivo">Competitivo</option>
+                          <option value="Recreativo">Recreativo</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <FormField
+                  control={form.control}
+                  name="deporte"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Deporte</FormLabel>
+                      <FormControl>
+                        <Select
+                          {...field}
+                          options={sportsOptionsFormatted}
+                          value={
+                            sportsOptionsFormatted.find(
+                              (option) => option.value === field.value
+                            ) || { value: data.deporte, label: data.deporte }
+                          }
+                          onChange={(selectedOption) =>
+                            field.onChange(selectedOption?.value)
+                          }
+                          className="shadow-sm"
+                          placeholder="Selecciona un deporte"
+                          isSearchable
+                          maxMenuHeight={200} // Altura máxima del menú desplegable
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+            <Button
+              type="submit"
+              className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
+            >
+              Guardar
+            </Button>
+          </form>
+        </Form>
+      );
+    } else if (selectedOption === 'preferences') {
+      return (
+        <div>
+          <div className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {galleryImages.map((image) => (
+                <div key={image.id} className="relative">
+                  <Image
+                    src={image.imagen_url}
+                    alt={image.titulo}
+                    className="w-full h-32 object-cover rounded-md"
+                    width={150}
+                    height={150}
+                  />
+                  <p className="mt-2 text-center">{image.titulo}</p>
+                  <button
+                    onClick={() => handleDeleteImage(image.id)}
+                    className="absolute top-2 right-2 bg-red-500 text-black p-1 rounded-full"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4">
+              <label
+                htmlFor="addImageInput"
+                className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90 cursor-pointer"
+              >
+                Agregar Imagen
+              </label>
+              <input
+                id="addImageInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAddImage}
+              />
+            </div>
           </div>
-          <Button
-            type="submit"
-            className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
-          >
-            Guardar
-          </Button>
-        </form>
-      </Form>
-    );
+        </div>
+      );
+    }
   };
-
   return (
     <section className="mx-0">
       <Toaster />
@@ -371,6 +492,12 @@ const EditPage = () => {
             >
               Editar {isTeam ? 'Equipo' : 'Club'}
             </li>
+            <li
+              className={`pl-6 cursor-pointer p-3 border-l-4 ${selectedOption === 'preferences' ? 'bg-gray-200 border-l-green' : 'hover:bg-gray-100 border-l-transparent'}`}
+              onClick={() => setSelectedOption('preferences')}
+            >
+              Galería
+            </li>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <li className="pl-6 text-[#FF0000] cursor-pointer p-3 hover:bg-red/20">
@@ -398,7 +525,7 @@ const EditPage = () => {
         </div>
         <div className="bg-white p-6 border border-gray-300 rounded-md lg:w-[75%] w-full">
           <h1 className="text-2xl font-bold text-brand2 mb-4">
-            {selectedOption === 'edit' ? 'Editar Información' : ''}
+            {selectedOption === 'edit' ? 'Editar Información' : 'Galería'}
           </h1>
           {renderContent()}
         </div>
