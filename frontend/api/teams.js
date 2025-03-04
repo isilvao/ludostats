@@ -416,5 +416,28 @@ async obtenerGaleriaPorEquipo(equipo_id) {
 
 
 
+// 📌 Eliminar una imagen de la galería por ID
+async eliminarImagenGaleria(id) {
+  try {
+      const url = `${this.baseApi}/galeria/${id}`;
+      const params = {
+          method: "DELETE"
+      };
+
+      const response = await fetch(url, params);
+      const result = await response.json();
+
+      if (!response.ok) throw result;
+      return result;
+
+  } catch (error) {
+      console.error("❌ Error al eliminar imagen de la galería:", error);
+      throw error;
+  }
+}
+
+
+
+
 
 }

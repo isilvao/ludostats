@@ -59,8 +59,44 @@ const obtenerGaleriaPorEquipo = async (req, res) => {
     }
 };
 
+
+
+
+// 📌 Eliminar una imagen de la galería por ID
+const eliminarImagenGaleria = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // 📌 Buscar la imagen en la base de datos
+        const imagen = await Galeria.findByPk(id);
+
+        if (!imagen) {
+            return res.status(404).json({ msg: "Imagen no encontrada" });
+        }
+
+        // 📌 Extraer el `public_id` de Cloudinary desde la URL
+        const urlPartes = imagen.imagen_url.split("/");
+        const publicIdConExtension = urlPartes[urlPartes.length - 1]; // Última parte de la URL
+        const publicId = `galeria/${publicIdConExtension.split(".")[0]}`; // Remueve la extensión
+
+        // 📌 Eliminar la imagen de Cloudinary
+        await cloudinary.uploader.destroy(publicId);
+
+        // 📌 Eliminar el registro en la base de datos
+        await imagen.destroy();
+
+        res.status(200).json({ msg: "Imagen eliminada correctamente", id });
+
+    } catch (error) {
+        console.error("❌ Error al eliminar la imagen de la galería:", error);
+        res.status(500).json({ msg: "Error interno del servidor" });
+    }
+};
+
+
 module.exports = {
     crearImagenGaleria,
     obtenerGaleriaPorClub,
-    obtenerGaleriaPorEquipo
+    obtenerGaleriaPorEquipo,
+    eliminarImagenGaleria
 };

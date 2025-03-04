@@ -114,8 +114,8 @@ const EditMember = () => {
             telefono: result.usuario.telefono || '',
             fecha_nacimiento: result.usuario.fecha_nacimiento
               ? new Date(result.usuario.fecha_nacimiento)
-                  .toISOString()
-                  .split('T')[0]
+                .toISOString()
+                .split('T')[0]
               : '',
             direccion: result.usuario.direccion || '',
             documento: result.usuario.documento || '',
@@ -135,8 +135,8 @@ const EditMember = () => {
             telefono: result.usuario.telefono || '',
             fecha_nacimiento: result.usuario.fecha_nacimiento
               ? new Date(result.usuario.fecha_nacimiento)
-                  .toISOString()
-                  .split('T')[0]
+                .toISOString()
+                .split('T')[0]
               : '',
             direccion: result.usuario.direccion || '',
             documento: result.usuario.documento || '',
