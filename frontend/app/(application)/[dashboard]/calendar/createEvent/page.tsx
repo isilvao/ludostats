@@ -28,16 +28,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
 import { useParams } from 'next/navigation';
-
-const createEventSchema = z.object({
-  titulo: z.string().min(2, 'Título obligatorio').max(50),
-  descripcion: z.string().min(1, 'Selecciona un tipo de evento'),
-  fecha_inicio_fecha: z.string().min(1, 'Fecha de inicio obligatoria'),
-  fecha_inicio_hora: z.string().min(1, 'Hora de inicio obligatoria'),
-  fecha_fin_fecha: z.string().min(1, 'Fecha de fin obligatoria'),
-  fecha_fin_hora: z.string().min(1, 'Hora de fin obligatoria'),
-  equipos: z.array(z.string()).min(1, 'Selecciona al menos un equipo'),
-});
+import { FaDumbbell, FaFutbol, FaHandshake, FaTrophy } from 'react-icons/fa6';
 
 const CreateEventForm = () => {
   const teamsAPI = new TeamsAPI();
@@ -53,15 +44,23 @@ const CreateEventForm = () => {
   const selectionType = localStorage.getItem('selectionType');
   const isTeam = selectionType === 'equipo';
   const [equipos, setEquipos] = useState<{ id: string; nombre: string }[]>([]);
+  const createEventSchema = z.object({
+    titulo: z.string().min(2, 'Título obligatorio').max(50),
+    descripcion: z.string().min(1, 'Selecciona un tipo de evento'),
+    fecha_inicio: z.string().min(1, 'Fecha de inicio obligatoria'),
+    fecha_fin: z.string().min(1, 'Fecha de fin obligatoria'),
+    equipos: isTeam
+      ? z.array(z.string()).optional()
+      : z.array(z.string()).min(1, 'Selecciona al menos un equipo'),
+  });
+
   const form = useForm<z.infer<typeof createEventSchema>>({
     resolver: zodResolver(createEventSchema),
     defaultValues: {
       titulo: '',
       descripcion: '',
-      fecha_inicio_fecha: '',
-      fecha_inicio_hora: '',
-      fecha_fin_fecha: '',
-      fecha_fin_hora: '',
+      fecha_inicio: '',
+      fecha_fin: '',
       equipos: [],
     },
   });
@@ -87,19 +86,18 @@ const CreateEventForm = () => {
   const onSubmit = async (values: z.infer<typeof createEventSchema>) => {
     setIsLoading(true);
     try {
-      const fecha_inicio = `${values.fecha_inicio_fecha}T${values.fecha_inicio_hora}`;
-      const fecha_fin = `${values.fecha_fin_fecha}T${values.fecha_fin_hora}`;
+      const fecha_inicio = values.fecha_inicio;
+      const fecha_fin = values.fecha_fin;
       const club_id = isTeam ? clubData.club.id : clubData.id;
       const equipo_ids = isTeam ? [clubData.id] : values.equipos;
-
-      // console.log('values', {
-      //   titulo: values.titulo,
-      //   descripcion: values.descripcion,
-      //   fecha_inicio,
-      //   fecha_fin,
-      //   club_id,
-      //   equipo_ids,
-      // });
+      console.log({
+        titulo: values.titulo,
+        descripcion: values.descripcion,
+        fecha_inicio,
+        fecha_fin,
+        club_id,
+        equipo_ids,
+      });
 
       await teamsAPI.crearEvento({
         titulo: values.titulo,
@@ -111,7 +109,9 @@ const CreateEventForm = () => {
       });
 
       toast.success('Evento creado correctamente');
-      router.push(`/${nameTeam}/calendar`);
+      setTimeout(() => {
+        router.push(`/${nameTeam}/calendar`);
+      }, 1000);
     } catch (error) {
       console.error('Error al crear el evento:', error);
     } finally {
@@ -160,13 +160,20 @@ const CreateEventForm = () => {
                             className="flex items-center gap-2"
                           >
                             <Checkbox
-                              checked={field.value.includes(equipo.id)}
+                              checked={
+                                field.value?.includes(equipo.id) ?? false
+                              }
                               onCheckedChange={(checked) => {
                                 if (checked) {
-                                  field.onChange([...field.value, equipo.id]);
+                                  field.onChange([
+                                    ...(field.value || []),
+                                    equipo.id,
+                                  ]);
                                 } else {
                                   field.onChange(
-                                    field.value.filter((id) => id !== equipo.id)
+                                    (field.value || []).filter(
+                                      (id) => id !== equipo.id
+                                    )
                                   );
                                 }
                               }}
@@ -204,17 +211,21 @@ const CreateEventForm = () => {
                       onValueChange={field.onChange}
                       className="grid grid-cols-2 gap-4"
                     >
-                      <Label className="flex items-center gap-2">
-                        <RadioGroupItem value="amistoso" /> Partido Amistoso
+                      <Label className="flex items-center gap-2 border p-4 rounded-lg">
+                        <RadioGroupItem value="amistoso" /> Partido Amistoso{' '}
+                        <FaHandshake className="ml-auto h-6 w-6" />
                       </Label>
-                      <Label className="flex items-center gap-2">
-                        <RadioGroupItem value="torneo" /> Torneo
+                      <Label className="flex items-center gap-2 border p-4 rounded-lg">
+                        <RadioGroupItem value="torneo" /> Torneo{' '}
+                        <FaTrophy className="ml-auto h-6 w-6" />
                       </Label>
-                      <Label className="flex items-center gap-2">
-                        <RadioGroupItem value="entrenamiento" /> Entrenamiento
+                      <Label className="flex items-center gap-2 border p-4 rounded-lg">
+                        <RadioGroupItem value="entrenamiento" /> Entrenamiento{' '}
+                        <FaDumbbell className="ml-auto h-6 w-6" />
                       </Label>
-                      <Label className="flex items-center gap-2">
-                        <RadioGroupItem value="liga" /> Liga
+                      <Label className="flex items-center gap-2 border p-4 rounded-lg">
+                        <RadioGroupItem value="liga" /> Liga{' '}
+                        <FaFutbol className="ml-auto h-6 w-6" />
                       </Label>
                     </RadioGroup>
                     <FormMessage />
@@ -260,12 +271,12 @@ const CreateEventForm = () => {
             <CardContent className="grid md:grid-cols-2 gap-6 px-4 md:px-12">
               <FormField
                 control={form.control}
-                name="fecha_inicio_fecha"
+                name="fecha_inicio"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Fecha de inicio</FormLabel>
+                    <FormLabel>Fecha y hora de inicio</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="datetime-local" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -273,38 +284,12 @@ const CreateEventForm = () => {
               />
               <FormField
                 control={form.control}
-                name="fecha_inicio_hora"
+                name="fecha_fin"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Hora de inicio</FormLabel>
+                    <FormLabel>Fecha y hora de fin</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="fecha_fin_fecha"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fecha de fin</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="fecha_fin_hora"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hora de fin</FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
+                      <Input type="datetime-local" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

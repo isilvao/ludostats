@@ -36,15 +36,16 @@ import {
 } from '@/components/ui/table';
 import { useEquipoClub } from '@/hooks';
 import { TeamsAPI } from '@/api/teams';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import * as XLSX from 'xlsx';
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,7 +58,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import Link from 'next/link';
-import { IoPersonAdd } from 'react-icons/io5';
+// import { IoPersonAdd } from 'react-icons/io5';
 import { Toaster, toast } from 'sonner';
 import {
   Tooltip,
@@ -66,7 +67,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { BiExport } from 'react-icons/bi';
-import { set } from 'zod';
+// import { set } from 'zod';
 import { FaCalendarPlus } from 'react-icons/fa';
 import { ScheduleXCalendar, useNextCalendarApp } from '@schedule-x/react';
 import {
@@ -226,6 +227,13 @@ const CalendarEvents = () => {
     }
   }
 
+  const handleExport = () => {
+    const worksheet = XLSX.utils.json_to_sheet(events);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Events');
+    XLSX.writeFile(workbook, 'events.xlsx');
+  };
+
   // async function handleCreate() {
   //   if (
   //     !newEvent.titulo ||
@@ -358,59 +366,59 @@ const CalendarEvents = () => {
         </div>
       ),
     },
-    {
-      id: 'actions',
-      enableHiding: false,
-      header: 'Acciones',
-      cell: ({ row }) => {
-        const event = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-              {/* <DropdownMenuItem asChild>
-                <Link
-                  href={`/home`}
-                  className="w-full justify-center cursor-pointer"
-                >
-                  Editar
-                </Link>
-              </DropdownMenuItem> */}
-              <DropdownMenuItem asChild>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" className="w-full">
-                      Borrar
+    ...(rolClub === 'admin' || rolClub === 'gerente' || rolClub === 'entrenador'
+      ? [
+          {
+            id: 'actions',
+            enableHiding: false,
+            header: 'Acciones',
+            cell: ({ row }: { row: any }) => {
+              const event = row.original;
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal />
                     </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        ¿Estás seguro de que deseas eliminar este evento? Esta
-                        acción no se puede deshacer.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(event.id)}>
-                        Eliminar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" className="w-full">
+                            Borrar
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Confirmar eliminación
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              ¿Estás seguro de que deseas eliminar este evento?
+                              Esta acción no se puede deshacer.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(event.id)}
+                            >
+                              Eliminar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 
   const table = useReactTable({
@@ -454,18 +462,25 @@ const CalendarEvents = () => {
       <div className="flex items-center py-4 justify-between">
         <h1 className="text-3xl font-bold text-brand2">Calendario</h1>
         <div className="flex items-center space-x-5 h-10">
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 rounded-lg transition-colors duration-w-[10rem] h-full px-2">
-                  <BiExport className="w-6 h-6" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Exportar</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {(rolClub === 'admin' ||
+            rolClub === 'gerente' ||
+            rolClub === 'entrenador') && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleExport}
+                    className="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 rounded-lg transition-colors duration-w-[10rem] h-full px-2"
+                  >
+                    <BiExport className="w-6 h-6" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Exportar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           {(rolClub === 'gerente' ||
             rolClub === 'admin' ||
             rolClub === 'entrenador') && (
@@ -513,7 +528,7 @@ const CalendarEvents = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                  Columns <ChevronDown />
+                  Columnas <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
