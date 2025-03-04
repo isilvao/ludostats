@@ -13,4 +13,8 @@ api.get("/galeria/club/:club_id", galeriaController.obtenerGaleriaPorClub);
 // 📌 Obtener imágenes de la galería por equipo
 api.get("/galeria/equipo/:equipo_id", galeriaController.obtenerGaleriaPorEquipo);
 
+// 📌 Agregar la ruta para eliminar imagen de la galería
+api.delete("/galeria/:id", galeriaController.eliminarImagenGaleria);
+
+
 module.exports = api;
