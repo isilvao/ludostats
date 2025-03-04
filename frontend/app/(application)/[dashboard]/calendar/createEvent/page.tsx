@@ -90,14 +90,14 @@ const CreateEventForm = () => {
       const fecha_fin = values.fecha_fin;
       const club_id = isTeam ? clubData.club.id : clubData.id;
       const equipo_ids = isTeam ? [clubData.id] : values.equipos;
-      console.log({
-        titulo: values.titulo,
-        descripcion: values.descripcion,
-        fecha_inicio,
-        fecha_fin,
-        club_id,
-        equipo_ids,
-      });
+      // console.log({
+      //   titulo: values.titulo,
+      //   descripcion: values.descripcion,
+      //   fecha_inicio,
+      //   fecha_fin,
+      //   club_id,
+      //   equipo_ids,
+      // });
 
       await teamsAPI.crearEvento({
         titulo: values.titulo,

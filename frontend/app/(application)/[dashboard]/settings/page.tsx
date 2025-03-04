@@ -104,7 +104,6 @@ const EditPage = () => {
       if (isTeam) {
         const teamApi = new TeamsAPI();
         images = await teamApi.obtenerGaleriaPorEquipo(data.id);
-        console.log(images);
       } else {
         const teamApi = new TeamsAPI();
         images = await teamApi.obtenerGaleriaPorClub(data.id);
