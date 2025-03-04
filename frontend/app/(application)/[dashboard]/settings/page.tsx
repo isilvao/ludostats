@@ -35,6 +35,16 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from '@/components/ui/dialog';
 import Resizer from 'react-image-file-resizer';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
@@ -97,6 +107,57 @@ const EditPage = () => {
       nivelPractica: data?.nivelPractica || '',
     },
   });
+
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [newImageTitle, setNewImageTitle] = useState('');
+  const [newImageDescription, setNewImageDescription] = useState('');
+
+  const handleDeleteImageClick = (imageId: string) => {
+    setSelectedImageId(imageId);
+  };
+
+  const handleConfirmDeleteImage = async () => {
+    if (selectedImageId) {
+      await handleDeleteImage(selectedImageId);
+      setSelectedImageId(null);
+    }
+  };
+
+  const handleAddImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setNewImage(file);
+    }
+  };
+
+  const handleAddImageSubmit = async () => {
+    if (newImage && newImageTitle && newImageDescription) {
+      try {
+        const teamApi = new TeamsAPI();
+        await teamApi.subirImagenGaleria(
+          newImageTitle,
+          newImageDescription,
+          isTeam ? null : data.id,
+          isTeam ? data.id : null,
+          newImage
+        );
+        fetchGalleryImages(); // Actualiza la galería después de subir la imagen
+        toast.success('Imagen subida con éxito', {
+          style: {
+            background: '#4CAF50', // Fondo verde
+            color: '#FFFFFF', // Texto blanco
+          },
+        });
+        setNewImage(null);
+        setNewImageTitle('');
+        setNewImageDescription('');
+      } catch (error) {
+        console.error('Error al subir la imagen:', error);
+        toast.error('Error al subir la imagen');
+      }
+    }
+  };
 
   const fetchGalleryImages = async () => {
     try {
@@ -413,29 +474,87 @@ const EditPage = () => {
                     height={150}
                   />
                   <p className="mt-2 text-center">{image.titulo}</p>
-                  <button
-                    onClick={() => handleDeleteImage(image.id)}
-                    className="absolute top-2 right-2 bg-red-500 text-black p-1 rounded-full"
-                  >
-                    X
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        onClick={() => handleDeleteImageClick(image.id)}
+                        className="absolute top-2 right-2 bg-white text-black p-1 rounded-full h-6 w-6 items-center flex justify-center border border-spacing-1 border-white cursor-pointer"
+                      >
+                        X
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Confirmar eliminación
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          ¿Estás seguro de que deseas eliminar esta imagen? Esta
+                          acción no se puede deshacer.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmDeleteImage}>
+                          Confirmar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               ))}
             </div>
             <div className="mt-4">
-              <label
-                htmlFor="addImageInput"
-                className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90 cursor-pointer"
-              >
-                Agregar Imagen
-              </label>
-              <input
-                id="addImageInput"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAddImage}
-              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <label
+                    htmlFor="addImageInput"
+                    className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90 cursor-pointer"
+                  >
+                    Agregar Imagen
+                  </label>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Agregar Imagen</DialogTitle>
+                    <DialogDescription>
+                      Selecciona una imagen y proporciona un título y una
+                      descripción.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <input
+                    id="addImageInput"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAddImageChange}
+                    className="mt-2"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Título"
+                    value={newImageTitle}
+                    onChange={(e) => setNewImageTitle(e.target.value)}
+                    className="mt-2 w-full border border-gray-300 rounded-md p-2"
+                  />
+                  <textarea
+                    placeholder="Descripción"
+                    value={newImageDescription}
+                    onChange={(e) => setNewImageDescription(e.target.value)}
+                    className="mt-2 w-full border border-gray-300 rounded-md p-2"
+                  />
+                  <DialogFooter>
+                    <DialogClose className="bg-gray-200 text-black px-4 py-2 rounded-md hover:bg-gray-300">
+                      Cancelar
+                    </DialogClose>
+                    <button
+                      onClick={handleAddImageSubmit}
+                      className="bg-brand text-white px-4 py-2 rounded-md hover:bg-brand/90"
+                    >
+                      Agregar
+                    </button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
