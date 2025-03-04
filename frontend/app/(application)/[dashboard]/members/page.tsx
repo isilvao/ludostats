@@ -370,7 +370,9 @@ const DataTableDemo: React.FC = () => {
       <div className="flex items-center py-4 justify-between">
         <h1 className="text-3xl font-bold text-brand2">Miembros</h1>
         <div className="flex items-center space-x-5 h-10">
-          {(rolClub === 'admin' || rolClub === 'gerente') && (
+          {(rolClub === 'admin' ||
+            rolClub === 'gerente' ||
+            rolClub === 'entrenador') && (
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>

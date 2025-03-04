@@ -60,7 +60,7 @@ const Navbar = () => {
           href="/sign-up?next=/join"
           className="hover:text-gray-700 transition"
         >
-          Unirme a un club
+          Unirme a un equipo
         </Link>
         <Link
           href="/sign-in"

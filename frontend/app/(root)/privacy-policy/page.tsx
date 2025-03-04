@@ -22,7 +22,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Section title="Introducción">
           <p>
-            Nuestras políticas están diseñadas para cumplir con la legislación
+            LudoStats respeta tu privacidad y cumple con la legislación
             colombiana, específicamente la <strong>Ley 1581 de 2012</strong> y
             el <strong>Decreto 1377 de 2013</strong>, además de considerar
             regulaciones internacionales como el{' '}
@@ -30,9 +30,8 @@ const PrivacyPolicy: React.FC = () => {
             para usuarios de otros países.
           </p>
           <p>
-            Reconocemos la importancia de la protección especial que merecen los
-            datos de menores de edad y establecemos mecanismos adicionales para
-            garantizar su privacidad y seguridad.
+            Si utilizas nuestra plataforma, aceptas el tratamiento de tus datos
+            según lo establecido en esta política.
           </p>
         </Section>
 
@@ -40,7 +39,7 @@ const PrivacyPolicy: React.FC = () => {
           <ul className="list-disc list-inside">
             <li>
               <strong>Titular de los datos:</strong> Persona cuyos datos
-              personales son objeto de tratamiento.
+              personales son tratados.
             </li>
             <li>
               <strong>Responsable del tratamiento:</strong> La empresa
@@ -62,43 +61,40 @@ const PrivacyPolicy: React.FC = () => {
           </ul>
         </Section>
 
+        <Section title="Reglas sobre la Creación de Cuentas">
+          <ul className="list-disc list-inside">
+            <li>Solo los mayores de edad pueden crear cuentas en LudoStats.</li>
+            <li>
+              Un adulto puede registrar a un menor como parte de su cuenta (por
+              ejemplo, un padre agregando a su hijo).
+            </li>
+            <li>
+              No permitimos que los menores de edad creen cuentas
+              independientes.
+            </li>
+          </ul>
+        </Section>
+
         <Section title="Finalidad del Tratamiento de Datos">
-          <p>
-            La recopilación y uso de los datos personales se realizará
-            únicamente para:
-          </p>
+          <p>Los datos recopilados se utilizarán únicamente para:</p>
           <ul className="list-decimal list-inside">
+            <li>Gestionar cuentas y perfiles de usuario.</li>
             <li>
-              Gestionar la creación y administración de perfiles de usuarios.
+              Facilitar pagos de suscripciones, torneos y otros servicios.
             </li>
             <li>
-              Facilitar pagos de suscripciones, torneos y otros servicios del
-              club.
+              Registrar estadísticas deportivas y rendimiento de los usuarios.
             </li>
-            <li>Registrar estadísticas deportivas de los usuarios.</li>
-            <li>
-              Gestionar la trazabilidad de compras, inventarios y proveedores
-              del club.
-            </li>
-            <li>Comunicar eventos, torneos y actividades relacionadas.</li>
-            <li>
-              Garantizar la seguridad y trazabilidad de los usuarios,
-              especialmente menores de edad.
-            </li>
-            <li>
-              Ofrecer servicios personalizados basados en el rendimiento y
-              preferencias deportivas.
-            </li>
+            <li>Comunicar eventos, torneos y actividades.</li>
+            <li>Garantizar la seguridad y trazabilidad de los usuarios.</li>
+            <li>Mejorar nuestros servicios con análisis de datos agregados.</li>
           </ul>
         </Section>
 
         <Section title="Recolección de Datos Personales">
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            A. Información Solicitada
+            5.1 Datos de Adultos
           </h3>
-          <p>
-            <strong>Para adultos:</strong>
-          </p>
           <ul className="list-disc list-inside">
             <li>Nombre completo.</li>
             <li>Documento de identidad (Cédula, Pasaporte, etc.).</li>
@@ -107,18 +103,17 @@ const PrivacyPolicy: React.FC = () => {
             <li>Información de contacto (correo electrónico y teléfono).</li>
             <li>Datos financieros para pagos.</li>
           </ul>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            5.2 Datos de Menores de Edad
+          </h3>
           <p>
-            <strong>Para menores de edad:</strong>
+            Si un usuario adulto agrega a un menor a su cuenta, solo
+            recopilamos:
           </p>
           <ul className="list-disc list-inside">
             <li>Nombre completo del menor.</li>
             <li>
-              Documento de identidad del menor (Tarjeta de identidad o
-              equivalente).
-            </li>
-            <li>Fecha de nacimiento del menor.</li>
-            <li>
-              Información del acudiente:
+              Adicionalmente, recopilamos información del acudiente:
               <ul className="list-disc list-inside ml-6">
                 <li>Nombre completo.</li>
                 <li>Documento de identidad.</li>
@@ -126,47 +121,96 @@ const PrivacyPolicy: React.FC = () => {
               </ul>
             </li>
           </ul>
+          <p>
+            No recopilamos información adicional de los menores sin
+            consentimiento explícito del acudiente.
+          </p>
         </Section>
 
-        <Section title="Consentimiento">
+        <Section title="Consentimiento y Protección de Datos de Menores">
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            Para menores de edad:
+            6.1 Para menores de edad:
           </h3>
           <ul className="list-disc list-inside">
             <li>
-              La creación de un perfil de usuario para un menor de edad está
-              condicionada a la autorización explícita y documentada de su
-              acudiente legal.
+              El registro de un menor en la plataforma solo es posible si un
+              adulto lo agrega a su cuenta.
             </li>
             <li>
-              El consentimiento deberá incluir:
-              <ul className="list-disc list-inside ml-6">
-                <li>Aceptación del tratamiento de datos.</li>
-                <li>
-                  Autorización para que el menor acceda a los servicios del
-                  club.
-                </li>
-                <li>Reconocimiento de las políticas de privacidad.</li>
-              </ul>
+              Se requiere autorización del acudiente para el tratamiento de los
+              datos del menor.
             </li>
             <li>
-              La página web no permitirá que un menor de edad realice pagos o
-              participe en actividades sin la aprobación de su acudiente.
+              No permitimos que los menores de edad realicen pagos o participen
+              en actividades sin aprobación del acudiente.
+            </li>
+            <li>
+              Los acudientes pueden eliminar la información de su hijo en
+              cualquier momento.
             </li>
           </ul>
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            Para usuarios en general:
+            6.2 Para todos los usuarios:
           </h3>
           <ul className="list-disc list-inside">
             <li>
-              Se solicitará consentimiento explícito para la recolección y uso
-              de datos durante el registro en la plataforma.
+              Al registrarse en LudoStats, el usuario otorga consentimiento
+              explícito para la recolección y uso de sus datos personales.
+            </li>
+            <li>
+              En cualquier momento, los usuarios pueden revocar su
+              consentimiento o solicitar la eliminación de sus datos.
+            </li>
+          </ul>
+        </Section>
+
+        <Section title="Derechos de los Usuarios sobre sus Datos">
+          <p>Los usuarios tienen derecho a:</p>
+          <ul className="list-disc list-inside">
+            <li>
+              Acceder a sus datos personales almacenados en nuestra plataforma.
+            </li>
+            <li>
+              Rectificar cualquier información incorrecta o desactualizada.
+            </li>
+            <li>Eliminar su cuenta y los datos asociados.</li>
+            <li>Solicitar información sobre cómo tratamos sus datos.</li>
+          </ul>
+          <p>
+            Para ejercer estos derechos, contáctanos a{' '}
+            <a
+              href="mailto:privacidad@ludostats.com"
+              className="text-blue-600 underline"
+            >
+              privacidad@ludostats.com
+            </a>
+            .
+          </p>
+        </Section>
+
+        <Section title="Seguridad y Almacenamiento de Datos">
+          <ul className="list-disc list-inside">
+            <li>
+              Usamos protocolos de seguridad y cifrado para proteger la
+              información de nuestros usuarios.
+            </li>
+            <li>Los datos solo son accesibles por personal autorizado.</li>
+            <li>
+              No vendemos ni compartimos datos personales con terceros sin
+              consentimiento.
+            </li>
+            <li>
+              Los datos se almacenan por el tiempo necesario para cumplir con
+              nuestras finalidades y obligaciones legales.
             </li>
           </ul>
         </Section>
 
         <Section title="Contacto">
-          <p>Si tienes preguntas sobre esta política, contáctanos:</p>
+          <p>
+            Si tienes preguntas sobre esta política de privacidad, puedes
+            contactarnos:
+          </p>
           <ul className="list-disc list-inside">
             <li>
               <a

@@ -16,7 +16,7 @@ const FAQSection: React.FC = () => {
     {
       question: '¿Qué es LudoStats y para qué sirve?',
       answer:
-        'LudoStats es una plataforma diseñada para ayudar a los clubes deportivos a gestionar miembros, controlar pagos, analizar estadísticas y optimizar sus operaciones.',
+        'LudoStats es una plataforma diseñada para ayudar a los clubes deportivos a gestionar miembros, crear eventos, analizar estadísticas y optimizar sus operaciones.',
     },
     {
       question: '¿Puedo usar LudoStats para varios clubes?',
@@ -31,7 +31,7 @@ const FAQSection: React.FC = () => {
     {
       question: '¿LudoStats es seguro para almacenar datos?',
       answer:
-        'Sí, utilizamos estándares de seguridad de nivel empresarial, como encriptación de datos y copias de seguridad regulares, para garantizar que tu información esté protegida.',
+        'Sí, utilizamos altos estándares de seguridad, como encriptación de datos y copias de seguridad regulares, para garantizar que tu información esté protegida.',
     },
     {
       question: '¿Ofrecen soporte técnico en caso de problemas?',

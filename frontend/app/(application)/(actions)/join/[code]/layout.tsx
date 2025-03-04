@@ -8,6 +8,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { getClubLogo } from '@/lib/utils';
 import { IoMdAlert } from 'react-icons/io';
 import { useAuth } from '@/hooks';
+import Link from 'next/link';
 
 export default function Layout({
   children,
@@ -99,12 +100,12 @@ export default function Layout({
           </div>
           <div className="mt-8 text-center text-sm text-gray-500">
             ¿Necesitas ayuda?{' '}
-            <a
-              href="#"
-              className="text-blue underline hover:text-blue/80 transition"
+            <Link
+              href="/contact"
+              className="text-brand underline hover:text-brand/80 transition"
             >
               Contáctanos.
-            </a>
+            </Link>
           </div>
         </div>
       )}

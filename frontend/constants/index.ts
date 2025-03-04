@@ -16,7 +16,7 @@ export const features = [
   },
   {
     title: 'Gestión integral',
-    description: 'Administra calendarios, pagos y resultados.',
+    description: 'Administra calendarios, miembros y resultados.',
     icon: '/assets/icons/building.svg',
   },
   {
@@ -31,14 +31,14 @@ export const characteristics = [
     title:
       'Todo lo que necesitas para gestionar tu club deportivo, al alcance de tu mano',
     description:
-      'Olvídate de manejar pagos manualmente o perder tiempo en hojas de cálculo. Con nuestra pasarela de pagos integrada, los estudiantes, deportistas y acudientes pueden realizar sus pagos de forma segura y automática. Además, podrás consultar un historial detallado para un control total de las finanzas.',
+      'Simplifica la gestión de tu club con nuestra suscripción premium. Accede a herramientas avanzadas para organizar equipos, programar eventos y llevar un control eficiente de la actividad deportiva. Olvídate de procesos manuales y optimiza la administración con una plataforma diseñada para hacer tu trabajo más fácil.',
     image: '/assets/images/creditCard.svg',
     href: '/features',
   },
   {
-    title: 'Organización de Torneos y Eventos',
+    title: 'Organización de Eventos',
     description:
-      'Planea cada evento de tu club sin estrés. Crea calendarios de entrenamientos, partidos y reuniones con notificaciones automáticas para todos los interesados. Organiza torneos con fases de grupos, llaves de eliminación directa y tablas de posiciones que se actualizan en tiempo real.',
+      'Planea cada evento de tu club sin estrés. Crea calendarios de entrenamientos, partidos y reuniones con notificaciones automáticas para todos los interesados.',
     image: '/assets/images/calendar.svg',
     href: '/features',
   },

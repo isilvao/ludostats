@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FaLock, FaEnvelope } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const JoinClubPage: React.FC = () => {
   const [clubCode, setClubCode] = useState('');
@@ -30,8 +31,8 @@ const JoinClubPage: React.FC = () => {
             <FaLock className="mr-2 text-green-500" /> Por código secreto
           </h2>
           <p className="text-gray-600 text-sm mb-4">
-            El responsable del club te ha enviado un código secreto para unirte
-            al club.
+            El responsable del equipo te ha enviado un código secreto para
+            unirte al equipo.
           </p>
           <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:ring-2 focus-within:ring-brand max-w-xs mx-auto">
             <input
@@ -62,12 +63,12 @@ const JoinClubPage: React.FC = () => {
 
       <div className="mt-8 text-center text-sm text-gray-500">
         ¿Necesitas ayuda?{' '}
-        <a
-          href="#"
-          className="text-blue underline hover:text-blue/80 transition"
+        <Link
+          href="/contact"
+          className="text-brand underline hover:text-brand/80 transition"
         >
           Contáctanos.
-        </a>
+        </Link>
       </div>
     </div>
   );

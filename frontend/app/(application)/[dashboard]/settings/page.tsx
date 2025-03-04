@@ -55,10 +55,7 @@ const editSchema = z.object({
 
 const EditPage = () => {
   const {
-    equipoData,
     clubData,
-    setEquipoSeleccionado,
-    setClubSeleccionado,
     updateClubLogo,
     updateClubName,
     updateDescripcionClub,

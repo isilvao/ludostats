@@ -18,12 +18,6 @@ const Functionalities: React.FC = () => {
       icon: <FaUsers size={48} className="text-blue-500 mb-4" />,
     },
     {
-      title: 'Control de Pagos',
-      description:
-        'Simplifica los pagos con recordatorios automáticos, informes financieros y múltiples métodos de pago integrados.',
-      icon: <FaMoneyBillWave size={48} className="text-green-500 mb-4" />,
-    },
-    {
       title: 'Estadísticas Avanzadas',
       description:
         'Obtén análisis detallados sobre el rendimiento de los equipos y miembros para tomar decisiones informadas.',
@@ -32,7 +26,7 @@ const Functionalities: React.FC = () => {
     {
       title: 'Notificaciones en Tiempo Real',
       description:
-        'Mantente al tanto con notificaciones automáticas para eventos, pagos y actualizaciones importantes.',
+        'Mantente al tanto con notificaciones automáticas para eventos y actualizaciones importantes.',
       icon: <FaBell size={48} className="text-yellow-500 mb-4" />,
     },
     {
@@ -42,10 +36,10 @@ const Functionalities: React.FC = () => {
       icon: <FaCalendarAlt size={48} className="text-red-500 mb-4" />,
     },
     {
-      title: 'Gestión Documental',
+      title: 'Exportación de Datos',
       description:
-        'Sube, comparte y gestiona documentos importantes como contratos, reglamentos o reportes desde una única plataforma.',
-      icon: <FaFileAlt size={48} className="text-teal-500 mb-4" />,
+        'Exporta fácilmente datos de miembros, estadísticas y eventos a formatos como CSV y Excel para un análisis más profundo.',
+      icon: <FaFileAlt size={48} className="text-orange-500 mb-4" />,
     },
   ];
 

@@ -11,8 +11,8 @@ const Hero = () => {
           <span className="text-[#4CAF4F]">club deportivo</span>
         </h1>
         <p className="text-base lg:text-lg mt-4 text-[#717171]">
-          LudoStats: Administra tu equipo, organiza torneos, gestiona pagos y
-          mucho más en un solo lugar.
+          LudoStats: Administra tu equipo, organiza eventos y mucho más en un
+          solo lugar.
         </p>
         <div className="mt-6 flex flex-col sm:flex-row gap-4 text-center">
           <Link
